@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>Ruzzie.Common.Numerics</id>
+    <version>$version$</version>
+    <title>Ruzzie.Common.Numerics</title>
+    <authors>Dorus Verhoeckx</authors>
+    <owners>Dorus Verhoeckx</owners>
+    <projectUrl>https://github.com/Ruzzie/Ruzzie.Common</projectUrl>
+	<licenseUrl>https://github.com/Ruzzie/Ruzzie.Common/blob/master/LICENSE.md</licenseUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Common libraries used in other projects</description>
+    <!--<releaseNotes>Summary of changes made in this release of the package.</releaseNotes>-->
+    <copyright>Copyright © Dorus Verhoeckx 2015</copyright>   
+  </metadata>
+   <files>
+		<file src="..\..\..\LICENSE.md" />
+		<file src="bin\Release\" target="lib\portable-net45+win+wpa81+wp80" />
+    </files>
+</package>
