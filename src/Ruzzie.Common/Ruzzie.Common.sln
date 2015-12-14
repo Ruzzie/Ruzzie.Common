@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ruzzie.Common.Numerics.UnitTests", "Ruzzie.Common.Numerics.UnitTests\Ruzzie.Common.Numerics.UnitTests.csproj", "{CD4B52C3-F674-4207-80D1-BE5A4134DC40}"
-EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Ruzzie.Common", "Ruzzie.Common\Ruzzie.Common.shproj", "{D77325B2-3211-45D2-B7C0-3FB5043DF24D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ruzzie.Common.Portable", "Ruzzie.Common.Portable\Ruzzie.Common.Portable.csproj", "{3331258F-72BC-4EB6-80C4-8AFB6F105615}"
@@ -25,10 +23,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{CD4B52C3-F674-4207-80D1-BE5A4134DC40}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{CD4B52C3-F674-4207-80D1-BE5A4134DC40}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{CD4B52C3-F674-4207-80D1-BE5A4134DC40}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{CD4B52C3-F674-4207-80D1-BE5A4134DC40}.Release|Any CPU.Build.0 = Release|Any CPU
 		{3331258F-72BC-4EB6-80C4-8AFB6F105615}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{3331258F-72BC-4EB6-80C4-8AFB6F105615}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3331258F-72BC-4EB6-80C4-8AFB6F105615}.Release|Any CPU.ActiveCfg = Release|Any CPU
