@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using System;
+using NUnit.Framework;
 
 namespace Ruzzie.Common.Numerics.UnitTests
 {
@@ -17,15 +18,19 @@ namespace Ruzzie.Common.Numerics.UnitTests
             Assert.That(PrimeHelper.IsPrime(number),Is.EqualTo(expected));
         }
 
+        [TestCase(0,3)]
         [TestCase(1,3)]
+        [TestCase(2,3)]
         [TestCase(700,761)]
         [TestCase(123123, 130363)]
         [TestCase(7199368, 7199369)]
         [TestCase(9199361, 9199391)]
         [TestCase(9199391, 9199391)]
-        public void GetPrime(int min, int expected)
+        [TestCase(Int64.MaxValue,3)]
+        [TestCase(Int64.MaxValue-2,3)]
+        public void GetPrime(long min, long expected)
         {
-            Assert.That(PrimeHelper.GetPrime(min),Is.EqualTo(expected));
+            Assert.That(min.GetPrime(),Is.EqualTo(expected));
         }     
     }
 }

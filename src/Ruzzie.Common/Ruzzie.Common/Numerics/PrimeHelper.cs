@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Ruzzie.Common.Numerics
+﻿namespace Ruzzie.Common.Numerics
 {
     //http://www.dotnetperls.com/prime
     /// <summary>
@@ -40,12 +38,17 @@ namespace Ruzzie.Common.Numerics
         }
 
         /// <summary>
-        /// Get the first prime number hat is equal to or greater than the parameter. Excluding some common used primes in the framework.
+        /// Get the first (positive) prime number hat is equal to or greater than the parameter. Excluding some common used primes in the framework.
         /// </summary>
         /// <param name="min">The minimum value from which to start the search.</param>
         /// <returns>A prime number equal or greater than the parameter.</returns>
+        /// <remarks>primes can only be positive, when a negative value is given the first positive prime will be returned.</remarks>
         public static long GetPrime(this long min)
         {
+            if (min < 0)
+            {
+                min = 0;
+            }
             //
             // Get the first hashtable prime number
             // ... that is equal to or greater than the parameter.
@@ -58,15 +61,21 @@ namespace Ruzzie.Common.Numerics
                     return num2;
                 }
             }
-
-            for (long j = min | 1; j < Int64.MaxValue -2/*2147483647*/; j += 2)
+            unchecked
             {
-                if (IsPrime(j))
+                for (long j = min | 1;; j += 2)
                 {
-                    return j;
+                    if (j < 0)
+                    {
+                        return GetPrime(j);
+                    }
+
+                    if (IsPrime(j))
+                    {
+                        return j;
+                    }
                 }
             }
-            return min;
         }
 
         /// <summary>
