@@ -10,7 +10,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)AssemblyInfo.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Collections\ConcurrentCircularOverwriteBuffer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Numerics\PowerOfTwoHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Numerics\PrimeHelper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Threading\Volatile.cs" />
   </ItemGroup>
 </Project>

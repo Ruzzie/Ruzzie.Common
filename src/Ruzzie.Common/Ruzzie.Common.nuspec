@@ -16,5 +16,6 @@
    <files>
 		<file src="..\..\LICENSE.md" />
 		<file src="Ruzzie.Common.Portable\bin\Release\" target="lib\portable-net45+sl50+netcore45+wpa81+wp8" />
+		<file src="Ruzzie.Common.NET46\bin\Release\" target="lib\net461\" />
     </files>
 </package>

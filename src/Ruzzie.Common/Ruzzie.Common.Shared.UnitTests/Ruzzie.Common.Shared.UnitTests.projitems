@@ -9,6 +9,7 @@
     <Import_RootNamespace>Ruzzie.Common.Shared.UnitTests</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Collections\ConcurrentCircularOverwriteBufferTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Numerics\PowerOfTwoHelperTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Numerics\PrimeHelperTests.cs" />
   </ItemGroup>

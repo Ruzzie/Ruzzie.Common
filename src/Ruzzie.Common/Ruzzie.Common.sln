@@ -11,9 +11,15 @@ Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Ruzzie.Common.Shared.UnitTe
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ruzzie.Common.Portable.UnitTests", "Ruzzie.Common.Portable.UnitTests\Ruzzie.Common.Portable.UnitTests.csproj", "{AD870E12-9851-41FE-B13F-6D28F28E4D7B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ruzzie.Common.NET46.UnitTests", "Ruzzie.Common.NET46.UnitTests\Ruzzie.Common.NET46.UnitTests.csproj", "{5692EE4E-0C9E-4FC8-B461-8EB2F7039DCA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ruzzie.Common.NET46", "Ruzzie.Common.NET46\Ruzzie.Common.NET46.csproj", "{686A7187-BC41-4ECB-BF65-4EE366124F73}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		Ruzzie.Common\Ruzzie.Common.projitems*{686a7187-bc41-4ecb-bf65-4ee366124f73}*SharedItemsImports = 4
 		Ruzzie.Common\Ruzzie.Common.projitems*{3331258f-72bc-4eb6-80c4-8afb6f105615}*SharedItemsImports = 4
+		Ruzzie.Common.Shared.UnitTests\Ruzzie.Common.Shared.UnitTests.projitems*{5692ee4e-0c9e-4fc8-b461-8eb2f7039dca}*SharedItemsImports = 4
 		Ruzzie.Common\Ruzzie.Common.projitems*{d77325b2-3211-45d2-b7c0-3fb5043df24d}*SharedItemsImports = 13
 		Ruzzie.Common.Shared.UnitTests\Ruzzie.Common.Shared.UnitTests.projitems*{d8f4f718-aee8-4808-8ef7-5aa89cdd7567}*SharedItemsImports = 13
 		Ruzzie.Common.Shared.UnitTests\Ruzzie.Common.Shared.UnitTests.projitems*{ad870e12-9851-41fe-b13f-6d28f28e4d7b}*SharedItemsImports = 4
@@ -31,6 +37,14 @@ Global
 		{AD870E12-9851-41FE-B13F-6D28F28E4D7B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AD870E12-9851-41FE-B13F-6D28F28E4D7B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AD870E12-9851-41FE-B13F-6D28F28E4D7B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5692EE4E-0C9E-4FC8-B461-8EB2F7039DCA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5692EE4E-0C9E-4FC8-B461-8EB2F7039DCA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5692EE4E-0C9E-4FC8-B461-8EB2F7039DCA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5692EE4E-0C9E-4FC8-B461-8EB2F7039DCA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{686A7187-BC41-4ECB-BF65-4EE366124F73}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{686A7187-BC41-4ECB-BF65-4EE366124F73}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{686A7187-BC41-4ECB-BF65-4EE366124F73}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{686A7187-BC41-4ECB-BF65-4EE366124F73}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
