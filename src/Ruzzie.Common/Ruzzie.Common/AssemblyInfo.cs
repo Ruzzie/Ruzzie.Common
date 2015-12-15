@@ -1,6 +1,9 @@
-﻿using System.Resources;
+﻿using System;
+using System.Resources;
 using System.Reflection;
-
+#if !PORTABLE
+using System.Runtime.InteropServices;
+#endif
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
@@ -26,3 +29,8 @@ using System.Reflection;
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
+[assembly: CLSCompliant(true)]
+
+#if !PORTABLE
+[assembly:ComVisible(false)]
+#endif

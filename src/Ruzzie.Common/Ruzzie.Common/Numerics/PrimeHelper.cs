@@ -6,15 +6,7 @@
     /// </summary>
     public static class PrimeHelper
     {
-        private static readonly long[] Primes;
-
-        static PrimeHelper()
-        {
-            //
-            // Initialize array of first primes before methods are called.
-            //
-            Primes = new long[]
-            {
+        private static readonly long[] Primes = {
                 3, 7, 11, 17, 23, 29, 37,
                 47, 59, 71, 89, 107, 131,
                 163, 197, 239, 293, 353,
@@ -35,7 +27,6 @@
                 4166287, 4999559, 5999471,
                 7199369
             };
-        }
 
         /// <summary>
         /// Get the first (positive) prime number hat is equal to or greater than the parameter. Excluding some common used primes in the framework.

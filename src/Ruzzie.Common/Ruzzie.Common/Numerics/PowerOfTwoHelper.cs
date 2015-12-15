@@ -89,11 +89,21 @@ namespace Ruzzie.Common.Numerics
         /// <summary>
         /// Determines whether the value is a power of two.
         /// </summary>
-        /// <param name="x">The x.</param>
+        /// <param name="candidate">The x.</param>
         /// <returns>true if x is a power of two, otherwise false.</returns>
-        public static bool IsPowerOfTwo(this uint x)
+        private static bool IsPowerOfTwo(this uint candidate)
         {          
-            return ((x & (x - 1)) == 0);
+            return ((candidate & (candidate - 1)) == 0);
+        }
+
+        /// <summary>
+        /// Determines whether the value is a power of two.
+        /// </summary>
+        /// <param name="candidate">The x.</param>
+        /// <returns>true if x is a power of two, otherwise false.</returns>
+        public static bool IsPowerOfTwo(this long candidate)
+        {
+            return (IsPowerOfTwo((uint) candidate));
         }
     }
 }

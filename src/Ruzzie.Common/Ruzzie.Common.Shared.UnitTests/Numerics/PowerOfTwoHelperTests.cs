@@ -59,13 +59,13 @@ namespace Ruzzie.Common.Numerics.UnitTests
             Assert.That(()=>value.FindNearestPowerOfTwoEqualOrLessThan(), Throws.TypeOf<ArgumentOutOfRangeException>());
         }
 
-        [TestCase((uint) 2,true)]
-        [TestCase((uint) 3, false)]
-        [TestCase((uint) 1024, true)]
-        [TestCase((uint) 999, false)]
-        [TestCase((uint) 1073741824, true)]
-        [TestCase((uint) 2073741824, false)]
-        public void IsPowerOfTwoTests(uint value, bool expected)
+        [TestCase(2,true)]
+        [TestCase(3, false)]
+        [TestCase(1024, true)]
+        [TestCase(999, false)]
+        [TestCase(1073741824, true)]
+        [TestCase(2073741824, false)]
+        public void IsPowerOfTwoTests(long value, bool expected)
         {
             Assert.That(value.IsPowerOfTwo(), Is.EqualTo(expected));
         }
