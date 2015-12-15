@@ -12,5 +12,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Collections\ConcurrentCircularOverwriteBufferTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Numerics\PowerOfTwoHelperTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Numerics\PrimeHelperTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Threading\VolatileTests.cs" />
   </ItemGroup>
 </Project>
