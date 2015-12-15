@@ -42,15 +42,14 @@ namespace Ruzzie.Common.Numerics
                 throw new ArgumentOutOfRangeException(nameof(value), "Cannot be negative.");
             }
 
-            const int maxSignedPowerOfTwo = 1073741824;
+            const int maxPowerOfTwoValueForInt32 = 1 << 30;//1073741824;
             uint result = FindNearestPowerOfTwoEqualOrGreaterThan((uint) value);
 
-            if (result > maxSignedPowerOfTwo)
+            if (result > maxPowerOfTwoValueForInt32)
             {
                 throw new ArgumentOutOfRangeException(
                     nameof(value),
-                    "The value given would result in a value greater than 2^32 for a signed integer. Maximum value supported is " +
-                    maxSignedPowerOfTwo);
+                    $"The value given would result in a value greater than 2^32 for a signed integer. Maximum value supported is {maxPowerOfTwoValueForInt32}");
             }
             return Convert.ToInt32(result);
         }
@@ -91,7 +90,7 @@ namespace Ruzzie.Common.Numerics
         /// Determines whether the value is a power of two.
         /// </summary>
         /// <param name="x">The x.</param>
-        /// <returns></returns>
+        /// <returns>true if x is a power of two, otherwise false.</returns>
         public static bool IsPowerOfTwo(this uint x)
         {          
             return ((x & (x - 1)) == 0);
