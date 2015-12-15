@@ -1,5 +1,5 @@
 ﻿using NUnit.Framework;
-using Ruzzie.Caching.Threading;
+using Ruzzie.Common.Threading;
 
 namespace Ruzzie.Common.Shared.UnitTests.Threading
 {

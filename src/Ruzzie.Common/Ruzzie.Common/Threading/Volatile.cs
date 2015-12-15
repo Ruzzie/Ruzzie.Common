@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 
-namespace Ruzzie.Caching.Threading
+namespace Ruzzie.Common.Threading
 {
     /// <summary>
     /// Contains methods for performing volatile memory operations.
