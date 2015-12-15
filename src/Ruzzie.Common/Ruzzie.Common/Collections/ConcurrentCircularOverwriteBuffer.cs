@@ -5,7 +5,7 @@ using Ruzzie.Common.Numerics;
 //since volatile is used with interlocking, disable the warning.
 #pragma warning disable 420
 
-namespace Ruzzie.Caching.Collections
+namespace Ruzzie.Common.Collections
 {
     /// <summary>
     ///     Circular buffer that overwrites values when the capacity is reached.

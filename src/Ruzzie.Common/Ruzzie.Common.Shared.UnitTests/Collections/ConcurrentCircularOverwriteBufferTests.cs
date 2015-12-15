@@ -7,7 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using NUnit.Framework;
 
-namespace Ruzzie.Caching.Collections.Tests
+namespace Ruzzie.Common.Collections.Tests
 {
     [TestFixture]
     public class ConcurrentCircularOverwriteBufferTests
