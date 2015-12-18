@@ -41,13 +41,13 @@ namespace Ruzzie.Common.Numerics.UnitTests
         }
 
         [Test]
-        public void FindNearestPowerOfTwoShouldThrowArgumentExceptionWhenTargetValueWouldBegreaterThanMaxInt32()
+        public void FindNearestPowerOfTwoThrowsArgumentExceptionWhenTargetValueWouldBegreaterThanMaxInt32()
         {
             Assert.That(() => (int.MaxValue - 1).FindNearestPowerOfTwoEqualOrGreaterThan(), Throws.TypeOf<ArgumentOutOfRangeException>());
         }
 
         [Test]
-        public void FindNearestPowerOfTwoShouldThrowArgumentExceptionWhenTargetValueIsLessThan0()
+        public void FindNearestPowerOfTwoThrowsArgumentExceptionWhenTargetValueIsLessThan0()
         {
             Assert.That(() => (-100).FindNearestPowerOfTwoEqualOrGreaterThan(), Throws.TypeOf<ArgumentOutOfRangeException>());
         }

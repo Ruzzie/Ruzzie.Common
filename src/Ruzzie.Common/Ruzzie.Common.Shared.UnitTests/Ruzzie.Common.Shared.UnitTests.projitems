@@ -10,8 +10,14 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)Collections\ConcurrentCircularOverwriteBufferTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Collections\ConcurrentCircularOverwriteBufferThreadingTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Numerics\Distributions\ChiSquaredTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Numerics\PowerOfTwoHelperTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Numerics\PrimeHelperTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Numerics\Statistics\EntropyTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Numerics\Statistics\HistogramTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Numerics\Statistics\StreamAverageTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Numerics\Statistics\ZProbabilityTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Threading\VolatileTests.cs" />
   </ItemGroup>
 </Project>
