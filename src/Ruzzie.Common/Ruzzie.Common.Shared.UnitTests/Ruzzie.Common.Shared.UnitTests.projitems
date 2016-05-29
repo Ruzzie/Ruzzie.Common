@@ -18,6 +18,9 @@
     <Compile Include="$(MSBuildThisFileDirectory)Numerics\Statistics\HistogramTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Numerics\Statistics\StreamAverageTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Numerics\Statistics\ZProbabilityTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)RandomnessTester.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SimpleRandomMultithreadedTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SimpleRandomTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Threading\VolatileTests.cs" />
   </ItemGroup>
 </Project>

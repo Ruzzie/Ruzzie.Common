@@ -18,6 +18,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)Numerics\Statistics\Average.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Numerics\Statistics\Entropy.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Numerics\Statistics\Histogram.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)RandomExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SimpleRandom.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Threading\Volatile.cs" />
   </ItemGroup>
 </Project>
