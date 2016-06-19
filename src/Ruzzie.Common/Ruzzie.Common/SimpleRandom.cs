@@ -163,7 +163,7 @@ namespace Ruzzie.Common
 
             private void InitializeNewBuffer(int seed)
             {
-                _buffer = new ConcurrentCircularOverwriteBuffer<ulong>(Environment.ProcessorCount*2);
+                _buffer = new ConcurrentCircularOverwriteBuffer<ulong>(Environment.ProcessorCount*4);
                 GenerateSampleFromSeed(seed);
             }
 

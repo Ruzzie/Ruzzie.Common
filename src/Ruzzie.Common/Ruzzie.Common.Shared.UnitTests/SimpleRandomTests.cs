@@ -11,6 +11,15 @@ namespace Ruzzie.Common.Shared.UnitTests
     {
 
         [Test]
+        public void NextBytesThrowsExceptionWhenBufferIsNull()
+        {
+            SimpleRandom random = new SimpleRandom();
+
+            // ReSharper disable once AssignNullToNotNullAttribute
+            Assert.That(()=> random.NextBytes(null), Throws.Exception);
+        }
+
+        [Test]
         [TestCase(0,10)]
         [TestCase(1,10)]
         [TestCase(-5,0)]

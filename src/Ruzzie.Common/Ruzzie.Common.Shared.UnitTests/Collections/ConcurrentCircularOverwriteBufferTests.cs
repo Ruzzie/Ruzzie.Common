@@ -59,6 +59,18 @@ namespace Ruzzie.Common.Collections.Tests
 
             Assert.That(buffer.ReadNext(), Is.EqualTo(8));
             Assert.That(buffer.ReadNext(), Is.EqualTo(9));
+        }       
+
+        [Test]
+        public void CountShouldReturnAccurateCountWhenReadAndWriteIndexAreMultipleOfCapacityWithRemainder()
+        {
+            ConcurrentCircularOverwriteBuffer<byte> buffer = new ConcurrentCircularOverwriteBuffer<byte>(3);
+            buffer.WriteNext(1);
+            buffer.WriteNext(2);
+            
+            buffer.ReadNext();
+
+            Assert.That(buffer.Count, Is.EqualTo(1));
         }
     }
 }

@@ -17,11 +17,36 @@ namespace Ruzzie.Common.Collections
     {
         private const int DefaultBufferSize = 1024;
         private readonly int _capacity;
-        private volatile T[] _buffer;
-        private volatile int _writeHeader;
-        private volatile int _readHeader;
-        private volatile int _count;
-        private readonly int _indexMask;
+        private readonly T[] _buffer;
+        private readonly long _indexMask;
+        private long _writeHeader;
+        private long _readHeader;
+
+        /// <summary>
+        ///     Returns the number of values in the buffer.
+        /// </summary>
+        /// <value>
+        ///     The current item count of the buffer.
+        /// </value>
+        public long Count
+        {
+            get
+            {
+                long itemCount = ((_writeHeader + 1) - (_readHeader + 1));
+
+                if (itemCount == 0)
+                {
+                    return 0;
+                }
+                long remainder = (itemCount%_capacity);
+
+                if (remainder > 0)
+                {
+                    return itemCount/_capacity + remainder;
+                }
+                return _capacity;
+            }
+        }
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="ConcurrentCircularOverwriteBuffer{T}" /> class. With default buffer
@@ -50,19 +75,8 @@ namespace Ruzzie.Common.Collections
             _buffer = new T[_capacity];
             _indexMask = _capacity - 1;
 
-            _writeHeader = _indexMask;
-            _readHeader = _indexMask;
-        }
-
-        /// <summary>
-        ///     Returns the number of values in the buffer.
-        /// </summary>
-        /// <value>
-        ///     The current item count of the buffer.
-        /// </value>
-        public int Count
-        {
-            get { return _count; }
+            _writeHeader = -1; //_indexMask;
+            _readHeader = -1; //_indexMask;
         }
 
         /// <summary>
@@ -104,20 +118,14 @@ namespace Ruzzie.Common.Collections
         /// <param name="value">The value to write</param>
         public void WriteNext(T value)
         {
-            int writeHeaderLocal = _writeHeader;
+            long writeHeaderLocal = _writeHeader;
 
-            while (Interlocked.CompareExchange(ref _writeHeader, NextIndex(writeHeaderLocal), writeHeaderLocal) != writeHeaderLocal)
+            while (Interlocked.CompareExchange(ref _writeHeader, writeHeaderLocal + 1, writeHeaderLocal) != writeHeaderLocal)
             {
-                SpinWait();
                 writeHeaderLocal = _writeHeader;
             }
 
-            _buffer[writeHeaderLocal] = value;
-
-            if (_count < _capacity)
-            {
-                Interlocked.Increment(ref _count);
-            }
+            _buffer[writeHeaderLocal & _indexMask] = value;
         }
 
         /// <summary>
@@ -143,47 +151,29 @@ namespace Ruzzie.Common.Collections
         /// <returns>true if a value could be read. If no next value is present false will be returned.</returns>
         public bool ReadNext(out T value)
         {
-            if (_count == 0)
+            long readHeaderLocal = _readHeader; //Volatile.ReadValueType(ref _readHeader);
+
+            if (!HasNext(ref readHeaderLocal, ref _writeHeader))
             {
                 value = default(T);
                 return false;
             }
 
-            int readHeaderLocal = _readHeader;
-
-            while (Interlocked.CompareExchange(ref _readHeader, NextIndex(readHeaderLocal), readHeaderLocal) != readHeaderLocal)
+            while (Interlocked.CompareExchange(ref _readHeader, readHeaderLocal + 1, readHeaderLocal) != readHeaderLocal)
             {
-                SpinWait();
                 readHeaderLocal = _readHeader;
             }
 
-            value = _buffer[readHeaderLocal];
-
-            Interlocked.Decrement(ref _count);
+            value = _buffer[readHeaderLocal & _indexMask];
 
             return true;
         }
 
-        private int NextIndex(int currentHeader)
+        private static bool HasNext(ref long readHeader, ref long writeHeader)
         {
-            return (currentHeader + 1) & (_indexMask);
-        }
+            long itemCount = writeHeader - readHeader;
 
-#if PORTABLE
-        [SuppressMessage("ReSharper", "RedundantAssignment")]
-        [SuppressMessage("ReSharper", "UnusedMember.Local")]
-        private static void SpinWait()
-        {
-            int op = 4;
-            op = op << 1;
+            return itemCount != 0;
         }
-#else
-        [SuppressMessage("ReSharper", "StaticMemberInGenericType")] private static readonly int SpinWaitIterations = 1;
-
-        private static void SpinWait()
-        {
-            Thread.SpinWait(SpinWaitIterations);
-        }
-#endif
     }
 }

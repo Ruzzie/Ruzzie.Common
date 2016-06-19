@@ -21,7 +21,7 @@ namespace Ruzzie.Common
             {
                 throw new ArgumentNullException(nameof(random));
             }
-            if (count < 0)
+            if (count < 1)
             {
                 throw new ArgumentOutOfRangeException(nameof(count));
             }
