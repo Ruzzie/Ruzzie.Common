@@ -1,7 +1,8 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
-using System.Threading;
+using System.Runtime.CompilerServices;
 using Ruzzie.Common.Numerics;
+using Ruzzie.Common.Threading;
 
 //since volatile is used with interlocking, disable the warning.
 #pragma warning disable 420
@@ -19,8 +20,8 @@ namespace Ruzzie.Common.Collections
         private readonly int _capacity;
         private readonly T[] _buffer;
         private readonly long _indexMask;
-        private long _writeHeader;
-        private long _readHeader;
+        private VolatileLong _writeHeader;
+        private VolatileLong _readHeader;
 
         /// <summary>
         ///     Returns the number of values in the buffer.
@@ -32,19 +33,22 @@ namespace Ruzzie.Common.Collections
         {
             get
             {
-                long itemCount = ((_writeHeader + 1) - (_readHeader + 1));
-
-                if (itemCount == 0)
+                unchecked
                 {
-                    return 0;
-                }
-                long remainder = (itemCount%_capacity);
+                    long itemCount = (_writeHeader.CompilerFencedValue + 1) - (_readHeader.CompilerFencedValue + 1);
 
-                if (remainder > 0)
-                {
-                    return itemCount/_capacity + remainder;
+                    if (itemCount == 0)
+                    {
+                        return 0;
+                    }
+                    long remainder = (itemCount%_capacity);
+
+                    if (remainder > 0)
+                    {
+                        return itemCount/_capacity + remainder;
+                    }
+                    return _capacity;
                 }
-                return _capacity;
             }
         }
 
@@ -75,8 +79,8 @@ namespace Ruzzie.Common.Collections
             _buffer = new T[_capacity];
             _indexMask = _capacity - 1;
 
-            _writeHeader = -1; //_indexMask;
-            _readHeader = -1; //_indexMask;
+            _writeHeader = -1;
+            _readHeader = -1;
         }
 
         /// <summary>
@@ -118,14 +122,10 @@ namespace Ruzzie.Common.Collections
         /// <param name="value">The value to write</param>
         public void WriteNext(T value)
         {
-            long writeHeaderLocal = _writeHeader;
+            long nextWriteIndex = _writeHeader.AtomicIncrement();
+            long currentWriteIndex = nextWriteIndex - 1;
 
-            while (Interlocked.CompareExchange(ref _writeHeader, writeHeaderLocal + 1, writeHeaderLocal) != writeHeaderLocal)
-            {
-                writeHeaderLocal = _writeHeader;
-            }
-
-            _buffer[writeHeaderLocal & _indexMask] = value;
+            _buffer[currentWriteIndex & _indexMask] = value;
         }
 
         /// <summary>
@@ -151,29 +151,26 @@ namespace Ruzzie.Common.Collections
         /// <returns>true if a value could be read. If no next value is present false will be returned.</returns>
         public bool ReadNext(out T value)
         {
-            long readHeaderLocal = _readHeader; //Volatile.ReadValueType(ref _readHeader);
-
-            if (!HasNext(ref readHeaderLocal, ref _writeHeader))
+            if (!HasNext(_readHeader.ReadUnfenced(),_writeHeader.ReadUnfenced()))
             {
                 value = default(T);
                 return false;
             }
 
-            while (Interlocked.CompareExchange(ref _readHeader, readHeaderLocal + 1, readHeaderLocal) != readHeaderLocal)
-            {
-                readHeaderLocal = _readHeader;
-            }
+            long nextReadIndex = _readHeader.AtomicIncrement();
+            long currentReadIndex = nextReadIndex - 1;
 
-            value = _buffer[readHeaderLocal & _indexMask];
+            value = _buffer[currentReadIndex & _indexMask];
 
             return true;
         }
 
-        private static bool HasNext(ref long readHeader, ref long writeHeader)
+//#if !PORTABLE
+//        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+//#endif
+        private static bool HasNext(long readHeader,long writeHeader)
         {
-            long itemCount = writeHeader - readHeader;
-
-            return itemCount != 0;
+            return writeHeader - readHeader != 0;           
         }
     }
 }

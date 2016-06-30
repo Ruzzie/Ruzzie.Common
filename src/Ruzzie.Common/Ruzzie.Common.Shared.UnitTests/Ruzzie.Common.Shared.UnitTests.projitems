@@ -23,6 +23,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)RandomPerformanceTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SimpleRandomMultithreadedTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SimpleRandomTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Threading\VolatileLongTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Threading\VolatileTests.cs" />
   </ItemGroup>
 </Project>

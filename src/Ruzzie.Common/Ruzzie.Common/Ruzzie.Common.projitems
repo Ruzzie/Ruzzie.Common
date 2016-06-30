@@ -21,5 +21,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)RandomExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SimpleRandom.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Threading\Volatile.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Threading\VolatileLong.cs" />
   </ItemGroup>
 </Project>

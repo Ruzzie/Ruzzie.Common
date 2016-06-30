@@ -18,11 +18,7 @@ namespace Ruzzie.Common.Tests.Console
             RandomPerformanceTests tests = new RandomPerformanceTests();
             tests.CompareSpeedForDifferentRandoms();
 
-
             System.Console.WriteLine("\n-- Different tests on custom random --\n");
-
-           
-
 
             System.Console.WriteLine("\nMulti threaded performance test: Ruzzie.SimpleRandom with different thread count");
 

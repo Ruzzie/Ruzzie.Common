@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using Ruzzie.Common.Collections;
 using Ruzzie.Common.Numerics;
 
@@ -185,8 +186,23 @@ namespace Ruzzie.Common
             private ulong NextSample()
             {
                 ulong number;
-                while (!_buffer.ReadNext(out number))
+                if (!_buffer.ReadNext(out number))
                 {
+#if !PORTABLE
+                    var spinWait = default(SpinWait);
+#else
+                    // ReSharper disable once NotAccessedVariable
+                    var spinCounter = 0;
+#endif
+                    while (!_buffer.ReadNext(out number))
+                    {
+#if !PORTABLE
+                        spinWait.SpinOnce();
+#else
+
+                        ++spinCounter;
+#endif
+                    }
                 }
 
                 _buffer.WriteNext(Sample(number));
