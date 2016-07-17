@@ -135,11 +135,9 @@ namespace Ruzzie.Common
 
         internal class RandomSampler
         {
-            private readonly ulong _moduloValue;
             private readonly ulong _pOnePowThree;
             private readonly ulong _pTwoPowTwo;
             private ConcurrentCircularOverwriteBuffer<ulong> _buffer;
-
             public RandomSampler(int seed, int hValue, int eValue)
             {
                 int noiseVariable;
@@ -149,7 +147,6 @@ namespace Ruzzie.Common
                     noiseVariable = eValue ^ hValue;
                 }
 
-                _moduloValue = (ulong)(int.MaxValue + Convert.ToInt64(noiseVariable)).GetPrime();
                 ulong pOne = (ulong)PrimeHelper.GetPrime(noiseVariable);
                 ulong pTwo = (ulong)hValue;
 
@@ -178,8 +175,8 @@ namespace Ruzzie.Common
             {
                 unchecked
                 {
-                    ulong number = NextSample();
-                    return (int)(number % (ulong)exclusiveMaximum);
+                    ulong number = NextSample() % int.MaxValue;
+                    return (int)( number %  (ulong) exclusiveMaximum);
                 }
             }
 
@@ -213,7 +210,7 @@ namespace Ruzzie.Common
             {
                 unchecked
                 {
-                    return ((currentSeed * _pOnePowThree) - (_pTwoPowTwo)) % _moduloValue;
+                    return ((currentSeed * _pOnePowThree) - (_pTwoPowTwo));
                 }
             }
 
