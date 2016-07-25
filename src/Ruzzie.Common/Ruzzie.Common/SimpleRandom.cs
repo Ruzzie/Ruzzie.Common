@@ -30,7 +30,7 @@ namespace Ruzzie.Common
         /// Initializes a new instance of the <see cref="SimpleRandom"/> class.
         /// </summary>
         /// <param name="seed">The seed.</param>
-        public SimpleRandom(int seed = 1) : this(seed, 952993412, 46847810)
+        public SimpleRandom(int seed = 1) : this(seed, 160938768, 837541626)
         {
 
         }
@@ -175,31 +175,33 @@ namespace Ruzzie.Common
             {
                 unchecked
                 {
-                    ulong number = NextSample() % int.MaxValue;
-                    return (int)( number %  (ulong) exclusiveMaximum);
+                    var number = (int) (NextSample() % int.MaxValue);
+                    return number % exclusiveMaximum;
                 }
-            }
+            }          
 
+#if PORTABLE
+            readonly object _waitLockObject = new object();
+            private static readonly TimeSpan OneTickTimeSpan = new TimeSpan(1);
+#endif
             private ulong NextSample()
             {
                 ulong number;
                 if (!_buffer.ReadNext(out number))
                 {
+
 #if !PORTABLE
                     var spinWait = default(SpinWait);
-#else
-                    // ReSharper disable once NotAccessedVariable
-                    var spinCounter = 0;
 #endif
                     while (!_buffer.ReadNext(out number))
                     {
+
 #if !PORTABLE
                         spinWait.SpinOnce();
-#else
-
-                        ++spinCounter;
+#else                       
+                        Monitor.TryEnter(_waitLockObject, OneTickTimeSpan);//Fastest way found so far to emulate SpinOnce behavior for pcl.
 #endif
-                    }
+                    }    
                 }
 
                 _buffer.WriteNext(Sample(number));

@@ -137,10 +137,10 @@ namespace Ruzzie.Common.Shared.UnitTests
         {
             SimpleRandom simpleRandom = new SimpleRandom();
 
-            Assert.That(simpleRandom.NextByte(), Is.EqualTo(244));
-            Assert.That(simpleRandom.NextByte(), Is.EqualTo(50));
-            Assert.That(simpleRandom.NextByte(), Is.EqualTo(33));
-            Assert.That(simpleRandom.NextByte(), Is.EqualTo(13));
+            Assert.That(simpleRandom.NextByte(), Is.EqualTo(175));
+            Assert.That(simpleRandom.NextByte(), Is.EqualTo(211));
+            Assert.That(simpleRandom.NextByte(), Is.EqualTo(17));
+            Assert.That(simpleRandom.NextByte(), Is.EqualTo(98));
         }
 
         [Test]
@@ -148,10 +148,10 @@ namespace Ruzzie.Common.Shared.UnitTests
         {
             SimpleRandom simpleRandom = new SimpleRandom();
 
-            Assert.That(simpleRandom.Next(), Is.EqualTo(523522292));
-            Assert.That(simpleRandom.Next(), Is.EqualTo(191336242));
-            Assert.That(simpleRandom.Next(), Is.EqualTo(74751265));
-            Assert.That(simpleRandom.Next(), Is.EqualTo(635807757));
+            Assert.That(simpleRandom.Next(), Is.EqualTo(999359663));
+            Assert.That(simpleRandom.Next(), Is.EqualTo(1963915219));
+            Assert.That(simpleRandom.Next(), Is.EqualTo(1719644689));
+            Assert.That(simpleRandom.Next(), Is.EqualTo(1676061794));
         }
 
         [Test]
@@ -159,10 +159,10 @@ namespace Ruzzie.Common.Shared.UnitTests
         {
             SimpleRandom simpleRandom = new SimpleRandom();
 
-            Assert.That(simpleRandom.Next(100), Is.EqualTo(92));
-            Assert.That(simpleRandom.Next(100), Is.EqualTo(42));
-            Assert.That(simpleRandom.Next(100), Is.EqualTo(65));
-            Assert.That(simpleRandom.Next(100), Is.EqualTo(57));
+            Assert.That(simpleRandom.Next(100), Is.EqualTo(63));
+            Assert.That(simpleRandom.Next(100), Is.EqualTo(19));
+            Assert.That(simpleRandom.Next(100), Is.EqualTo(89));
+            Assert.That(simpleRandom.Next(100), Is.EqualTo(94));
         }
 
         [Test]
@@ -184,7 +184,7 @@ namespace Ruzzie.Common.Shared.UnitTests
 
             Assert.That(samples.Contains(0), Is.True, " Does not contain 0");
             Assert.That(samples.Contains(99), Is.True, " Does not contain 99");
-            Assert.That(samples.Select(b => b).Average(), Is.EqualTo(49.500860000000003d));
+            Assert.That(samples.Select(b => b).Average(), Is.EqualTo(49.518106000000003d));
 
         }
 
@@ -194,10 +194,10 @@ namespace Ruzzie.Common.Shared.UnitTests
             int maxValue = 100;
             RandomnessTestResult result = RandomnessTester.TestInt(new SimpleRandom(), maxValue);
 
-            Assert.That(result.SampleResult.Average, Is.EqualTo(49.263999999999811d));
-            Assert.That(result.SampleResult.Chi, Is.EqualTo(80.160000000000011d).Within(0.01d));
-            Assert.That(result.SampleResult.PoChi, Is.EqualTo(0.92787825698550153d).Within(0.00001d));
-            Assert.That(result.SampleResult.Entropy, Is.EqualTo(6.6380897597798931d));
+            Assert.That(result.SampleResult.Average, Is.EqualTo(49.862699999999855d));
+            Assert.That(result.SampleResult.Chi, Is.EqualTo(77.639999999999986d).Within(0.01d));
+            Assert.That(result.SampleResult.PoChi, Is.EqualTo(0.95244956125302926d).Within(0.00001d));
+            Assert.That(result.SampleResult.Entropy, Is.EqualTo(6.6382366673825759d).Within(0.00001d));
         }
 
         [Test]
@@ -205,10 +205,10 @@ namespace Ruzzie.Common.Shared.UnitTests
         {
             RandomnessTestResult result = RandomnessTester.TestBytes(new SimpleRandom(37));
 
-            Assert.That(result.SampleResult.Average, Is.EqualTo(126.5008d));
-            Assert.That(result.SampleResult.Chi, Is.EqualTo(222.43839999999997d).Within(0.1d)); //88.09999999999998d
-            Assert.That(result.SampleResult.PoChi, Is.EqualTo(0.93620808281449741d).Within(0.0000000000001));//0.79665006850430176d
-            Assert.That(result.SampleResult.Entropy, Is.EqualTo(7.9838303706956477d));
+            Assert.That(result.SampleResult.Average, Is.EqualTo(127.68689999999995d));
+            Assert.That(result.SampleResult.Chi, Is.EqualTo(242.0992d).Within(0.1d)); //88.09999999999998d
+            Assert.That(result.SampleResult.PoChi, Is.EqualTo(0.7244845588804244d).Within(0.0000000000001));//0.79665006850430176d
+            Assert.That(result.SampleResult.Entropy, Is.EqualTo(7.9824575806072193d));
         }
 
         [Test]
