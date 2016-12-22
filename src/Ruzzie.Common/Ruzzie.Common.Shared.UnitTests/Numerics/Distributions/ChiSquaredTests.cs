@@ -9,7 +9,7 @@ namespace Ruzzie.Common.Shared.UnitTests.Numerics.Distributions
     [TestFixture]
     public class ChiSquaredTests
     {
-        [TestFixture]
+        [TestFixture][RequiresThread]
         public class ChiSquaredPTests
         {
             [TestCase(new[] {1, 2, 3}, 1)]
@@ -75,7 +75,7 @@ namespace Ruzzie.Common.Shared.UnitTests.Numerics.Distributions
             }
         }
 
-        [TestFixture]
+        [TestFixture][RequiresThread]
         public class PofChisquaredTests
         {
             [TestCase(new[] {1, 2, 3}, 0.80125195671076077d)]

@@ -7,7 +7,7 @@ namespace Ruzzie.Common.Shared.UnitTests
     [TestFixture]
     public class SimpleRandomMultiThreadedTests
     {
-        [Test]
+        [Test][RequiresThread]
         public void SmokeTestWithParallelFor()
         {
             SimpleRandom random = new SimpleRandom();
@@ -25,7 +25,7 @@ namespace Ruzzie.Common.Shared.UnitTests
 
         }
 
-        [Test]
+        [Test][RequiresThread]
         public void SmokeTestWithParallelWhile()
         {// ReSharper disable AccessToModifiedClosure
             SimpleRandom random = new SimpleRandom();
