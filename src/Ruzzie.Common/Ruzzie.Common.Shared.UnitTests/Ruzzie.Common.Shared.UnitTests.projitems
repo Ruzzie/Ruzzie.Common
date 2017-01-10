@@ -11,6 +11,8 @@
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)Collections\ConcurrentCircularOverwriteBufferTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Collections\ConcurrentCircularOverwriteBufferThreadingTests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Hashing\FNV1aHashAlgorithm64Tests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Hashing\FNV1aHashAlgorithmTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Numerics\Distributions\ChiSquaredTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Numerics\PowerOfTwoHelperTests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Numerics\PrimeHelperTests.cs" />
