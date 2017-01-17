@@ -11,6 +11,7 @@
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)AssemblyInfo.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Collections\ConcurrentCircularOverwriteBuffer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Collections\ReadOnlySet.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Hashing\FNV1AHashAlgorithm.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Hashing\FNV1AHashAlgorithm64.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Numerics\Distributions\ChiSquared.cs" />
