@@ -3,10 +3,13 @@
   "testRunner": "nunit",
   "dependencies": {
     "dotnet-test-nunit": "3.4.0-*",
-    "NUnit": "3.6.0",
+    "NUnit": "3.5.0",
     "Moq": "4.6.38-*",
-    "NUnit.Console": "3.6.0",
-    "Ruzzie.Common": "1.0.0-*"
+    "NUnit.Console": "3.5.0",
+    "Ruzzie.Common": {
+      "version": "1.0.0-*",
+      "include": "all"
+    }
   },
   "frameworks": {
     "netcoreapp1.0": {
@@ -18,7 +21,7 @@
         "Microsoft.NETCore.App": {
           "version": "1.0.1",
           "type": "platform"
-        }       
+        }        
       },
       "buildOptions": {
         "define": [
@@ -33,6 +36,7 @@
         ]
       },
       "dependencies": {
+    
       },
       "frameworkAssemblies": {
         "System.Threading.Tasks": "",
@@ -44,6 +48,8 @@
         "define": [
           "HAVE_SERIALIZABLE"
         ]
+      },
+      "dependencies": {
       },
       "frameworkAssemblies": {
         "System.Threading.Tasks": "",
