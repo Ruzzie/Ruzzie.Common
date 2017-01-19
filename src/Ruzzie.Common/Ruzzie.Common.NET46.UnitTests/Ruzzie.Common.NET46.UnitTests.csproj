@@ -50,15 +50,14 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Ruzzie.Common.NET46\Ruzzie.Common.NET46.csproj">
-      <Project>{686a7187-bc41-4ecb-bf65-4ee366124f73}</Project>
-      <Name>Ruzzie.Common.NET46</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <Import Project="..\Ruzzie.Common.Shared.UnitTests\Ruzzie.Common.Shared.UnitTests.projitems" Label="Shared" />
+  <ItemGroup>
+    <ProjectReference Include="..\Ruzzie.Common\Ruzzie.Common.xproj">
+      <Project>{dd19fd5d-893c-49f6-bc0c-8c62824fd801}</Project>
+      <Name>Ruzzie.Common</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

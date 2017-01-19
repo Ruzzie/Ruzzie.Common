@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("Ruzzie.Common")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("D Crafting")]
 [assembly: AssemblyProduct("Ruzzie.Common")]
 [assembly: AssemblyCopyright("Copyright © Dorus Verhoeckx 2015")]
 [assembly: AssemblyTrademark("")]

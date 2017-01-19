@@ -1,56 +1,26 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.25123.0
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Ruzzie.Common", "Ruzzie.Common\Ruzzie.Common.shproj", "{D77325B2-3211-45D2-B7C0-3FB5043DF24D}"
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Ruzzie.Common", "Ruzzie.Common\Ruzzie.Common.xproj", "{DD19FD5D-893C-49F6-BC0C-8C62824FD801}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ruzzie.Common.Portable", "Ruzzie.Common.Portable\Ruzzie.Common.Portable.csproj", "{3331258F-72BC-4EB6-80C4-8AFB6F105615}"
-EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Ruzzie.Common.Shared.UnitTests", "Ruzzie.Common.Shared.UnitTests\Ruzzie.Common.Shared.UnitTests.shproj", "{D8F4F718-AEE8-4808-8EF7-5AA89CDD7567}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ruzzie.Common.Portable.UnitTests", "Ruzzie.Common.Portable.UnitTests\Ruzzie.Common.Portable.UnitTests.csproj", "{AD870E12-9851-41FE-B13F-6D28F28E4D7B}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ruzzie.Common.NET46.UnitTests", "Ruzzie.Common.NET46.UnitTests\Ruzzie.Common.NET46.UnitTests.csproj", "{5692EE4E-0C9E-4FC8-B461-8EB2F7039DCA}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ruzzie.Common.NET46", "Ruzzie.Common.NET46\Ruzzie.Common.NET46.csproj", "{686A7187-BC41-4ECB-BF65-4EE366124F73}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ruzzie.Common.Tests.Console", "Ruzzie.Common.Tests.Console\Ruzzie.Common.Tests.Console.csproj", "{06D80C64-2F32-4729-BB8B-8494AF115320}"
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Ruzzie.Common.UnitTests", "Ruzzie.Common.UnitTests\Ruzzie.Common.UnitTests.xproj", "{0224C51D-98D6-4F80-9135-9FFB1967112C}"
 EndProject
 Global
-	GlobalSection(SharedMSBuildProjectFiles) = preSolution
-		Ruzzie.Common\Ruzzie.Common.projitems*{686a7187-bc41-4ecb-bf65-4ee366124f73}*SharedItemsImports = 4
-		Ruzzie.Common\Ruzzie.Common.projitems*{3331258f-72bc-4eb6-80c4-8afb6f105615}*SharedItemsImports = 4
-		Ruzzie.Common.Shared.UnitTests\Ruzzie.Common.Shared.UnitTests.projitems*{5692ee4e-0c9e-4fc8-b461-8eb2f7039dca}*SharedItemsImports = 4
-		Ruzzie.Common\Ruzzie.Common.projitems*{d77325b2-3211-45d2-b7c0-3fb5043df24d}*SharedItemsImports = 13
-		Ruzzie.Common.Shared.UnitTests\Ruzzie.Common.Shared.UnitTests.projitems*{d8f4f718-aee8-4808-8ef7-5aa89cdd7567}*SharedItemsImports = 13
-		Ruzzie.Common.Shared.UnitTests\Ruzzie.Common.Shared.UnitTests.projitems*{ad870e12-9851-41fe-b13f-6d28f28e4d7b}*SharedItemsImports = 4
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{3331258F-72BC-4EB6-80C4-8AFB6F105615}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3331258F-72BC-4EB6-80C4-8AFB6F105615}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3331258F-72BC-4EB6-80C4-8AFB6F105615}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3331258F-72BC-4EB6-80C4-8AFB6F105615}.Release|Any CPU.Build.0 = Release|Any CPU
-		{AD870E12-9851-41FE-B13F-6D28F28E4D7B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{AD870E12-9851-41FE-B13F-6D28F28E4D7B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{AD870E12-9851-41FE-B13F-6D28F28E4D7B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{AD870E12-9851-41FE-B13F-6D28F28E4D7B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5692EE4E-0C9E-4FC8-B461-8EB2F7039DCA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5692EE4E-0C9E-4FC8-B461-8EB2F7039DCA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5692EE4E-0C9E-4FC8-B461-8EB2F7039DCA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5692EE4E-0C9E-4FC8-B461-8EB2F7039DCA}.Release|Any CPU.Build.0 = Release|Any CPU
-		{686A7187-BC41-4ECB-BF65-4EE366124F73}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{686A7187-BC41-4ECB-BF65-4EE366124F73}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{686A7187-BC41-4ECB-BF65-4EE366124F73}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{686A7187-BC41-4ECB-BF65-4EE366124F73}.Release|Any CPU.Build.0 = Release|Any CPU
-		{06D80C64-2F32-4729-BB8B-8494AF115320}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{06D80C64-2F32-4729-BB8B-8494AF115320}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{06D80C64-2F32-4729-BB8B-8494AF115320}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{06D80C64-2F32-4729-BB8B-8494AF115320}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DD19FD5D-893C-49F6-BC0C-8C62824FD801}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DD19FD5D-893C-49F6-BC0C-8C62824FD801}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DD19FD5D-893C-49F6-BC0C-8C62824FD801}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DD19FD5D-893C-49F6-BC0C-8C62824FD801}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0224C51D-98D6-4F80-9135-9FFB1967112C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0224C51D-98D6-4F80-9135-9FFB1967112C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0224C51D-98D6-4F80-9135-9FFB1967112C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0224C51D-98D6-4F80-9135-9FFB1967112C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

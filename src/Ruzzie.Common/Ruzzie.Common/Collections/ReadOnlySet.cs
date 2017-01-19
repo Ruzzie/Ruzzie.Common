@@ -6,13 +6,16 @@ using System.Collections.Generic;
 namespace Ruzzie.Common.Collections
 {
 
+
 #if !PORTABLE
     /// <summary>
     /// Genereric readonly wrapper for a <see cref="HashSet{T}"/>. Internally a <see cref="HashSet{T}"/> is used. All write operations throw a <see cref="NotSupportedException"/>.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1710:IdentifiersShouldHaveCorrectSuffix", Justification = "By design.")]
+#if HAVE_SERIALIZABLE
     [Serializable]
+#endif
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1710:IdentifiersShouldHaveCorrectSuffix", Justification = "By design.")]    
     public class ReadOnlySet<T> : ISet<T>, IReadOnlyCollection<T> 
 #else
     /// <summary>

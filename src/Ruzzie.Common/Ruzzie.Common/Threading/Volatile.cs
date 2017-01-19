@@ -35,7 +35,11 @@ namespace Ruzzie.Common.Threading
         [SuppressMessage("ReSharper", "RedundantAssignment")]
         public static void WriteValueType<T>(ref T location, T value) where T : struct
         {
+#if NET40 || PORTABLE
             System.Threading.Thread.MemoryBarrier();
+#else
+            System.Threading.Interlocked.MemoryBarrier();
+#endif            
             location = value;
         }
 
@@ -65,10 +69,13 @@ namespace Ruzzie.Common.Threading
         public static T ReadValueType<T>(ref T location) where T : struct
         {
             T value = location;
+#if NET40 || PORTABLE
             System.Threading.Thread.MemoryBarrier();
+#else
+            System.Threading.Interlocked.MemoryBarrier();
+#endif
             return value;
         }
-
     }
 
 }
