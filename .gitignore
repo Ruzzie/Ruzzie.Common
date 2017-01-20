@@ -186,3 +186,4 @@ nuget.exe
 src/Ruzzie.Common/packages/
 src/Ruzzie.Common/.vs/
 project.lock.json
+results.xml

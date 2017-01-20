@@ -4,7 +4,7 @@
   "description": "Common libraries used in other projects",
   "language": "en-US",
   "authors": [ "Dorus Verhoeckx" ],
-  "copyright": "Copyright © Dorus Verhoeckx 2017",
+  "copyright": "Copyright ï¿½ Dorus Verhoeckx 2017",
   "packOptions": {
     "projectUrl": "https://github.com/Ruzzie/Ruzzie.Common",
     "licenseUrl": "https://github.com/Ruzzie/Ruzzie.Common/blob/master/LICENSE.md",
@@ -74,6 +74,7 @@
     }
   },
   "buildOptions": {
-    "xmlDoc": true
+    "xmlDoc": true,
+    "optimize": true
   }
 }
