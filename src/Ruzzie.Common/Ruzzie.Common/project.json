@@ -53,8 +53,7 @@
         "define": [ "HAVE_SERIALIZABLE" ]
       },
       "frameworkAssemblies": {
-        "System.Threading.Tasks": "",
-        "System.Reflection": ""
+        "System.Threading.Tasks": ""
       }
     },
     "net461": {
@@ -62,8 +61,7 @@
         "define": [ "HAVE_SERIALIZABLE" ]
       },
       "frameworkAssemblies": {
-        "System.Threading.Tasks": "",
-        "System.Reflection": ""
+        "System.Threading.Tasks": ""
       }
 
     },
