@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Globalization;
 using System.Runtime.CompilerServices;
 
 namespace Ruzzie.Common.Hashing
@@ -9,7 +8,6 @@ namespace Ruzzie.Common.Hashing
     /// </summary>
     public class FNV1AHashAlgorithm64 : IHashCaseInsensitive64Algorithm
     {
-        private static readonly TextInfo InvariantTextInfo = CultureInfo.InvariantCulture.TextInfo;
         const ulong FNVPrime64 = 1099511628211;
         const ulong FNVOffsetBasis64 = 14695981039346656037;
 
@@ -69,7 +67,7 @@ namespace Ruzzie.Common.Hashing
 
             for (int i = 0; i < stringLength; ++i)
             {
-                ushort currChar = InvariantTextInfo.ToUpper(stringToHash[i]);
+                ushort currChar = stringToHash[i].ToUpperInvariant();
                 byte byteOne = (byte)currChar; //lower bytes              
                 byte byteTwo = (byte)(currChar >> 8); //uppper byts
 
