@@ -75,6 +75,7 @@
   },
   "buildOptions": {
     "xmlDoc": true,
-    "optimize": true
+    "optimize": true,
+    "allowUnsafe": true
   }
 }

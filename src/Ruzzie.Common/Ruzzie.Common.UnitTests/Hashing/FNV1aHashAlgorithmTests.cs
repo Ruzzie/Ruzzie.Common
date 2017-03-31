@@ -98,6 +98,24 @@ namespace Ruzzie.Common.UnitTests.Hashing
                                   (sw.Elapsed.Ticks / numberOfIterations));
 
             }
+
+            [TestFixture]
+            public class InvariantUpperCaseStringExtensionsTests
+            {
+                [TestCase("abcdefghijklmnopqrstuvwxyz", "ABCDEFGHIJKLMNOPQRSTUVWXYZ")]
+                [TestCase("abcdefghijklmnopqrstuvwxyz", "ABCDEFGHIJKLMNOPQRSTUVWXYZ")]
+                [TestCase("", "")]
+                public void ToUpperInvariantString(string input, string expected)
+                {
+                    Assert.That(InvariantUpperCaseStringExtensions.ToUpperInvariant(input), Is.EqualTo(expected));
+                }
+
+                [Test]
+                public void ToUpperInvariantStringNullThrowsException()
+                {
+                    Assert.That(()=> InvariantUpperCaseStringExtensions.ToUpperInvariant(null), Throws.ArgumentNullException);
+                }
+            }
         }
     }
 }

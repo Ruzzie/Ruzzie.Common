@@ -64,15 +64,33 @@ namespace Ruzzie.Common.Hashing
         {
             uint hash = FNVOffsetBasis32;
             int stringLength = stringToHash.Length;
-
+#if !PORTABLE
+            unsafe
+            {
+                fixed (char* pStr = stringToHash, pMap = InvariantUpperCaseStringExtensions.UpperCaseMap)
+                {
+                    char* currStr = pStr;
+                    for (int i = 0; i < stringLength; ++i)
+                    {                        
+                        var currChar = pMap[*currStr];
+                        byte byteOne = (byte)currChar; //lower bytes              
+                        byte byteTwo = (byte)(currChar >> 8); //uppper byts                     
+                        hash = HashByte(HashByte(hash, byteOne), byteTwo);
+                        currStr++;                        
+                    }
+                }             
+            }
+#else
             for (int i = 0; i < stringLength; ++i)
             {
                 ushort currChar = stringToHash[i].ToUpperInvariant();
-                byte byteOne = (byte)currChar; //lower bytes              
-                byte byteTwo = (byte)(currChar >> 8); //uppper byts
+                byte byteOne = (byte) currChar; //lower bytes              
+                byte byteTwo = (byte) (currChar >> 8); //uppper byts
 
                 hash = HashByte(HashByte(hash, byteOne), byteTwo);
             }
+#endif
+
             return (int)hash;
         }
 
