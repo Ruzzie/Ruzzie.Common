@@ -45,6 +45,7 @@ namespace Ruzzie.Common.UnitTests.Hashing
             [TestCase("A", "a")]
             [TestCase("1!!", "1!!")]
             [TestCase("Ω", "ω")]
+            [TestCase("3 Harvard Square", "3 HARVARD SQUARE")]
             public void IgnoreCaseTests(string casingOne, string casingStyleTwo)
             {
                 Assert.That(_hashAlgorithm.HashStringCaseInsensitive(casingOne), Is.EqualTo(_hashAlgorithm.HashStringCaseInsensitive(casingStyleTwo)));

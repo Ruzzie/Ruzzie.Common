@@ -59,7 +59,7 @@ namespace Ruzzie.Common.Hashing
                         pSourceChar++;
                     }
                 }
-                return new string(pTarget);            
+                return new string(pTarget, 0, strLength);
             }
 #else
             char[] newStr = new char[strLength];
