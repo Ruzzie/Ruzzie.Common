@@ -25,12 +25,22 @@ namespace Ruzzie.Common.UnitTests.Hashing
             Assert.That(hashOne, Is.EqualTo(hashTwo));
         }
 
-        [Test]
+        [TestCase]
         public void DifferentHashCodeForDifferentString()
         {
-            string stringToHash = "FlashCache is tha bomb you know";
+            string stringToHash = "FlashCache is tha bomb";
             long hashOne = _hashAlgorithm.HashBytes(Encoding.Unicode.GetBytes(stringToHash));
             long hashTwo = _hashAlgorithm.HashBytes(Encoding.Unicode.GetBytes(stringToHash.ToLower()));
+
+            Assert.That(hashOne, Is.Not.EqualTo(hashTwo));
+        }
+
+        [TestCase("Enchantment", "Human")]
+        [TestCase("Human", "Wizard")]
+        public void DifferentHashCodesTest(string a, string b)
+        {
+            long hashOne = _hashAlgorithm.HashStringCaseInsensitive(a);
+            long hashTwo = _hashAlgorithm.HashStringCaseInsensitive(b);
 
             Assert.That(hashOne, Is.Not.EqualTo(hashTwo));
         }
