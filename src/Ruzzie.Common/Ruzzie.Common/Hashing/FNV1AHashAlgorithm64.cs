@@ -8,8 +8,12 @@ namespace Ruzzie.Common.Hashing
     /// </summary>
     public class FNV1AHashAlgorithm64 : IHashCaseInsensitive64Algorithm
     {
-        const ulong FNVPrime64 = 1099511628211;
-        const ulong FNVOffsetBasis64 = 14695981039346656037;
+        // ReSharper disable ArrangeTypeMemberModifiers
+        // ReSharper disable InconsistentNaming
+        private const ulong FNVPrime64 = 1099511628211;                
+        private const ulong FNVOffsetBasis64 = 14695981039346656037;
+        // ReSharper restore ArrangeTypeMemberModifiers
+        // ReSharper restore InconsistentNaming
 
         /// <summary>
         /// Hashes the bytes.
@@ -17,7 +21,7 @@ namespace Ruzzie.Common.Hashing
         /// <param name="bytesToHash">The get bytes.</param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException">if the bytes are null</exception>
-        public long HashBytes(byte[] bytesToHash)
+        public long HashBytes(in byte[] bytesToHash)
         {
             if (ReferenceEquals(bytesToHash, null))
             {
@@ -33,7 +37,7 @@ namespace Ruzzie.Common.Hashing
         /// <param name="stringToHash">The string to hash.</param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException">if the string is null</exception>
-        public long HashStringCaseInsensitive(string stringToHash)
+        public long HashStringCaseInsensitive(in string stringToHash)
         {
             if (ReferenceEquals(stringToHash, null))
             {
@@ -45,7 +49,7 @@ namespace Ruzzie.Common.Hashing
 #if !PORTABLE
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        private static long HashBytesInternal(byte[] bytesToHash)
+        private static long HashBytesInternal(in byte[] bytesToHash)
         {
             ulong hash = FNVOffsetBasis64;
             int byteCount = bytesToHash.Length;
@@ -60,7 +64,7 @@ namespace Ruzzie.Common.Hashing
 #if !PORTABLE
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        private static long GetInvariantCaseInsensitiveHashCode(string stringToHash)
+        private static long GetInvariantCaseInsensitiveHashCode(in string stringToHash)
         {
             ulong hash = FNVOffsetBasis64;
             int stringLength = stringToHash.Length;
@@ -97,7 +101,7 @@ namespace Ruzzie.Common.Hashing
 #if ! PORTABLE
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        private static ulong HashByte(ulong currentHash, byte byteToHash)
+        private static ulong HashByte(in ulong currentHash, in byte byteToHash)
         {
             return (currentHash ^ byteToHash) * FNVPrime64;
         }
@@ -114,7 +118,7 @@ namespace Ruzzie.Common.Hashing
         /// <param name="bytesToHash">The get bytes.</param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException">if the bytes are null</exception>
-        long HashBytes(byte[] bytesToHash);
+        long HashBytes(in byte[] bytesToHash);
 
         /// <summary>
         /// Hashes the string case insensitive.
@@ -122,6 +126,6 @@ namespace Ruzzie.Common.Hashing
         /// <param name="stringToHash">The string to hash.</param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException">if the string is null</exception>
-        long HashStringCaseInsensitive(string stringToHash);
+        long HashStringCaseInsensitive(in string stringToHash);
     }
 }

@@ -124,7 +124,7 @@ namespace Ruzzie.Common.Numerics.Distributions
         /// <exception cref="ArgumentOutOfRangeException">The <paramref name="sampleSize"/> argument is less than or equal to 0..</exception>
         /// <exception cref="ArgumentNullException"><paramref name="samples"/> is <see langword="null" />.</exception>
         [SuppressMessage("ReSharper", "RedundantCast")]
-        public static double ChiSquaredP(int sampleSize, byte[] samples)
+        public static double ChiSquaredP(int sampleSize, in byte[] samples)
         {
 
             if (sampleSize <= 0)
@@ -210,7 +210,7 @@ namespace Ruzzie.Common.Numerics.Distributions
 #endif
         }
 
-        private static double ChiSquaredP(Tuple<int, int> range, IDictionary<int, int> histogram, double expectedCount)
+        private static double ChiSquaredP(in Tuple<int, int> range, in IDictionary<int, int> histogram, double expectedCount)
         {
             double partialChisq = 0;
             for (int i = range.Item1; i < range.Item2; i++)

@@ -12,7 +12,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("D Crafting")]
 [assembly: AssemblyProduct("Ruzzie.Common")]
-[assembly: AssemblyCopyright("Copyright © Dorus Verhoeckx 2015")]
+[assembly: AssemblyCopyright("Copyright © Dorus Verhoeckx 2018")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: NeutralResourcesLanguage("en")]

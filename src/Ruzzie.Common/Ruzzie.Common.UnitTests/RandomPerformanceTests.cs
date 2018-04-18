@@ -40,7 +40,7 @@ namespace Ruzzie.Common.UnitTests
             PrintPerformanceTestResult(customTimingResult.NextBytes);
         }
 
-        public void PrintPerformanceTestResult(PerformanceTestResult result)
+        internal void PrintPerformanceTestResult(PerformanceTestResult result)
         {
             Console.WriteLine("\t "+nameof(result.NumberOfThreads)+": "+ result.NumberOfThreads);
             Console.WriteLine("\t "+nameof(result.NumberOfIterationsPerThread)+": "+ result.NumberOfIterationsPerThread);
@@ -48,7 +48,7 @@ namespace Ruzzie.Common.UnitTests
             Console.WriteLine("\t "+nameof(result.TotalElapsedTimeInMilliseconds)+": "+ result.TotalElapsedTimeInMilliseconds);
         }
 
-        public RandomPerformanceTestTimingResults RunPerformanceTests(Random random, int numberOfThreads = 1, int numberOfIterationsPerThread = 10000)
+        internal RandomPerformanceTestTimingResults RunPerformanceTests(Random random, int numberOfThreads = 1, int numberOfIterationsPerThread = 10000)
         {
             if (random == null)
             {

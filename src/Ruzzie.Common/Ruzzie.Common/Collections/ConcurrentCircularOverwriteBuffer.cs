@@ -1,6 +1,5 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
-using System.Runtime.CompilerServices;
 using Ruzzie.Common.Numerics;
 using Ruzzie.Common.Threading;
 
@@ -111,7 +110,7 @@ namespace Ruzzie.Common.Collections
         ///     At least one element in the source <see cref="T:System.Array" /> cannot be cast
         ///     to the type of destination <paramref name="array" />.
         /// </exception>
-        public void CopyTo(Array array, int index)
+        public void CopyTo(in Array array, int index)
         {
             _buffer.CopyTo(array, index);
         }
@@ -120,7 +119,7 @@ namespace Ruzzie.Common.Collections
         ///     Writes a value to the buffer.
         /// </summary>
         /// <param name="value">The value to write</param>
-        public void WriteNext(T value)
+        public void WriteNext(in T value)
         {
             long nextWriteIndex = _writeHeader.AtomicIncrement();
             long currentWriteIndex = nextWriteIndex - 1;
@@ -136,8 +135,7 @@ namespace Ruzzie.Common.Collections
         /// <exception cref="InvalidOperationException">There is no next value.</exception>
         public T ReadNext()
         {
-            T value;
-            if (ReadNext(out value))
+            if (ReadNext(out var value))
             {
                 return value;
             }
@@ -151,9 +149,9 @@ namespace Ruzzie.Common.Collections
         /// <returns>true if a value could be read. If no next value is present false will be returned.</returns>
         public bool ReadNext(out T value)
         {
-            if (!HasNext(_readHeader.ReadUnfenced(),_writeHeader.ReadUnfenced()))
+            if (!HasNext(_readHeader.ReadUnfenced(), _writeHeader.ReadUnfenced()))
             {
-                value = default(T);
+                value = default;
                 return false;
             }
 
@@ -168,7 +166,7 @@ namespace Ruzzie.Common.Collections
 //#if !PORTABLE
 //        [MethodImpl(MethodImplOptions.AggressiveInlining)]
 //#endif
-        private static bool HasNext(long readHeader,long writeHeader)
+        private static bool HasNext(in long readHeader, in long writeHeader)
         {
             return writeHeader - readHeader != 0;           
         }

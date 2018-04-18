@@ -24,7 +24,7 @@ namespace Ruzzie.Common.Threading
         /// <param name="poolSize">Size of the pool.</param>
         /// <exception cref="ArgumentNullException">When the createTypeFactory is null. </exception>
         /// <exception cref="ArgumentOutOfRangeException">When the poolsize is less than or equal to 0.</exception>
-        public ThreadSafeObjectPool(Func<T> createTypeFactory, int poolSize = 16)
+        public ThreadSafeObjectPool(in Func<T> createTypeFactory, int poolSize = 16)
         {
             if (createTypeFactory == null)
             {
@@ -55,7 +55,7 @@ namespace Ruzzie.Common.Threading
         /// <typeparam name="TResult">The type of the result.</typeparam>
         /// <param name="funcToExecuteInPool">The function to execute in pool.</param>
         /// <returns>The result from the executed method.</returns>
-        public TResult ExecuteOnAvailableObject<TResult>(Func<T, TResult> funcToExecuteInPool)
+        public TResult ExecuteOnAvailableObject<TResult>(in Func<T, TResult> funcToExecuteInPool)
         {
             if (funcToExecuteInPool == null)
             {

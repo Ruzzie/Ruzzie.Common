@@ -15,7 +15,7 @@ namespace Ruzzie.Common.Threading
         /// <param name="value">The object reference to write. The reference is written immediately so that it is visible to all processors in the computer.</param>
         /// <typeparam name="T">The type of field to write. This must be a reference type, not a value type.</typeparam>
         [SuppressMessage("ReSharper", "RedundantAssignment")]
-        public static void Write<T>(ref T location, T value) where T : class
+        public static void Write<T>(ref T location, in T value) where T : class
         {
 
 #if NET40 || PORTABLE
@@ -31,7 +31,7 @@ namespace Ruzzie.Common.Threading
         /// </summary>
         /// <param name="location">The field where the object reference is written.</param>
         /// <param name="value">The object reference to write. The reference is written immediately so that it is visible to all processors in the computer.</param>
-        /// <typeparam name="T">The type of field to write. This must be a reference type, not a value type.</typeparam>
+        /// <typeparam name="T">The type of field to write.</typeparam>
         [SuppressMessage("ReSharper", "RedundantAssignment")]
         public static void WriteValueType<T>(ref T location, T value) where T : struct
         {

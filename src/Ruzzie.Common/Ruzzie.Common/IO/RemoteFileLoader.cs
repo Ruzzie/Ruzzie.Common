@@ -27,13 +27,8 @@ namespace Ruzzie.Common.IO
         /// or
         /// Value cannot be null or whitespace.
         /// </exception>
-        public RemoteFileLoader(IFileDownloader fileDownloader, string filename, string localPathToStoreFile = ".")
+        public RemoteFileLoader(in IFileDownloader fileDownloader, string filename, string localPathToStoreFile = ".")
         {
-            if (fileDownloader == null)
-            {
-                throw new ArgumentNullException(nameof(fileDownloader));
-            }
-
             if (string.IsNullOrWhiteSpace(filename))
             {
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(filename));
@@ -48,7 +43,8 @@ namespace Ruzzie.Common.IO
                 Directory.CreateDirectory(localPathToStoreFile);
             }
 
-            _fileDownloader = fileDownloader;
+            _fileDownloader = fileDownloader ?? throw new ArgumentNullException(nameof(fileDownloader));
+
             _filename = filename;
             _localPathToStoreFile = localPathToStoreFile;
         }

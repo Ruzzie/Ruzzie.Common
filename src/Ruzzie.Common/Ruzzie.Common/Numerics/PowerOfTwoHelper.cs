@@ -54,7 +54,7 @@ namespace Ruzzie.Common.Numerics
             return Convert.ToInt32(result);
         }
 
-        private static uint FindNearestPowerOfTwoEqualOrGreaterThan(this uint value)
+        private static uint FindNearestPowerOfTwoEqualOrGreaterThan(this in uint value)
         {
             //http://stackoverflow.com/questions/5525122/c-sharp-math-question-smallest-power-of-2-bigger-than-x
             return PowTwoOf(value);
@@ -73,7 +73,7 @@ namespace Ruzzie.Common.Numerics
             return PowTwoOf(value);
         }
 
-        private static uint PowTwoOf(uint value)
+        private static uint PowTwoOf(in uint value)
         {
             uint x = value;
             x--; // comment out to always take the next biggest power of two, even if x is already a power of two
@@ -103,7 +103,7 @@ namespace Ruzzie.Common.Numerics
         /// <returns>true if x is a power of two, otherwise false.</returns>
         public static bool IsPowerOfTwo(this long candidate)
         {
-            return (IsPowerOfTwo((uint) candidate));
+            return IsPowerOfTwo( (uint) candidate);
         }
     }
 }

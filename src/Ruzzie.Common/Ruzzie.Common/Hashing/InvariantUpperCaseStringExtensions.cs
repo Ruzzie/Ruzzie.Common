@@ -25,7 +25,7 @@ namespace Ruzzie.Common.Hashing
         /// </summary>
         /// <param name="c">The character to convert to uppercase.</param>
         /// <returns>The specified character converted to uppercase.</returns>
-        public static char ToUpperInvariant(this char c)
+        public static char ToUpperInvariant(this in char c)
         {
             return UpperCaseMap[c];
         }

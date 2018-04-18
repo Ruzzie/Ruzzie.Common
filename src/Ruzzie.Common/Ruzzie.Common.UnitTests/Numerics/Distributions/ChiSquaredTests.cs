@@ -96,7 +96,7 @@ namespace Ruzzie.Common.UnitTests.Numerics.Distributions
                     ChiSquared.ProbabilityOfChiSquared(ChiSquared.ChiSquaredP(maxValue, numbers.Length, numbers.ToHistogramDictionary()), maxValue);
 
                 //Assert
-                pOfChiSquared.Should().Be(expectedPofChiSquared);
+                pOfChiSquared.Should().BeApproximately(expectedPofChiSquared, 0.0000000000000001);
             }
 
             [Theory]
