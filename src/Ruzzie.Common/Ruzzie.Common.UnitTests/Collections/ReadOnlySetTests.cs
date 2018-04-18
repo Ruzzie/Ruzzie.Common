@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using NUnit.Framework;
+using FluentAssertions;
 using Ruzzie.Common.Collections;
+using Xunit;
 
 namespace Ruzzie.Common.UnitTests.Collections
 {
@@ -9,82 +10,90 @@ namespace Ruzzie.Common.UnitTests.Collections
     // so these are 'shallow' call tests only
     public class ReadOnlySetTests
     {
-        [TestFixture]
         public class ConstructorTests
         {
-            [Test]
+            [Fact]
             // ReSharper disable once InconsistentNaming
             public void ISetCtorThrowsExceptionWhenInputIsNull()
             {
-                Assert.That(() => new ReadOnlySet<int>( ((ISet<int>) null)), Throws.Exception);
+                // ReSharper disable once ObjectCreationAsStatement
+                Action act = () => new ReadOnlySet<int>(((ISet<int>) null));
+
+                act.Should().Throw<Exception>();
             }
 
-            [Test]
+            [Fact]
             // ReSharper disable once InconsistentNaming
             public void ISetCtorWrapsSet()
             {
                 //Arrange
-                ISet<string> mySet = new SortedSet<string>(new [] {"A","B","C"});
+                ISet<string> mySet = new SortedSet<string>(new[] {"A", "B", "C"});
 
                 //Act
                 var readOnlySet = new ReadOnlySet<string>(mySet);
 
-                //Assert
-                Assert.That(readOnlySet.Count, Is.EqualTo(mySet.Count));
+                //Assert                
+                readOnlySet.Count.Should().Be(mySet.Count);
             }
 
-            [Test]
+            [Fact]
             public void HashSetCtorThrowsExceptionWhenInputIsNull()
             {
-                Assert.That(() => new ReadOnlySet<int>(null), Throws.Exception);
+                // ReSharper disable once ObjectCreationAsStatement
+                Action act = () => new ReadOnlySet<int>(null);
+                act.Should().Throw<Exception>();
             }
 
-            [Test]
+            [Fact]
             public void HashSetCtorWrapsAndCopiesSet()
             {
                 //Arrange
-                HashSet<string> mySet = new HashSet<string>(new[] { "A", "B", "C" });
-                
+                var mySet = new HashSet<string>(new[] {"A", "B", "C"});
+
                 //Act
                 var readOnlySet = new ReadOnlySet<string>(mySet);
                 mySet.Add("D");
 
-                //Assert
-                Assert.That(readOnlySet.Count, Is.EqualTo(mySet.Count -1));
+                //Assert                
+                readOnlySet.Count.Should().Be(mySet.Count - 1);
             }
 
-            [Test]
+            [Fact]
             public void EnumerableCtorThrowsExceptionWhenInputIsNull()
             {
-                Assert.That(() => new ReadOnlySet<int>(((IEnumerable<int>)null)), Throws.Exception);
+                // ReSharper disable once ObjectCreationAsStatement
+                Action act = () => new ReadOnlySet<int>(((IEnumerable<int>) null));
+                act.Should().Throw<Exception>();
             }
 
-            [Test]
+            [Fact]
             public void EnumerableCtorCreateHashSet()
             {
                 //Arrange
-                HashSet<string> hashSet = new HashSet<string>(new[] { "A", "B", "C" });
+                var hashSet = new HashSet<string>(new[] {"A", "B", "C"});
                 IEnumerable<string> mySet = hashSet;
 
                 //Act
                 var readOnlySet = new ReadOnlySet<string>(mySet);
                 hashSet.Add("D");
 
-                //Assert
-                Assert.That(readOnlySet.Count, Is.EqualTo(hashSet.Count - 1));
+                //Assert                
+                readOnlySet.Count.Should().Be(hashSet.Count - 1);
             }
 
-            [Test]
+            [Fact]
             public void EnumerableAndComparerCtorDoesNotThrowsExceptionWhenComparer()
             {
-                Assert.That(() => new ReadOnlySet<string>(new [] {"A"},null), Throws.Nothing);
+                var readOnlySet = new ReadOnlySet<string>(new[] {"A"}, null);
+
+                readOnlySet.Should().NotBeNull();
             }
 
-            [Test]
+            [Fact]
             public void EnumerableAndComparerCtorCreateHashSet()
             {
                 //Arrange
-                HashSet<string> hashSet = new HashSet<string>(new[] { "A", "B", "C" });
+                var hashSet = new HashSet<string>(new[] {"A", "B", "C"});
                 IEnumerable<string> mySet = hashSet;
 
                 //Act
@@ -92,125 +101,130 @@ namespace Ruzzie.Common.UnitTests.Collections
                 hashSet.Add("D");
 
                 //Assert
-                Assert.That(readOnlySet.Count, Is.EqualTo(hashSet.Count - 1));
+                readOnlySet.Count.Should().Be(hashSet.Count - 1);
             }
         }
 
-        [TestFixture]
         public class ModificationTests
         {
-            [Test]
+            [Fact]
             public void AddThrowsException()
             {
-                Assert.That(()=> new ReadOnlySet<string>(new [] {"A"}).Add("B"), Throws.TypeOf<NotSupportedException>());
+                Action act = () => new ReadOnlySet<string>(new[] {"A"}).Add("B");
+                act.Should().Throw<NotSupportedException>();
             }
 
-            [Test]
+            [Fact]
             public void RemoveThrowsException()
             {
-                Assert.That(() => new ReadOnlySet<string>(new[] { "A" }).Remove("B"), Throws.TypeOf<NotSupportedException>());
+                Action act = () => new ReadOnlySet<string>(new[] {"A"}).Remove("B");
+                act.Should().Throw<NotSupportedException>();
             }
 
-            [Test]
+            [Fact]
             public void ClearThrowsException()
             {
-                Assert.That(() => new ReadOnlySet<string>(new[] { "A" }).Clear(), Throws.TypeOf<NotSupportedException>());
+                Action act = () => new ReadOnlySet<string>(new[] {"A"}).Clear();
+                act.Should().Throw<NotSupportedException>();
             }
 
-            [Test]
+            [Fact]
             public void UnionWithThrowsException()
             {
-                Assert.That(() => new ReadOnlySet<string>(new[] { "A" }).UnionWith(new [] {"B"}), Throws.TypeOf<NotSupportedException>());
+                Action act = () => new ReadOnlySet<string>(new[] {"A"}).UnionWith(new[] {"B"});
+                act.Should().Throw<NotSupportedException>();
             }
 
-            [Test]
+            [Fact]
             public void InterSectWithThrowsException()
             {
-                Assert.That(() => new ReadOnlySet<string>(new[] { "A" }).IntersectWith(new[] { "B" }), Throws.TypeOf<NotSupportedException>());
+                Action act = () => new ReadOnlySet<string>(new[] {"A"}).IntersectWith(new[] {"B"});
+                act.Should().Throw<NotSupportedException>();
             }
 
-            [Test]
+            [Fact]
             public void SymmetricExceptWithThrowsException()
             {
-                Assert.That(() => new ReadOnlySet<string>(new[] { "A" }).SymmetricExceptWith(new[] { "B" }), Throws.TypeOf<NotSupportedException>());
+                Action act = () => new ReadOnlySet<string>(new[] {"A"}).SymmetricExceptWith(new[] {"B"});
+                act.Should().Throw<NotSupportedException>();
             }
 
-            [Test]
+            [Fact]
             public void PropertyIsReadOnlyIsTrue()
             {
-                Assert.That(new ReadOnlySet<string>(new[] { "A" }).IsReadOnly, Is.True);
+                new ReadOnlySet<string>(new[] {"A"}).IsReadOnly.Should().BeTrue();
             }
         }
 
-        [TestFixture]
         public class ReadTests
         {
-            private readonly ReadOnlySet<string> _readOnlySet = new ReadOnlySet<string>(new HashSet<string>(new[] { "A", "B" }));
+            private readonly ReadOnlySet<string> _readOnlySet =
+                new ReadOnlySet<string>(new HashSet<string>(new[] {"A", "B"}));
 
-            [Test]
+            [Fact]
             public void GetEnumeratorTest()
             {
-              Assert.That(_readOnlySet.GetEnumerator(), Is.Not.Null);
+                _readOnlySet.GetEnumerator().Should().NotBeNull();
             }
 
-            [Test]
+            [Fact]
             public void ContainsTest()
             {
-                Assert.That(_readOnlySet.Contains("A"),Is.True);
+                _readOnlySet.Should().Contain("A");
             }
 
-            [Test]
+            [Fact]
             public void CopyToTest()
             {
                 //Act
                 string[] arr = new string[2];
-                _readOnlySet.CopyTo(arr,0);
+                _readOnlySet.CopyTo(arr, 0);
 
-                //Assert
-                Assert.That(arr[0], Is.Not.Null);
-                Assert.That(arr[1], Is.Not.Null);
+                //Assert                
+                arr[0].Should().NotBeNull();
+                arr[1].Should().NotBeNull();
             }
 
-            [Test]
+            [Fact]
             public void IsSubsetOfTest()
             {
-                Assert.That(_readOnlySet.IsSubsetOf(new [] {"A","B","C"}), Is.True);
+                _readOnlySet.IsSubsetOf(new[] {"A", "B", "C"}).Should().BeTrue();
             }
 
-            [Test]
+            [Fact]
             public void IsProperSubsetOfTest()
             {
-                Assert.That(_readOnlySet.IsProperSupersetOf(new[] { "A", "B", "C" }), Is.False);
+                _readOnlySet.IsProperSupersetOf(new[] {"A", "B", "C"}).Should().BeFalse();
             }
 
-            [Test]
+            [Fact]
             public void IsSupersetOfTest()
             {
-                Assert.That(_readOnlySet.IsSupersetOf(new[] { "A","B" }), Is.True);
+                _readOnlySet.IsSupersetOf(new[] {"A", "B"}).Should().BeTrue();
             }
 
-            [Test]
+            [Fact]
             public void IsProperSupersetOfTest()
             {
-                Assert.That(_readOnlySet.IsProperSupersetOf(new[] { "A","B" }), Is.False);
+                _readOnlySet.IsProperSupersetOf(new[] {"A", "B"}).Should().BeFalse();
             }
 
-            [Test]
+            [Fact]
             public void OverlapsTest()
             {
-                Assert.That(_readOnlySet.Overlaps(new[] { "A", "B","Q" }), Is.True);
+                _readOnlySet.Overlaps(new[] {"A", "B", "Q"}).Should().BeTrue();
             }
 
-            [Test]
+            [Fact]
             public void SetEqualsTest()
             {
-                Assert.That(_readOnlySet.Overlaps(new[] { "A", "B" }), Is.True);
+                _readOnlySet.Overlaps(new[] {"A", "B"}).Should().BeTrue();
             }
 
-            [Test]
+            [Fact]
             public void CountTest()
             {
-                Assert.That(_readOnlySet.Count, Is.EqualTo(2));
+                _readOnlySet.Count.Should().Be(2);
             }
         }
     }

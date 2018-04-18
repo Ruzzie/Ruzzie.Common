@@ -1,37 +1,39 @@
 ﻿using System;
-using NUnit.Framework;
+using FluentAssertions;
 using Ruzzie.Common.Numerics;
+using Xunit;
 
 namespace Ruzzie.Common.UnitTests.Numerics
-{
-    [TestFixture]
+{    
     public class PrimeHelperTests
     {
-        [TestCase(0,false)]
-        [TestCase(1,false)]
-        [TestCase(2,true)]
-        [TestCase(709, true)]
-        [TestCase(7199369, true)]
-        [TestCase(7199368, false)]
-        [TestCase(9199361, false)]
+        [Theory]
+        [InlineData(0,false)]
+        [InlineData(1,false)]
+        [InlineData(2,true)]
+        [InlineData(709, true)]
+        [InlineData(7199369, true)]
+        [InlineData(7199368, false)]
+        [InlineData(9199361, false)]
         public void IsPrime(int number, bool expected)
         {
-            Assert.That(PrimeHelper.IsPrime(number),Is.EqualTo(expected));
+            PrimeHelper.IsPrime(number).Should().Be(expected);
         }
 
-        [TestCase(0,3)]
-        [TestCase(1,3)]
-        [TestCase(2,3)]
-        [TestCase(700,761)]
-        [TestCase(123123, 130363)]
-        [TestCase(7199368, 7199369)]
-        [TestCase(9199361, 9199391)]
-        [TestCase(9199391, 9199391)]
-        [TestCase(Int64.MaxValue,3)]
-        [TestCase(Int64.MaxValue-2,3)]
+        [Theory]
+        [InlineData(0,3)]
+        [InlineData(1,3)]
+        [InlineData(2,3)]
+        [InlineData(700,761)]
+        [InlineData(123123, 130363)]
+        [InlineData(7199368, 7199369)]
+        [InlineData(9199361, 9199391)]
+        [InlineData(9199391, 9199391)]
+        [InlineData(Int64.MaxValue,3)]
+        [InlineData(Int64.MaxValue-2,3)]
         public void GetPrime(long min, long expected)
         {
-            Assert.That(min.GetPrime(),Is.EqualTo(expected));
+           min.GetPrime().Should().Be(expected);
         }     
     }
 }

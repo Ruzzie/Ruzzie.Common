@@ -1,74 +1,80 @@
 ﻿using System;
-using NUnit.Framework;
+using FluentAssertions;
 using Ruzzie.Common.Numerics;
+using Xunit;
 
 namespace Ruzzie.Common.UnitTests.Numerics
-{
-    [TestFixture]
+{    
     public class PowerOfTwoHelperTests
     {
-
-        [TestCase(2, 2)]
-        [TestCase(250, 256)]
-        [TestCase(100, 128)]
-        [TestCase(1000, 1024)]
-        [TestCase(1024, 1024)]
-        [TestCase(1500, 2048)]
-        [TestCase(60000, 65536)]
-        [TestCase(100000, 131072)]
-        [TestCase(1048570, 1048576)]
-        [TestCase(4194000, 4194304)]
-        [TestCase(1073741800, 1073741824)]
+        [Theory]
+        [InlineData(2, 2)]
+        [InlineData(250, 256)]
+        [InlineData(100, 128)]
+        [InlineData(1000, 1024)]
+        [InlineData(1024, 1024)]
+        [InlineData(1500, 2048)]
+        [InlineData(60000, 65536)]
+        [InlineData(100000, 131072)]
+        [InlineData(1048570, 1048576)]
+        [InlineData(4194000, 4194304)]
+        [InlineData(1073741800, 1073741824)]
         public void FindNearestPowerOfTwoForGivenValue(int value, int expected)
         {
-            Assert.That(value.FindNearestPowerOfTwoEqualOrGreaterThan(), Is.EqualTo(expected));
+            value.FindNearestPowerOfTwoEqualOrGreaterThan().Should().Be(expected);
         }
 
-        [TestCase(2, 2)]
-        [TestCase(5, 4)]
-        [TestCase(300, 256)]
-        [TestCase(140, 128)]
-        [TestCase(1050, 1024)]
-        [TestCase(1024, 1024)]
-        [TestCase(3000, 2048)]
-        [TestCase(70000, 65536)]
-        [TestCase(140000, 131072)]
-        [TestCase(1148570, 1048576)]
-        [TestCase(4494000, 4194304)]
-        [TestCase(1273741800, 1073741824)]
+        [Theory]
+        [InlineData(2, 2)]
+        [InlineData(5, 4)]
+        [InlineData(300, 256)]
+        [InlineData(140, 128)]
+        [InlineData(1050, 1024)]
+        [InlineData(1024, 1024)]
+        [InlineData(3000, 2048)]
+        [InlineData(70000, 65536)]
+        [InlineData(140000, 131072)]
+        [InlineData(1148570, 1048576)]
+        [InlineData(4494000, 4194304)]
+        [InlineData(1273741800, 1073741824)]
         public void FindNearestPowerOfTwoLessThanForGivenValue(int value, int expected)
         {
-            Assert.That(value.FindNearestPowerOfTwoEqualOrLessThan(), Is.EqualTo(expected));
+            value.FindNearestPowerOfTwoEqualOrLessThan().Should().Be(expected);
         }
 
-        [Test]
+        [Fact]
         public void FindNearestPowerOfTwoThrowsArgumentExceptionWhenTargetValueWouldBegreaterThanMaxInt32()
         {
-            Assert.That(() => (int.MaxValue - 1).FindNearestPowerOfTwoEqualOrGreaterThan(), Throws.TypeOf<ArgumentOutOfRangeException>());
+            Action act = () => (int.MaxValue - 1).FindNearestPowerOfTwoEqualOrGreaterThan();
+            act.Should().Throw<ArgumentOutOfRangeException>();            
         }
 
-        [Test]
+        [Fact]
         public void FindNearestPowerOfTwoThrowsArgumentExceptionWhenTargetValueIsLessThan0()
         {
-            Assert.That(() => (-100).FindNearestPowerOfTwoEqualOrGreaterThan(), Throws.TypeOf<ArgumentOutOfRangeException>());
+            Action act = () => (-100).FindNearestPowerOfTwoEqualOrGreaterThan();
+            act.Should().Throw<ArgumentOutOfRangeException>();            
         }
 
-        [TestCase(0)]
-        [TestCase(-1)]
+        [Theory]
+        [InlineData(0)]
+        [InlineData(-1)]
         public void FindNearestPowerOfTwoEqualOrLessThanThrowsArgumentExceptionWhenValueIsLessThanOrEqualZero(int value)
         {
-            Assert.That(()=>value.FindNearestPowerOfTwoEqualOrLessThan(), Throws.TypeOf<ArgumentOutOfRangeException>());
+            Action act = () => value.FindNearestPowerOfTwoEqualOrLessThan();
+            act.Should().Throw<ArgumentOutOfRangeException>();            
         }
 
-        [TestCase(2,true)]
-        [TestCase(3, false)]
-        [TestCase(1024, true)]
-        [TestCase(999, false)]
-        [TestCase(1073741824, true)]
-        [TestCase(2073741824, false)]
+        [Theory]
+        [InlineData(2,true)]
+        [InlineData(3, false)]
+        [InlineData(1024, true)]
+        [InlineData(999, false)]
+        [InlineData(1073741824, true)]
+        [InlineData(2073741824, false)]
         public void IsPowerOfTwoTests(long value, bool expected)
         {
-            Assert.That(value.IsPowerOfTwo(), Is.EqualTo(expected));
+            value.IsPowerOfTwo().Should().Be(expected);
         }
     }
 }

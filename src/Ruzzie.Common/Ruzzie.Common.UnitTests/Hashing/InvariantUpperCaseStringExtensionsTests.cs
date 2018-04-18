@@ -1,25 +1,27 @@
-using NUnit.Framework;
+using System;
+using FluentAssertions;
 using Ruzzie.Common.Hashing;
+using Xunit;
 
 namespace Ruzzie.Common.UnitTests.Hashing
-{
-    [TestFixture]
+{    
     public class InvariantUpperCaseStringExtensionsTests
     {
-        [TestCase("abcdefghijklmnopqrstuvwxyz", "ABCDEFGHIJKLMNOPQRSTUVWXYZ")]
-        [TestCase("abcdefghijklmnopqrstuvwxyz", "ABCDEFGHIJKLMNOPQRSTUVWXYZ")]
-        [TestCase("", "")]
-        [TestCase("3 Harvard Square", "3 HARVARD SQUARE")]
-        [TestCase("2130 South Fort Union Blvd.", "2130 SOUTH FORT UNION BLVD.")]
+        [Theory]
+        [InlineData("abcdefghijklmnopqrstuvwxyz", "ABCDEFGHIJKLMNOPQRSTUVWXYZ")]        
+        [InlineData("", "")]
+        [InlineData("3 Harvard Square", "3 HARVARD SQUARE")]
+        [InlineData("2130 South Fort Union Blvd.", "2130 SOUTH FORT UNION BLVD.")]
         public void ToUpperInvariantString(string input, string expected)
         {
-            Assert.That(InvariantUpperCaseStringExtensions.ToUpperInvariant(input), Is.EqualTo(expected));
+            InvariantUpperCaseStringExtensions.ToUpperInvariant(input).Should().Be(expected);
         }
 
-        [Test]
+        [Fact]
         public void ToUpperInvariantStringNullThrowsException()
         {
-            Assert.That(() => InvariantUpperCaseStringExtensions.ToUpperInvariant(null), Throws.ArgumentNullException);
+            Action act = () => InvariantUpperCaseStringExtensions.ToUpperInvariant(null);
+            act.Should().Throw<ArgumentNullException>();            
         }
     }
 }

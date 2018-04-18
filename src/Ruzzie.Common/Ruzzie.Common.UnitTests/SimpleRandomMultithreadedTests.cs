@@ -1,13 +1,12 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using NUnit.Framework;
+using Xunit;
 
 namespace Ruzzie.Common.UnitTests
-{
-    [TestFixture][Ignore("These test cause timeouts on the buildserver....")]
+{    
     public class SimpleRandomMultiThreadedTests
     {
-        [Test]
+        [Fact(Skip = "These test cause timeouts on the buildserver....")]
         public void SmokeTestWithParallelFor()
         {
             SimpleRandom random = new SimpleRandom();
@@ -25,7 +24,7 @@ namespace Ruzzie.Common.UnitTests
 
         }
 
-        [Test]
+        [Fact(Skip = "These test cause timeouts on the buildserver....")]
         public void SmokeTestWithParallelWhile()
         {// ReSharper disable AccessToModifiedClosure
             SimpleRandom random = new SimpleRandom();

@@ -1,38 +1,38 @@
 ﻿using System.Text;
-using NUnit.Framework;
+using FluentAssertions;
 using Ruzzie.Common.Hashing;
+using Xunit;
 
 namespace Ruzzie.Common.UnitTests.Hashing
-{
-    [TestFixture]
+{    
     // ReSharper disable once InconsistentNaming
     public class FNV1aHashAlgorithmTests
     {
         private readonly FNV1AHashAlgorithm _hashAlgorithm = new FNV1AHashAlgorithm();
 
-        [Test]
+        [Fact]
         public void HashCodeTest()
         {
-            Assert.That(_hashAlgorithm.HashStringCaseInsensitive("0"), Is.EqualTo(837651325));
+            _hashAlgorithm.HashStringCaseInsensitive("0").Should().Be(837651325);
         }
 
-        [Test]
+        [Fact]
         public void SameHashCodeForSameString()
         {
             string stringToHash = "FlashCache is tha bomb";
             int hashOne = _hashAlgorithm.HashBytes(Encoding.Unicode.GetBytes(stringToHash));
             int hashTwo = _hashAlgorithm.HashBytes(Encoding.Unicode.GetBytes("FlashCache is tha bomb"));
-            Assert.That(hashOne, Is.EqualTo(hashTwo));
+            hashOne.Should().Be(hashTwo);
         }
 
-        [Test]
+        [Fact]
         public void DifferentHashCodeForDifferentString()
         {
             string stringToHash = "FlashCache is tha bomb you know";
             int hashOne = _hashAlgorithm.HashBytes(Encoding.Unicode.GetBytes(stringToHash));
             int hashTwo = _hashAlgorithm.HashBytes(Encoding.Unicode.GetBytes(stringToHash.ToLower()));
-
-            Assert.That(hashOne, Is.Not.EqualTo(hashTwo));
+            
+            hashOne.Should().NotBe(hashTwo);
         }       
     }
 }

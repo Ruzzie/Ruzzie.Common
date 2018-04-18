@@ -1,42 +1,45 @@
 ﻿using System;
 using System.Diagnostics;
-using NUnit.Framework;
+using FluentAssertions;
 using Ruzzie.Common.Hashing;
+using Xunit;
 
 namespace Ruzzie.Common.UnitTests.Hashing
-{
-    [TestFixture]
+{    
     public class HashStringCaseInsensitiveTests
     {
         private readonly FNV1AHashAlgorithm _hashAlgorithm = new FNV1AHashAlgorithm();
 
-        [TestCase("The Doctor", "the doctor")]
-        [TestCase("the Doctor", "the doctor")]
-        [TestCase("A", "a")]
-        [TestCase("Ab", "aB")]
-        [TestCase("AB", "AB")]
-        [TestCase("1!!", "1!!")]
-        [TestCase("Ω", "ω")]
-        [TestCase("3 Harvard Square", "3 HARVARD SQUARE")]
+        [Theory]
+        [InlineData("The Doctor", "the doctor")]
+        [InlineData("the Doctor", "the doctor")]
+        [InlineData("A", "a")]
+        [InlineData("Ab", "aB")]
+        [InlineData("AB", "AB")]
+        [InlineData("1!!", "1!!")]
+        [InlineData("Ω", "ω")]
+        [InlineData("3 Harvard Square", "3 HARVARD SQUARE")]
         public void IgnoreCaseTests(string casingOne, string casingStyleTwo)
         {
-            Assert.That(_hashAlgorithm.HashStringCaseInsensitive(casingOne), Is.EqualTo(_hashAlgorithm.HashStringCaseInsensitive(casingStyleTwo)));
+            _hashAlgorithm.HashStringCaseInsensitive(casingOne).Should()
+                .Be(_hashAlgorithm.HashStringCaseInsensitive(casingStyleTwo));
         }
 
-        [Test]
+        [Fact]
         public void NullShouldThrowException()
         {
-            Assert.That(() => _hashAlgorithm.HashStringCaseInsensitive(null), Throws.Exception);
+            Action act = () => _hashAlgorithm.HashStringCaseInsensitive(null);
+            act.Should().Throw<Exception>();            
         }
 
-        [Test]
+        [Fact]
         public void EmptyShouldReturnDefaultHashValue()
         {
             var defaultHash = 2166136261;
-            Assert.That(_hashAlgorithm.HashStringCaseInsensitive(""), Is.EqualTo((int)defaultHash));
+            _hashAlgorithm.HashStringCaseInsensitive("").Should().Be((int) defaultHash);
         }
 
-        [Test]
+        [Fact]
         public void PerformanceTest()
         {
             SimpleRandom random = new SimpleRandom(7 * 37);

@@ -2,10 +2,8 @@
 using System.Collections;
 using System.Collections.Generic;
 
-
 namespace Ruzzie.Common.Collections
 {
-
 
 #if !PORTABLE
     /// <summary>

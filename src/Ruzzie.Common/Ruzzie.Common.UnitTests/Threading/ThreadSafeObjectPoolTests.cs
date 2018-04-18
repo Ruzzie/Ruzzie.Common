@@ -3,18 +3,19 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using FluentAssertions;
 using Moq;
-using NUnit.Framework;
 using Ruzzie.Common.Threading;
+using Xunit;
+
 #if ! PORTABLE
 #endif
 
 namespace Ruzzie.Common.UnitTests.Threading
-{
-    [TestFixture]
+{    
     public class ThreadSafeObjectPoolTests
     {
-        [Test]
+        [Fact]
         public void SmokeTest()
         {
             ThreadSafeObjectPool<SHA1> sha1ObjectPool = new ThreadSafeObjectPool<SHA1>(SHA1.Create, 8);
@@ -23,7 +24,7 @@ namespace Ruzzie.Common.UnitTests.Threading
         }
 
 #if ! PORTABLE
-        [Test]
+        [Fact]
         public void DisposeTest()
         {
             Mock<IDisposable> disposableMock = new Mock<IDisposable>();
@@ -36,7 +37,7 @@ namespace Ruzzie.Common.UnitTests.Threading
             disposableMock.Verify(disposable => disposable.Dispose(), Times.Once);
         }
 #endif
-        [Test]
+        [Fact]
         public void ContentionTest()
         {
             int objectCount = 1;
@@ -45,8 +46,8 @@ namespace Ruzzie.Common.UnitTests.Threading
             //Each execution should be handled by a different object
             var resultOne = Task.Run(() => pool.ExecuteOnAvailableObject(o => o.ExecuteAndHoldLock(100)));
             var resultTwo = Task.Run(() => pool.ExecuteOnAvailableObject(o => o.ExecuteAndHoldLock(100)));
-
-            Assert.That(resultOne.Result, Is.Not.EqualTo(resultTwo.Result));
+            
+            resultOne.Result.Should().NotBe(resultTwo.Result);
         }
 
         class ContentionObject

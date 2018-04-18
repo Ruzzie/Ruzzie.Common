@@ -1,20 +1,23 @@
-﻿using NUnit.Framework;
+﻿using System;
+using FluentAssertions;
+using Xunit;
 
 namespace Ruzzie.Common.UnitTests
 {
-    [TestFixture]
     public class RandomExtensionsTests
     {
-        [Test]
+        [Fact]
         public void NextBytesThrowsExceptionWhenRandomIsNull()
         {
-            Assert.That(() => RandomExtensions.NextBytes(null, 1), Throws.Exception);
+            Action act = () => RandomExtensions.NextBytes(null, 1);
+            act.Should().Throw<Exception>();            
         }
 
-        [Test]
+        [Fact]
         public void NextBytesThrowsExceptionWhenCountIsLessThanOne()
         {
-            Assert.That(() => RandomExtensions.NextBytes(new SimpleRandom(), 0), Throws.Exception);
+            Action act = () => new SimpleRandom().NextBytes(0);
+            act.Should().Throw<Exception>();            
         }
     }
 }

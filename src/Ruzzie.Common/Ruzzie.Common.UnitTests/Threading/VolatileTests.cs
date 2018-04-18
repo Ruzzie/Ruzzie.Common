@@ -1,12 +1,12 @@
-﻿using NUnit.Framework;
+﻿using FluentAssertions;
 using Ruzzie.Common.Threading;
+using Xunit;
 
 namespace Ruzzie.Common.UnitTests.Threading
-{
-    [TestFixture]
+{    
     public class VolatileTests
     {
-        [Test]
+        [Fact]
         public void ReadApiSmokeTest()
         {
             //Arrange
@@ -14,10 +14,10 @@ namespace Ruzzie.Common.UnitTests.Threading
             //Act
             var read = Volatile.Read(ref value);
             //Act
-            Assert.That(value, Is.EqualTo(read));
+            value.Should().Be(read);
         }
 
-        [Test]
+        [Fact]
         public void WriteApiSmokeTest()
         {
             //Arrange
@@ -26,10 +26,10 @@ namespace Ruzzie.Common.UnitTests.Threading
             //Act
             Volatile.Write(ref value,valueToWrite);
             //Assert
-            Assert.That(value, Is.EqualTo(valueToWrite));
+            value.Should().Be(valueToWrite);
         }
 
-        [Test]
+        [Fact]
         public void ReadValueTypeApiSmokeTest()
         {
             //Arrange
@@ -37,10 +37,10 @@ namespace Ruzzie.Common.UnitTests.Threading
             //Act
             var read = Volatile.ReadValueType(ref value);
             //Act
-            Assert.That(value, Is.EqualTo(read));
+            value.Should().Be(read);
         }
 
-        [Test]
+        [Fact]
         public void WriteValueTypeApiSmokeTest()
         {
             //Arrange
@@ -49,7 +49,7 @@ namespace Ruzzie.Common.UnitTests.Threading
             //Act
             Volatile.WriteValueType(ref value, valueToWrite);
             //Assert
-            Assert.That(value, Is.EqualTo(valueToWrite));
+            value.Should().Be(valueToWrite);
         }
 
         class ValueReferenceType

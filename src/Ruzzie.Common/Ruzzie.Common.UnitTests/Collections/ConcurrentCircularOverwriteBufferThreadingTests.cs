@@ -5,12 +5,12 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using NUnit.Framework;
+using FluentAssertions;
 using Ruzzie.Common.Collections;
+using Xunit;
 
 namespace Ruzzie.Common.UnitTests.Collections
 {
-    [TestFixture]
     public class ConcurrentCircularOverwriteBufferThreadingTests
     {
         private static void ReadFromBufferWhileMustRead(ref bool mustRead, ConcurrentCircularOverwriteBuffer<int> buffer)
@@ -20,8 +20,7 @@ namespace Ruzzie.Common.UnitTests.Collections
             timer.Start();
             while (mustRead)
             {
-                int value;
-                if (buffer.ReadNext(out value))
+                if (buffer.ReadNext(out _))
                 {
                 }
                 readCounter++;
@@ -52,7 +51,7 @@ namespace Ruzzie.Common.UnitTests.Collections
             Trace.WriteLine(message);
         }
 
-        [Test]
+        [Fact]
         [SuppressMessage("ReSharper", "AccessToModifiedClosure")]
         public void ThreadHammerWritePerformanceTest()
         {
@@ -80,41 +79,43 @@ namespace Ruzzie.Common.UnitTests.Collections
             //Assert: No Exceptions
         }
 
-        [Test]
+        [Fact]
         public void ThreadSafeReadTests()
         {
             //Arrange
             var cacheSize = 8192;
-            ConcurrentCircularOverwriteBuffer<int> buffer = new ConcurrentCircularOverwriteBuffer<int>(cacheSize);
+            var buffer = new ConcurrentCircularOverwriteBuffer<int>(cacheSize);
 
             Parallel.For(0, cacheSize, new ParallelOptions {MaxDegreeOfParallelism = -1}, i => { buffer.WriteNext(i); });
 
-            ConcurrentDictionary<int, byte> allValuesHashSet = new ConcurrentDictionary<int, byte>();
+            var allValuesHashSet = new ConcurrentDictionary<int, byte>();
 
             for (var i = 0; i < cacheSize; i++)
             {
                 allValuesHashSet[i] = 1;
             }
 
-            ConcurrentDictionary<int, byte> readValuesHashSet = new ConcurrentDictionary<int, byte>();
+            var readValuesHashSet = new ConcurrentDictionary<int, byte>();
 
             //Act & Assert
             Parallel.For(0, cacheSize, new ParallelOptions {MaxDegreeOfParallelism = -1}, i =>
             {
                 int readNext = buffer.ReadNext();
                 readValuesHashSet.TryAdd(readNext, 1);
-                Assert.That(allValuesHashSet.ContainsKey(readNext), Is.True, "Did not contain: " + readNext);
-            });
-            Assert.That(readValuesHashSet.Keys.Distinct().Count(), Is.EqualTo(cacheSize));
-            Assert.That(buffer.Count, Is.EqualTo(0));
+
+                allValuesHashSet.ContainsKey(readNext).Should().BeTrue("Did not contain: " + readNext);
+            });            
+
+            readValuesHashSet.Keys.Distinct().Count().Should().Be(cacheSize);
+            buffer.Count.Should().Be(0);
         }
 
-        [Test]
+        [Fact]
         public void ThreadSafeWriteTests()
         {
             //Arrange
             var cacheSize = 2048;
-            ConcurrentCircularOverwriteBuffer<int> buffer = new ConcurrentCircularOverwriteBuffer<int>(cacheSize);
+            var buffer = new ConcurrentCircularOverwriteBuffer<int>(cacheSize);
 
             //Act
             Parallel.For(0, cacheSize, new ParallelOptions {MaxDegreeOfParallelism = -1}, i => { buffer.WriteNext(i); });
@@ -123,12 +124,13 @@ namespace Ruzzie.Common.UnitTests.Collections
             int[] allValues = new int[cacheSize];
             buffer.CopyTo(allValues, 0);
 
-            HashSet<int> allValuesHashSet = new HashSet<int>(allValues);
+            var allValuesHashSet = new HashSet<int>(allValues);
+            
+            buffer.Count.Should().Be(cacheSize);
 
-            Assert.That(buffer.Count, Is.EqualTo(cacheSize));
             for (var i = 0; i < cacheSize; i++)
-            {
-                Assert.That(allValuesHashSet.Contains(i), Is.True, "Did not contain: " + i);
+            {                
+                allValuesHashSet.Should().Contain(i, "Did not contain: " + i);
             }
         }
     }

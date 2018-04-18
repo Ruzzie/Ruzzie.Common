@@ -1,77 +1,84 @@
-﻿using NUnit.Framework;
+﻿using System;
+using FluentAssertions;
 using Ruzzie.Common.Collections;
+using Xunit;
 
 namespace Ruzzie.Common.UnitTests.Collections
-{
-    [TestFixture]
+{    
     public class ConcurrentCircularOverwriteBufferTests
     {
-        [TestCase(1)]
-        [TestCase(0)]
-        [TestCase(-1)]
+        [Theory]
+        [InlineData(1)]
+        [InlineData(0)]
+        [InlineData(-1)]
         public void ConstructorThrowsArgumentExceptionWhenSizeIsLessThanTwo(int size)
         {
-            Assert.That(() => new ConcurrentCircularOverwriteBuffer<int>(size), Throws.Exception);
+            // ReSharper disable once ObjectCreationAsStatement
+            Action act = () => new ConcurrentCircularOverwriteBuffer<int>(size);
+
+            act.Should().Throw<Exception>();            
         }
 
-        [Test]
+        [Fact]
         public void CountShouldNotExceedCapacity()
         {
             var size = 2;
-            ConcurrentCircularOverwriteBuffer<int> buffer = new ConcurrentCircularOverwriteBuffer<int>(size);
+            var buffer = new ConcurrentCircularOverwriteBuffer<int>(size);
 
             buffer.WriteNext(1);
             buffer.WriteNext(1);
             buffer.WriteNext(1);
             buffer.WriteNext(1);
-
-            Assert.That(buffer.Count, Is.EqualTo(2));
+            
+            buffer.Count.Should().Be(2);
         }
 
-        [Test]
+        [Fact]
         public void ReadNextThrowsExceptionWhenEmpty()
         {
-            ConcurrentCircularOverwriteBuffer<int> buffer = new ConcurrentCircularOverwriteBuffer<int>(2);
+            var buffer = new ConcurrentCircularOverwriteBuffer<int>(2);
+            
+            Action act = () => buffer.ReadNext();
 
-            Assert.That(() => buffer.ReadNext(), Throws.Exception);
+            act.Should().Throw<Exception>();
         }
 
-        [Test]
+        [Fact]
         public void SmokeTest()
         {
-            ConcurrentCircularOverwriteBuffer<int> buffer = new ConcurrentCircularOverwriteBuffer<int>();
+            var buffer = new ConcurrentCircularOverwriteBuffer<int>();
 
             buffer.WriteNext(1);
             buffer.WriteNext(2);
-
-            Assert.That(buffer.ReadNext(), Is.EqualTo(1));
-            Assert.That(buffer.ReadNext(), Is.EqualTo(2));
+            
+            buffer.ReadNext().Should().Be(1);
+            buffer.ReadNext().Should().Be(2);
         }
 
-        [Test]
+        [Fact]
         public void WriteNextShouldOverwriteValues()
         {
-            ConcurrentCircularOverwriteBuffer<int> buffer = new ConcurrentCircularOverwriteBuffer<int>(2);
+            var buffer = new ConcurrentCircularOverwriteBuffer<int>(2);
 
             for (var i = 0; i < 10; i++)
             {
                 buffer.WriteNext(i);
-            }
+            }            
 
-            Assert.That(buffer.ReadNext(), Is.EqualTo(8));
-            Assert.That(buffer.ReadNext(), Is.EqualTo(9));
+            buffer.ReadNext().Should().Be(8);
+            buffer.ReadNext().Should().Be(9);
         }       
 
-        [Test]
+        [Fact]
         public void CountShouldReturnAccurateCountWhenReadAndWriteIndexAreMultipleOfCapacityWithRemainder()
         {
-            ConcurrentCircularOverwriteBuffer<byte> buffer = new ConcurrentCircularOverwriteBuffer<byte>(3);
+            var buffer = new ConcurrentCircularOverwriteBuffer<byte>(3);
             buffer.WriteNext(1);
             buffer.WriteNext(2);
             
             buffer.ReadNext();
-
-            Assert.That(buffer.Count, Is.EqualTo(1));
+            
+            buffer.Count.Should().Be(1);
         }
     }
 }

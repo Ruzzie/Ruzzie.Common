@@ -1,21 +1,17 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
-using NUnit.Framework;
+using Xunit;
 
 namespace Ruzzie.Common.UnitTests
-{
-    [TestFixture]
+{    
     public class RandomPerformanceTests
     {
-        [Test]
-        [Ignore("Intgration test to test algorithm. Takes too long on CI")]
+        [Fact(Skip = "Intëgration test to test algorithm. Takes too long on CI")]        
         public void CompareSpeedForDifferentRandoms()
         {
-            int seed = Environment.TickCount;
             Random systemRandom = new Random(3);
             Random customRandom = new SimpleRandom(3);
-
 
             //Single threaded performance
             var singleThreadIterations = 10000 * 2052;

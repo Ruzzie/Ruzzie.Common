@@ -1,18 +1,19 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using NUnit.Framework;
+using FluentAssertions;
+using Xunit;
 
 namespace Ruzzie.Common.UnitTests.Numerics.Statistics
-{
-    [TestFixture]
+{    
     public class StreamAverageTests
     {
-        [TestCase(new double[] { 1, 1, 1 }, 1.0)]
-        [TestCase(new double[] { 1, 1, 1, 2, 2, 2 }, 1.5)]
-        [TestCase(new double[] { 1, 2 }, 1.5)]
-        [TestCase(new double[] { 0, 9 }, 4.5)]
-        [TestCase(new double[] { 0, 10, 0, 10, 0, 10 }, 5)]
+        [Theory]
+        [InlineData(new double[] { 1, 1, 1 }, 1.0)]
+        [InlineData(new double[] { 1, 1, 1, 2, 2, 2 }, 1.5)]
+        [InlineData(new double[] { 1, 2 }, 1.5)]
+        [InlineData(new double[] { 0, 9 }, 4.5)]
+        [InlineData(new double[] { 0, 10, 0, 10, 0, 10 }, 5)]
         public void DoubleTests(double[] items, double expected)
         {
             double avg = 0;
@@ -21,16 +22,17 @@ namespace Ruzzie.Common.UnitTests.Numerics.Statistics
                 avg = Common.Numerics.Statistics.Average.StreamAverage(avg, items[i], i);
             }
 
-            Assert.That(avg, Is.EqualTo(expected));
-            Assert.That(avg, Is.EqualTo(items.Average()));
+            avg.Should().Be(expected);
+            avg.Should().Be(items.Average());
         }
 
-        [TestCase(new[] { 1, 1, 1 }, 1.0)]
-        [TestCase(new[] { 1, 1, 1, 2, 2, 2 }, 1.5)]
-        [TestCase(new[] { 1, 2 }, 1.5)]
-        [TestCase(new[] { 0, 9 }, 4.5)]
-        [TestCase(new[] { 0, 10, 0, 10, 0, 10 }, 5)]
-        [TestCase(new[] { 1, 2, 3, 1, 2, 4 }, 2.1666666666666665)]
+        [Theory]
+        [InlineData(new[] { 1, 1, 1 }, 1.0)]
+        [InlineData(new[] { 1, 1, 1, 2, 2, 2 }, 1.5)]
+        [InlineData(new[] { 1, 2 }, 1.5)]
+        [InlineData(new[] { 0, 9 }, 4.5)]
+        [InlineData(new[] { 0, 10, 0, 10, 0, 10 }, 5)]
+        [InlineData(new[] { 1, 2, 3, 1, 2, 4 }, 2.1666666666666665)]
         public void StreamAverageIntTests(int[] items, double expected)
         {
             double avg = 0;
@@ -39,11 +41,11 @@ namespace Ruzzie.Common.UnitTests.Numerics.Statistics
                 avg = Common.Numerics.Statistics.Average.StreamAverage(avg, items[i], i);
             }
 
-            Assert.That(avg, Is.EqualTo(expected));
-            Assert.That(avg, Is.EqualTo(items.Average()));
+            avg.Should().Be(expected);
+            avg.Should().Be(items.Average());
         }
 
-        [Test]
+        [Fact]
         public void StreamAverageForSetTest()
         {
             Random random = new Random(1);
@@ -56,8 +58,8 @@ namespace Ruzzie.Common.UnitTests.Numerics.Statistics
                 samples.Add(value);
             }
 
-            Assert.That(avg, Is.EqualTo(1081420669.4020009d));
-            Assert.That(avg, Is.EqualTo(samples.Average()).Within(0.000009));
+            avg.Should().Be(1081420669.4020009d);
+            avg.Should().BeApproximately(samples.Average(), 0.000009);
         }
     }
 }

@@ -1,29 +1,30 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using NUnit.Framework;
+using FluentAssertions;
 using Ruzzie.Common.Numerics.Statistics;
+using Xunit;
 
 namespace Ruzzie.Common.UnitTests
 {
-    [TestFixture]
     public class SimpleRandomTests
     {
 
-        [Test]
+        [Fact]
         public void NextBytesThrowsExceptionWhenBufferIsNull()
         {
             SimpleRandom random = new SimpleRandom();
-
             // ReSharper disable once AssignNullToNotNullAttribute
-            Assert.That(()=> random.NextBytes(null), Throws.Exception);
+            Action act = (() => random.NextBytes(null));
+            
+            act.Should().Throw<Exception>();
         }
 
-        [Test]
-        [TestCase(0,10)]
-        [TestCase(1,10)]
-        [TestCase(-5,0)]
-        [TestCase(-5,1)]       
+        [Theory]
+        [InlineData(0,10)]
+        [InlineData(1,10)]
+        [InlineData(-5,0)]
+        [InlineData(-5,1)]       
         public void NextIntMinMax(int minValue, int maxValue)
         {
             SimpleRandom random = new SimpleRandom();
@@ -31,33 +32,30 @@ namespace Ruzzie.Common.UnitTests
             for (int i = 0; i < 100; i++)
             {
                 int result = random.Next(minValue, maxValue);
-
-                Assert.That(result, Is.GreaterThanOrEqualTo(minValue));
-                Assert.That(result, Is.LessThan(maxValue));
+                
+                result.Should().BeGreaterOrEqualTo(minValue);                
+                result.Should().BeLessThan(maxValue);
             }          
         }
 
-        [Test]
+        [Fact]
         public void NextIntMinMaxReturnsMinValueWhenMinValueIsEqualToMaxValue()
-        {
-            Assert.That(new SimpleRandom().Next(1,1),Is.EqualTo(1));
+        {            
+            new SimpleRandom().Next(1, 1).Should().Be(1);
         }
 
-        [Test]
+        [Fact]
         public void NextIntMinMaxThrowsArgumentOutOfRangeExceptionWhenMaxValueIsLessThanMinValue()
         {
-
-            Assert.That(()=>
-            {
-                // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
-                new SimpleRandom().Next(10, 9);
-            },Throws.Exception.TypeOf<ArgumentOutOfRangeException>());
-            
+            // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
+            Action act = ()=> new SimpleRandom().Next(10, 9);
+            act.Should().Throw<ArgumentOutOfRangeException>();                        
         }
-        [TestCase(10)]
-        [TestCase(2)]
-        [TestCase(99)]
-        [TestCase(1)]
+        [Theory]
+        [InlineData(10)]
+        [InlineData(2)]
+        [InlineData(99)]
+        [InlineData(1)]
         public void NextIntMax(int maxValue)
         {
             SimpleRandom random = new SimpleRandom();
@@ -65,40 +63,37 @@ namespace Ruzzie.Common.UnitTests
             for (int i = 0; i < 100; i++)
             {
                 int result = random.Next(maxValue);
-
-                Assert.That(result, Is.GreaterThanOrEqualTo(0));
-                Assert.That(result, Is.LessThan(maxValue));
+                
+                result.Should().BeGreaterOrEqualTo(0);                
+                result.Should().BeLessThan(maxValue);
             }
         }
 
-        [Test]
+        [Fact]
         public void NextIntMaxShouldReturnZeroWhenMaxValueIsZero()
         {
-          Assert.That(new SimpleRandom().Next(0),Is.EqualTo(0));
+            new SimpleRandom().Next(0).Should().Be(0);
         }
 
-
-        [Test]
+        [Fact]
         public void NextIntMaxThrowsArgumentOutOfRangeExceptionWhenMaxValueIsLessThanZero()
         {
-
-            Assert.That(() =>
-            {
-                // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
-                new SimpleRandom().Next(-9);
-            }, Throws.Exception.TypeOf<ArgumentOutOfRangeException>());
-
+            // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
+            Action act = ()=> new SimpleRandom().Next(-9);
+            
+            act.Should().Throw<ArgumentOutOfRangeException>();
         }
 
-        [Test]
+        [Fact]
         public void NextShouldNotReturnMax()
         {
             int initialSeed = 1;
             SimpleRandom random = new SimpleRandom(initialSeed);
-            Assert.That(random.Next(10), Is.LessThan(10));
+            
+            random.Next(10).Should().BeLessThan(10);
         }
 
-        [Test]
+        [Fact]
         public void NextDoubleShouldBeLessThanOne()
         {
             SimpleRandom random = new SimpleRandom(1, 1664637461, 476397391);
@@ -117,58 +112,58 @@ namespace Ruzzie.Common.UnitTests
 
             Console.WriteLine("Min: " + samples.Min());
             Console.WriteLine("Max: " + samples.Max());
-            Assert.That(samples.Contains(1.0), Is.False);
-            Assert.That(average, Is.EqualTo(0.50025237100076547d));
+            
+            samples.Should().NotContain(1.0);            
+            average.Should().Be(0.50025237100076547d);
         }
 
-        [Test]
+        [Fact]
         public void TestValues()
         {
-            SimpleRandom simpleRandom = new SimpleRandom(1, 862314265, 311308189);
+            SimpleRandom simpleRandom = new SimpleRandom(1, 862314265, 311308189);            
 
-            Assert.That(simpleRandom.NextByte(), Is.EqualTo(242));
-            Assert.That(simpleRandom.NextByte(), Is.EqualTo(248));
-            Assert.That(simpleRandom.NextByte(), Is.EqualTo(173));
-            Assert.That(simpleRandom.NextByte(), Is.EqualTo(79));
+            simpleRandom.NextByte().Should().Be(242);
+            simpleRandom.NextByte().Should().Be(248);
+            simpleRandom.NextByte().Should().Be(173);
+            simpleRandom.NextByte().Should().Be(79);
         }
 
-        [Test]
+        [Fact]
         public void NextByteSmokeTest()
         {
             SimpleRandom simpleRandom = new SimpleRandom();
 
-            Assert.That(simpleRandom.NextByte(), Is.EqualTo(175));
-            Assert.That(simpleRandom.NextByte(), Is.EqualTo(211));
-            Assert.That(simpleRandom.NextByte(), Is.EqualTo(17));
-            Assert.That(simpleRandom.NextByte(), Is.EqualTo(98));
+            simpleRandom.NextByte().Should().Be(175);
+            simpleRandom.NextByte().Should().Be(211);
+            simpleRandom.NextByte().Should().Be(17);
+            simpleRandom.NextByte().Should().Be(98);
         }
 
-        [Test]
+        [Fact]
         public void NextIntSmokeTest()
         {
-            SimpleRandom simpleRandom = new SimpleRandom();
+            SimpleRandom simpleRandom = new SimpleRandom(); 
 
-            Assert.That(simpleRandom.Next(), Is.EqualTo(999359663));
-            Assert.That(simpleRandom.Next(), Is.EqualTo(1963915219));
-            Assert.That(simpleRandom.Next(), Is.EqualTo(1719644689));
-            Assert.That(simpleRandom.Next(), Is.EqualTo(1676061794));
+            simpleRandom.Next().Should().Be(999359663);
+            simpleRandom.Next().Should().Be(1963915219);
+            simpleRandom.Next().Should().Be(1719644689);
+            simpleRandom.Next().Should().Be(1676061794);
         }
 
-        [Test]
+        [Fact]
         public void NextInt100SmokeTest()
         {
             SimpleRandom simpleRandom = new SimpleRandom();
 
-            Assert.That(simpleRandom.Next(100), Is.EqualTo(63));
-            Assert.That(simpleRandom.Next(100), Is.EqualTo(19));
-            Assert.That(simpleRandom.Next(100), Is.EqualTo(89));
-            Assert.That(simpleRandom.Next(100), Is.EqualTo(94));
+            simpleRandom.Next(100).Should().Be(63);
+            simpleRandom.Next(100).Should().Be(19);
+            simpleRandom.Next(100).Should().Be(89);
+            simpleRandom.Next(100).Should().Be(94);
         }
 
-        [Test]
+        [Fact]
         public void NextIntAverageTest()
-        {
-           
+        {           
             SimpleRandom random = new SimpleRandom(2332454);
             int sampleSize = 500000;
 
@@ -181,37 +176,36 @@ namespace Ruzzie.Common.UnitTests
 
             Console.WriteLine("Min: " + samples.Min());
             Console.WriteLine("Max: " + samples.Max());
-
-            Assert.That(samples.Contains(0), Is.True, " Does not contain 0");
-            Assert.That(samples.Contains(99), Is.True, " Does not contain 99");
-            Assert.That(samples.Select(b => b).Average(), Is.EqualTo(49.518106000000003d));
-
+            
+            samples.Should().Contain(0);
+            samples.Should().Contain(99);
+            samples.Select(b => b).Average().Should().Be(49.518106000000003d);
         }
 
-        [Test]
+        [Fact]
         public void RandomnessTesterTest()
         {
             int maxValue = 100;
             RandomnessTestResult result = RandomnessTester.TestInt(new SimpleRandom(), maxValue);
 
-            Assert.That(result.SampleResult.Average, Is.EqualTo(49.862699999999855d));
-            Assert.That(result.SampleResult.Chi, Is.EqualTo(77.639999999999986d).Within(0.01d));
-            Assert.That(result.SampleResult.PoChi, Is.EqualTo(0.95244956125302926d).Within(0.00001d));
-            Assert.That(result.SampleResult.Entropy, Is.EqualTo(6.6382366673825759d).Within(0.00001d));
+            result.SampleResult.Average.Should().Be(49.862699999999855d);
+            result.SampleResult.Chi.Should().BeApproximately(77.639999999999986d, 0.01d);
+            result.SampleResult.PoChi.Should().BeApproximately(0.95244956125302926d, 0.00001d);
+            result.SampleResult.Entropy.Should().BeApproximately(6.6382366673825759d, 0.00001d);
         }
 
-        [Test]
+        [Fact]
         public void RandomnessBytesTesterTest()
         {
             RandomnessTestResult result = RandomnessTester.TestBytes(new SimpleRandom(37));
 
-            Assert.That(result.SampleResult.Average, Is.EqualTo(127.68689999999995d));
-            Assert.That(result.SampleResult.Chi, Is.EqualTo(242.0992d).Within(0.1d)); //88.09999999999998d
-            Assert.That(result.SampleResult.PoChi, Is.EqualTo(0.7244845588804244d).Within(0.0000000000001));//0.79665006850430176d
-            Assert.That(result.SampleResult.Entropy, Is.EqualTo(7.9824575806072193d));
+            result.SampleResult.Average.Should().Be(127.68689999999995d);
+            result.SampleResult.Chi.Should().BeApproximately(242.0992d, 0.01d);
+            result.SampleResult.PoChi.Should().BeApproximately(0.7244845588804244d, 0.0000000000001);
+            result.SampleResult.Entropy.Should().Be(7.9824575806072193d);
         }
 
-        [Test]
+        [Fact]
         public void ResetWithSameSeedShouldReturnSameSequence()
         {
             SimpleRandom random = new SimpleRandom();
@@ -219,9 +213,8 @@ namespace Ruzzie.Common.UnitTests
             int value = random.Next();
 
             random.Reset(1);
-
-            Assert.That(value, Is.EqualTo(random.Next()).And.Not.EqualTo(random.Next()));
-
+            
+            value.Should().Be(random.Next()).And.NotBe(random.Next());
         }
     }
 

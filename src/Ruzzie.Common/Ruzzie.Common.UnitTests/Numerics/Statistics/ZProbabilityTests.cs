@@ -1,16 +1,17 @@
-﻿using NUnit.Framework;
+﻿using FluentAssertions;
 using Ruzzie.Common.Numerics.Distributions;
+using Xunit;
 
 namespace Ruzzie.Common.UnitTests.Numerics.Statistics
 {
-    [TestFixture]
     public class ZProbabilityTests
     {
-        [TestCase(0.0, 0.5)]
-        [TestCase(1.0, 0.84134474616376287d)]
+        [Theory]
+        [InlineData(0.0, 0.5)]
+        [InlineData(1.0, 0.84134474616376287d)]
         public void ProbabilityOfZTests(double normalZValue, double expected)
         {
-            Assert.That(ZProbability.ProbabilityOfZ(normalZValue), Is.EqualTo(expected));
+            ZProbability.ProbabilityOfZ(normalZValue).Should().Be(expected);
         }
     }
 }

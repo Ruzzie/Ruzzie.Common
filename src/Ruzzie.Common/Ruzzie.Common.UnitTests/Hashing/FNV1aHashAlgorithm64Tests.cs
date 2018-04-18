@@ -1,77 +1,82 @@
-﻿using System.Text;
-using NUnit.Framework;
+﻿using System;
+using System.Text;
+using FluentAssertions;
 using Ruzzie.Common.Hashing;
+using Xunit;
 
 namespace Ruzzie.Common.UnitTests.Hashing
 {
-    [TestFixture]
+    
     // ReSharper disable once InconsistentNaming
     public class FNV1aHashAlgorithm64Tests
     {
         private readonly FNV1AHashAlgorithm64 _hashAlgorithm = new FNV1AHashAlgorithm64();
 
-        [Test]
+        [Fact]
         public void HashCodeTest()
         {
-            Assert.That(_hashAlgorithm.HashStringCaseInsensitive("0"), Is.EqualTo(575378865958763869));
+            _hashAlgorithm.HashStringCaseInsensitive("0").Should().Be(575378865958763869);
         }
 
-        [Test]
+        [Fact]
         public void SameHashCodeForSameString()
         {
             string stringToHash = "FlashCache is tha bomb";
             long hashOne = _hashAlgorithm.HashBytes(Encoding.Unicode.GetBytes(stringToHash));
             long hashTwo = _hashAlgorithm.HashBytes(Encoding.Unicode.GetBytes("FlashCache is tha bomb"));
-            Assert.That(hashOne, Is.EqualTo(hashTwo));
+            hashOne.Should().Be(hashTwo);
         }
 
-        [TestCase]
+        [Fact]
         public void DifferentHashCodeForDifferentString()
         {
             string stringToHash = "FlashCache is tha bomb";
             long hashOne = _hashAlgorithm.HashBytes(Encoding.Unicode.GetBytes(stringToHash));
             long hashTwo = _hashAlgorithm.HashBytes(Encoding.Unicode.GetBytes(stringToHash.ToLower()));
-
-            Assert.That(hashOne, Is.Not.EqualTo(hashTwo));
+            
+            hashOne.Should().NotBe(hashTwo);
         }
 
-        [TestCase("Enchantment", "Human")]
-        [TestCase("Human", "Wizard")]
+        [Theory]
+        [InlineData("Enchantment", "Human")]
+        [InlineData("Human", "Wizard")]
         public void DifferentHashCodesTest(string a, string b)
         {
             long hashOne = _hashAlgorithm.HashStringCaseInsensitive(a);
             long hashTwo = _hashAlgorithm.HashStringCaseInsensitive(b);
-
-            Assert.That(hashOne, Is.Not.EqualTo(hashTwo));
+            
+            hashOne.Should().NotBe(hashTwo);
         }
-
-        [TestFixture]
+        
         public class HashStringCaseInsensitive
         {
             private readonly FNV1AHashAlgorithm64 _hashAlgorithm = new FNV1AHashAlgorithm64();
 
-            [TestCase("The Doctor", "the doctor")]
-            [TestCase("the Doctor", "the doctor")]
-            [TestCase("A", "a")]
-            [TestCase("1!!", "1!!")]
-            [TestCase("Ω", "ω")]
-            [TestCase("3 Harvard Square", "3 HARVARD SQUARE")]
+            [Theory]
+            [InlineData("The Doctor", "the doctor")]
+            [InlineData("the Doctor", "the doctor")]
+            [InlineData("A", "a")]
+            [InlineData("1!!", "1!!")]
+            [InlineData("Ω", "ω")]
+            [InlineData("3 Harvard Square", "3 HARVARD SQUARE")]
             public void IgnoreCaseTests(string casingOne, string casingStyleTwo)
             {
-                Assert.That(_hashAlgorithm.HashStringCaseInsensitive(casingOne), Is.EqualTo(_hashAlgorithm.HashStringCaseInsensitive(casingStyleTwo)));
+                _hashAlgorithm.HashStringCaseInsensitive(casingOne).Should()
+                    .Be(_hashAlgorithm.HashStringCaseInsensitive(casingStyleTwo));
             }
 
-            [Test]
+            [Fact]
             public void NullShouldThrowException()
             {
-                Assert.That(() => _hashAlgorithm.HashStringCaseInsensitive(null), Throws.Exception);
+                Action act = () => _hashAlgorithm.HashStringCaseInsensitive(null);
+                act.Should().Throw<Exception>();                
             }
 
-            [Test]
+            [Fact]
             public void EmptyShouldReturnDefaultHashValue()
             {
                 var defaultHash = 14695981039346656037;
-                Assert.That(_hashAlgorithm.HashStringCaseInsensitive(""), Is.EqualTo((long)defaultHash));
+                _hashAlgorithm.HashStringCaseInsensitive("").Should().Be((long) defaultHash);
             }
         }
     }

@@ -1,59 +1,63 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using NUnit.Framework;
+using FluentAssertions;
 using Ruzzie.Common.Numerics.Statistics;
+using Xunit;
 
 namespace Ruzzie.Common.UnitTests.Numerics.Statistics
-{
-    [TestFixture]
+{    
     public class HistogramTests
     {
-        [TestCase(new[] {0, 1, 1, 1, 2}, 1, 3)]
-        [TestCase(new[] {0, 1, 1, 1, 2}, 0, 1)]
-        [TestCase(new[] {0, 1, 1, 1, 2}, 2, 1)]
-        [TestCase(new[] {0}, 0, 1)]
-        [TestCase(new[] {-1}, -1, 1)]
-        [TestCase(new[] {int.MaxValue}, int.MaxValue, 1)]
-        [TestCase(new[] {int.MinValue}, int.MinValue, 1)]
+        [Theory]
+        [InlineData(new[] {0, 1, 1, 1, 2}, 1, 3)]
+        [InlineData(new[] {0, 1, 1, 1, 2}, 0, 1)]
+        [InlineData(new[] {0, 1, 1, 1, 2}, 2, 1)]
+        [InlineData(new[] {0}, 0, 1)]
+        [InlineData(new[] {-1}, -1, 1)]
+        [InlineData(new[] {int.MaxValue}, int.MaxValue, 1)]
+        [InlineData(new[] {int.MinValue}, int.MinValue, 1)]
         public void ToHistogramDictionaryIntsTest(int[] values, int keyToAssert, int expectedCount)
         {
             //Act
             IDictionary<int, int> histogram = values.ToHistogramDictionary();
 
             //Assert
-            Assert.That(histogram[keyToAssert], Is.EqualTo(expectedCount));
+            histogram[keyToAssert].Should().Be(expectedCount);
         }
 
-        [TestCase(new[] {0, 1, 1, 1, 2}, 1, 3)]
-        [TestCase(new[] {0, 1, 1, 1, 2}, 0, 1)]
-        [TestCase(new[] {0, 1, 1, 1, 2}, 2, 1)]
-        [TestCase(new[] {0}, 0, 1)]
-        [TestCase(new[] {-1}, -1, 1)]
-        [TestCase(new[] {int.MaxValue}, int.MaxValue, 1)]
-        [TestCase(new[] {int.MinValue}, int.MinValue, 1)]
+        [Theory]
+        [InlineData(new[] {0, 1, 1, 1, 2}, 1, 3)]
+        [InlineData(new[] {0, 1, 1, 1, 2}, 0, 1)]
+        [InlineData(new[] {0, 1, 1, 1, 2}, 2, 1)]
+        [InlineData(new[] {0}, 0, 1)]
+        [InlineData(new[] {-1}, -1, 1)]
+        [InlineData(new[] {int.MaxValue}, int.MaxValue, 1)]
+        [InlineData(new[] {int.MinValue}, int.MinValue, 1)]
         public void ToHistogramOrderedIntsTests(int[] values, int keyToAssert, int expectedCount)
         {
             //Act
             IOrderedEnumerable<KeyValuePair<int, int>> histogram = values.ToHistogramOrdered();
 
             //Assert
-            Assert.That(histogram.First(kvp => kvp.Key == keyToAssert).Value, Is.EqualTo(expectedCount));
+            histogram.First(kvp => kvp.Key == keyToAssert).Value.Should().Be(expectedCount);
         }
 
-        [Test]
+        [Fact]
         public void ToHistogramDictionaryThrowsArgumentNullExceptionWhenValuesIsNull()
         {
-            Assert.That(() => ((int[]) null).ToHistogramDictionary(), Throws.TypeOf<ArgumentNullException>());
+            Action act = () => ((int[]) null).ToHistogramDictionary();            
+            act.Should().Throw<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void ToHistogramEnumerableThrowsArgumentNullExceptionWhenValuesIsNull()
-        {
-            Assert.That(() => ((int[])null).ToHistogramOrdered(), Throws.TypeOf<ArgumentNullException>());
+        {            
+            Action act = () => ((int[])null).ToHistogramOrdered();
+            act.Should().Throw<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void ToToHistogramOrderedOrderingTest()
         {
             //Arrange
@@ -68,7 +72,7 @@ namespace Ruzzie.Common.UnitTests.Numerics.Statistics
             IOrderedEnumerable<KeyValuePair<int, int>> histogram = values.ToHistogramOrdered();
 
             //Assert
-            Assert.That(histogram, Is.EqualTo(expected));
+            histogram.Should().BeEquivalentTo(expected);
         }
     }
 }

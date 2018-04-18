@@ -3,16 +3,15 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Moq;
-using NUnit.Framework;
 using Ruzzie.Common.IO;
+using Xunit;
 
 namespace Ruzzie.Common.UnitTests.IO
 {
-#if! PORTABLE
-    [TestFixture]
+#if! PORTABLE    
     public class RemoteRemoteFileLoaderTests
     {
-        [Test]
+        [Fact]
         public void DontDownloadIfOlder()
         {
             //Arrange
@@ -34,7 +33,7 @@ namespace Ruzzie.Common.UnitTests.IO
             mockDownloader.Verify();
         }
 
-        [Test]
+        [Fact]
         public void DownloadIfNewer()
         {
             //Arrange
@@ -56,7 +55,7 @@ namespace Ruzzie.Common.UnitTests.IO
             mockDownloader.Verify();
         }
 
-        [Test]
+        [Fact]
         public void MultipleThreadAccessSmokeTest()
         {
             //Arrange
@@ -95,7 +94,7 @@ namespace Ruzzie.Common.UnitTests.IO
             public IRemoteFileMetaData MetaData { get; }
         }
 
-        [Test]
+        [Fact]
         public void DownloadIfNotExist()
         {
             //Arrange

@@ -1,64 +1,64 @@
-﻿using NUnit.Framework;
+﻿using FluentAssertions;
 using Ruzzie.Common.Threading;
+using Xunit;
 
 namespace Ruzzie.Common.UnitTests.Threading
-{
-    [TestFixture]
+{    
     public class VolatileLongTests
     {
-        [Test]
+        [Fact]
         public void SmokeTest()
         {
             VolatileLong index = 1L;
 
-            Assert.That(index.ReadUnfenced(), Is.EqualTo(1));
+            index.ReadUnfenced().Should().Be(1);
         }
 
-        [Test]
+        [Fact]
         public void VolatileValue()
         {
             VolatileLong index = 1L;
             index.VolatileValue = 2L;
 
-            Assert.That(index.VolatileValue, Is.EqualTo(2));
+            index.VolatileValue.Should().Be(2);
         }
 
-        [Test]
+        [Fact]
         public void CompilerFencedValue()
         {
             VolatileLong index = 1L;
             index.CompilerFencedValue = 2L;
 
-            Assert.That(index.CompilerFencedValue, Is.EqualTo(2));
+            index.CompilerFencedValue.Should().Be(2);
         }
 
-        [Test]
+        [Fact]
         public void AtomicCompareExchange()
         {
             VolatileLong index = 1L;
 
-            Assert.That(index.AtomicCompareExchange(5L, 1L), Is.True);
-            Assert.That(index.ReadUnfenced(), Is.EqualTo(5));
+            index.AtomicCompareExchange(5L, 1L).Should().BeTrue();            
+            index.ReadUnfenced().Should().Be(5);
         }
 
-        [Test]
+        [Fact]
         public void AtomicIncrement()
         {
             long initialValue = 1L;
             VolatileLong index = initialValue;
 
-            Assert.That(index.AtomicIncrement(), Is.EqualTo(2L));
-            Assert.That(index.ReadUnfenced(), Is.EqualTo(2L));
+            index.AtomicIncrement().Should().Be(2L);
+            index.ReadUnfenced().Should().Be(2L);
         }
 
-        [Test]
+        [Fact]
         public void AtomicIncrementOverflowTest()
         {
             VolatileLong index = long.MaxValue;
 
             index.AtomicIncrement();
 
-            Assert.That(index.ReadUnfenced(),Is.EqualTo(long.MinValue));
+            index.ReadUnfenced().Should().Be(long.MinValue);
         }
     }
 }
