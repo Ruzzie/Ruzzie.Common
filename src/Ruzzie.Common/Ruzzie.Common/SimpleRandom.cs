@@ -19,7 +19,7 @@ namespace Ruzzie.Common
         /// <param name="seed">The seed.</param>
         /// <param name="hValue">The h value.</param>
         /// <param name="eValue">The e value.</param>
-        public SimpleRandom(int seed, int hValue, int eValue)
+        public SimpleRandom(int seed, in int hValue, in int eValue)
         {
             //For bytes: 0,00106736330262713 127,5 H1741966517 E1631200041 
             //0,000000001594884 0,499999998405116 H1612099793 E1610967361, with _pTwo PrimeToolHash.GetPrime(hashOrValue.FindNearestPowerOfTwoLessThan())
@@ -34,7 +34,6 @@ namespace Ruzzie.Common
         {
 
         }
-       
 
         /// <summary>
         /// Returns a nonnegative random number.
@@ -109,7 +108,7 @@ namespace Ruzzie.Common
         /// <returns>A random byte.</returns>
         public byte NextByte()
         {
-            return (byte)(Next() & (byte.MaxValue));
+            return (byte)(Next() & byte.MaxValue);
         }
 
         /// <summary>
@@ -138,7 +137,8 @@ namespace Ruzzie.Common
             private readonly ulong _pOnePowThree;
             private readonly ulong _pTwoPowTwo;
             private ConcurrentCircularOverwriteBuffer<ulong> _buffer;
-            public RandomSampler(int seed, int hValue, int eValue)
+
+            public RandomSampler(int seed, in int hValue, in int eValue)
             {
                 int noiseVariable;
 
@@ -159,19 +159,19 @@ namespace Ruzzie.Common
                 InitializeNewBuffer(seed);
             }
 
-            private void InitializeNewBuffer(int seed)
+            private void InitializeNewBuffer(in int seed)
             {
                 _buffer = new ConcurrentCircularOverwriteBuffer<ulong>(Environment.ProcessorCount*4);
                 GenerateSampleFromSeed(seed);
             }
 
-            private void GenerateSampleFromSeed(int seed)
+            private void GenerateSampleFromSeed(in int seed)
             {
                 ulong sample = Sample((ulong)seed);
                 _buffer.WriteNext(sample);
             }
 
-            public int Next(int exclusiveMaximum)
+            public int Next(in int exclusiveMaximum)
             {
                 unchecked
                 {
@@ -186,16 +186,13 @@ namespace Ruzzie.Common
 #endif
             private ulong NextSample()
             {
-                ulong number;
-                if (!_buffer.ReadNext(out number))
+                if (!_buffer.ReadNext(out ulong sample))
                 {
-
 #if !PORTABLE
                     var spinWait = default(SpinWait);
 #endif
-                    while (!_buffer.ReadNext(out number))
+                    while (!_buffer.ReadNext(out sample))
                     {
-
 #if !PORTABLE
                         spinWait.SpinOnce();
 #else                       
@@ -204,11 +201,11 @@ namespace Ruzzie.Common
                     }    
                 }
 
-                _buffer.WriteNext(Sample(number));
-                return number;
+                _buffer.WriteNext(Sample(sample));
+                return sample;
             }
 
-            private ulong Sample(ulong currentSeed)
+            private ulong Sample(in ulong currentSeed)
             {
                 unchecked
                 {

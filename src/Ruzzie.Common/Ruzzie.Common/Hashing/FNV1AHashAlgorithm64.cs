@@ -3,9 +3,12 @@ using System.Runtime.CompilerServices;
 
 namespace Ruzzie.Common.Hashing
 {
+    /// <inheritdoc />
     /// <summary>
     /// An implementation of the FNV-1a hash. http://www.isthe.com/chongo/tech/comp/fnv/
     /// </summary>
+    // ReSharper disable once UnusedMember.Global
+    // ReSharper disable once InconsistentNaming
     public class FNV1AHashAlgorithm64 : IHashCaseInsensitive64Algorithm
     {
         // ReSharper disable ArrangeTypeMemberModifiers
@@ -15,12 +18,13 @@ namespace Ruzzie.Common.Hashing
         // ReSharper restore ArrangeTypeMemberModifiers
         // ReSharper restore InconsistentNaming
 
+        /// <inheritdoc />
         /// <summary>
         /// Hashes the bytes.
         /// </summary>
         /// <param name="bytesToHash">The get bytes.</param>
         /// <returns></returns>
-        /// <exception cref="ArgumentNullException">if the bytes are null</exception>
+        /// <exception cref="T:System.ArgumentNullException">if the bytes are null</exception>
         public long HashBytes(in byte[] bytesToHash)
         {
             if (ReferenceEquals(bytesToHash, null))
@@ -31,12 +35,13 @@ namespace Ruzzie.Common.Hashing
             return HashBytesInternal(bytesToHash);
         }
 
+        /// <inheritdoc />
         /// <summary>
         /// Hashes the string case insensitive.
         /// </summary>
         /// <param name="stringToHash">The string to hash.</param>
         /// <returns></returns>
-        /// <exception cref="ArgumentNullException">if the string is null</exception>
+        /// <exception cref="T:System.ArgumentNullException">if the string is null</exception>
         public long HashStringCaseInsensitive(in string stringToHash)
         {
             if (ReferenceEquals(stringToHash, null))

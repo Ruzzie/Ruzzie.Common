@@ -33,7 +33,7 @@ namespace Ruzzie.Common.Numerics.Distributions
         /// Ibbetson D, Algorithm 209
         /// Collected Algorithms of the CACM 1963 p. 616
         /// </remarks>
-        public static double ProbabilityOfZ(double normalZValue)
+        public static double ProbabilityOfZ(in double normalZValue)
         {
             double y, x, w;
 

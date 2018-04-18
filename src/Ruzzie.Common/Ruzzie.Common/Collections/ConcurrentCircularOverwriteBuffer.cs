@@ -1,11 +1,11 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using Ruzzie.Common.Numerics;
 using Ruzzie.Common.Threading;
 
 //since volatile is used with interlocking, disable the warning.
 #pragma warning disable 420
-
 namespace Ruzzie.Common.Collections
 {
     /// <summary>
@@ -51,9 +51,10 @@ namespace Ruzzie.Common.Collections
             }
         }
 
+        /// <inheritdoc />
         /// <summary>
-        ///     Initializes a new instance of the <see cref="ConcurrentCircularOverwriteBuffer{T}" /> class. With default buffer
-        ///     size of <see cref="DefaultBufferSize" />.
+        ///     Initializes a new instance of the <see cref="T:Ruzzie.Common.Collections.ConcurrentCircularOverwriteBuffer`1" /> class. With default buffer
+        ///     size of <see cref="F:Ruzzie.Common.Collections.ConcurrentCircularOverwriteBuffer`1.DefaultBufferSize" />.
         /// </summary>
         [SuppressMessage("ReSharper", "RedundantArgumentDefaultValue", Justification = "Required for CA1026")]
         public ConcurrentCircularOverwriteBuffer() : this(DefaultBufferSize)
@@ -163,9 +164,9 @@ namespace Ruzzie.Common.Collections
             return true;
         }
 
-//#if !PORTABLE
-//        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-//#endif
+#if !PORTABLE
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
         private static bool HasNext(in long readHeader, in long writeHeader)
         {
             return writeHeader - readHeader != 0;           

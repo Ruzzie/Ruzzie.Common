@@ -39,7 +39,7 @@ namespace Ruzzie.Common.Numerics.Distributions
         /// </summary>
         private const double BigX = 20.0;
 
-        private static double Ex(double x)
+        private static double Ex(in double x)
         {            
             return (((x) < -BigX) ? 0.0 : Math.Exp(x));
         }
@@ -57,7 +57,7 @@ namespace Ruzzie.Common.Numerics.Distributions
         ///    Updated for rounding errors based on remark in
         ///        ACM TOMS June 1985, page 185
         /// </remarks>
-        public static double ProbabilityOfChiSquared(double ax, int degreesOfFreedom)
+        public static double ProbabilityOfChiSquared(in double ax, in int degreesOfFreedom)
         {
             double x = ax;
             double y = 0;
@@ -124,9 +124,8 @@ namespace Ruzzie.Common.Numerics.Distributions
         /// <exception cref="ArgumentOutOfRangeException">The <paramref name="sampleSize"/> argument is less than or equal to 0..</exception>
         /// <exception cref="ArgumentNullException"><paramref name="samples"/> is <see langword="null" />.</exception>
         [SuppressMessage("ReSharper", "RedundantCast")]
-        public static double ChiSquaredP(int sampleSize, in byte[] samples)
+        public static double ChiSquaredP(in int sampleSize, in byte[] samples)
         {
-
             if (sampleSize <= 0)
             {
                 throw new ArgumentOutOfRangeException(nameof(sampleSize));
@@ -145,13 +144,12 @@ namespace Ruzzie.Common.Numerics.Distributions
             const int byteMaxValuePlusOne = byte.MaxValue + 1;
 
             double expectedCount = (double) sampleSize/ byteMaxValuePlusOne;
-            IDictionary<byte, int> histogram = samples.ToHistogramDictionary();
+            var histogram = samples.ToHistogramDictionary();
 
             double chisq = 0;
             for (int i = 0; i < byteMaxValuePlusOne; i++)
             {
-                int intValue;
-                if (histogram.TryGetValue((byte) i, out intValue) == false)
+                if (histogram.TryGetValue((byte) i, out var intValue) == false)
                 {
                     intValue = 0;
                 }         
@@ -210,13 +208,12 @@ namespace Ruzzie.Common.Numerics.Distributions
 #endif
         }
 
-        private static double ChiSquaredP(in Tuple<int, int> range, in IDictionary<int, int> histogram, double expectedCount)
+        private static double ChiSquaredP(in Tuple<int, int> range, in IDictionary<int, int> histogram, in double expectedCount)
         {
             double partialChisq = 0;
             for (int i = range.Item1; i < range.Item2; i++)
             {
-                int intValue;
-                if (histogram.TryGetValue(i, out intValue) == false)
+                if (histogram.TryGetValue(i, out var intValue) == false)
                 {
                     intValue = 0;
                 }                    

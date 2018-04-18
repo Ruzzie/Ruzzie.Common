@@ -12,7 +12,7 @@ namespace Ruzzie.Common.Hashing
         static InvariantUpperCaseStringExtensions()
         {
             UpperCaseMap = new char[ushort.MaxValue+1];
-            TextInfo invariantCultureTextInfo = CultureInfo.InvariantCulture.TextInfo;
+            var invariantCultureTextInfo = CultureInfo.InvariantCulture.TextInfo;
          
             for (var i = 0; i < ushort.MaxValue+1; i++)
             {               

@@ -9,24 +9,23 @@ namespace Ruzzie.Common.UnitTests
     {
         public static RandomnessTestResult TestInt(Random simpleRandom, int maxValue = int.MaxValue, int numberOfSamples = 10000)
         {
-            SampleResult sampleResult = RunSamples(simpleRandom, numberOfSamples, maxValue);
-            RandomnessTestResult randomnessTestResult = new RandomnessTestResult { SampleResult = sampleResult };
+            var sampleResult = RunSamples(simpleRandom, numberOfSamples, maxValue);
+            var randomnessTestResult = new RandomnessTestResult { SampleResult = sampleResult };
 
             return randomnessTestResult;
         }
 
         public static RandomnessTestResult TestBytes(Random simpleRandom, int numberOfSamples = 10000)
         {
-            byte[] samples;
-            SampleResult sampleResult = RunSamplesBytes(simpleRandom, numberOfSamples, out samples);
-            RandomnessTestResult randomnessTestResult = new RandomnessTestResult { SampleResult = sampleResult };
+            var sampleResult = RunSamplesBytes(simpleRandom, numberOfSamples, out var samples);
+            var randomnessTestResult = new RandomnessTestResult { SampleResult = sampleResult };
             randomnessTestResult.Samples = samples;
             return randomnessTestResult;
         }
 
         private static SampleResult RunSamples(Random random, int numberOfSamples, int maxValue = int.MaxValue)
         {
-            SortedDictionary<int, int> histogram = new SortedDictionary<int, int>();
+            var histogram = new SortedDictionary<int, int>();
 
             double average = 0;
             for (int i = 0; i < numberOfSamples; i++)
