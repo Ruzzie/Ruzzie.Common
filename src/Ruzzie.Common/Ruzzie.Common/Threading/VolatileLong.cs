@@ -93,5 +93,14 @@ namespace Ruzzie.Common.Threading
         {
             return Interlocked.Increment(ref _value);
         }
+
+        /// <summary>
+        /// Atomically decrement the current value and return the new value
+        /// </summary>
+        /// <returns>The decremented value.</returns>
+        public long AtomicDecrement()
+        {
+            return Interlocked.Decrement(ref _value);
+        }
     }
 }
