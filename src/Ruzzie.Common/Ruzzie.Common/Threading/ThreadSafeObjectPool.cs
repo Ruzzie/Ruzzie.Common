@@ -92,15 +92,19 @@ namespace Ruzzie.Common.Threading
         {
             if (disposing)
             {
+                #if NET40 || NETSTANDARD2_0
                 if (typeof(T).IsAssignableFrom(typeof(IDisposable)))
                 {
+                #endif
                     // Dispose of resources held by this instance.
                     for (int i = 0; i < _poolSize; i++)
                     {
                         var currentObject = _objects[i] as IDisposable;
                         currentObject?.Dispose();
                     }
+                #if NET40 || NETSTANDARD2_0
                 }
+                #endif
             }
         }
 

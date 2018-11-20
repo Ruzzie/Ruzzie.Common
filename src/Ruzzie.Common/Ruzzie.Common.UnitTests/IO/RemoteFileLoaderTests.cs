@@ -1,14 +1,17 @@
-﻿using System;
+﻿
+using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+#if! PORTABLE  && !NET40 
 using Moq;
+#endif
 using Ruzzie.Common.IO;
 using Xunit;
 
 namespace Ruzzie.Common.UnitTests.IO
 {
-#if! PORTABLE    
+#if! PORTABLE  && !NET40   
     public class RemoteRemoteFileLoaderTests
     {
         [Fact]

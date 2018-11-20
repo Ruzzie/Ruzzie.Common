@@ -9,11 +9,70 @@ using Ruzzie.Common.Threading;
 namespace Ruzzie.Common.Collections
 {
     /// <summary>
+    /// 
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public interface IConcurrentCircularOverwriteBuffer<T>
+    {
+        /// <summary>
+        ///     Copies current buffer to target array starting at the specified destination array index.
+        /// </summary>
+        /// <param name="array">The one-dimensional array that is the destination of the elements copied from the current buffer.</param>
+        /// <param name="index">A 32-bit integer that represents the index in <paramref name="array" /> at which copying begins.</param>
+        /// <remarks>
+        ///     This method uses the <see cref="Array.CopyTo(Array,int)" /> method to copy the current buffer to destination
+        ///     array. (this is a shallow copy)
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="array" /> is null.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">
+        ///     <paramref name="index" /> is less than the lower bound of
+        ///     <paramref name="array" />.
+        /// </exception>
+        /// <exception cref="ArgumentException">
+        ///     <paramref name="array" /> is multidimensional.-or-The number of elements in the
+        ///     source array is greater than the available number of elements from <paramref name="index" /> to the end of the
+        ///     destination <paramref name="array" />.
+        /// </exception>
+        /// <exception cref="ArrayTypeMismatchException">
+        ///     The type of the source <see cref="T:System.Array" /> cannot be cast
+        ///     automatically to the type of the destination <paramref name="array" />.
+        /// </exception>
+        /// <exception cref="RankException">The source array is multidimensional.</exception>
+        /// <exception cref="InvalidCastException">
+        ///     At least one element in the source <see cref="T:System.Array" /> cannot be cast
+        ///     to the type of destination <paramref name="array" />.
+        /// </exception>
+        void CopyTo(in Array array, int index);
+
+        /// <summary>
+        ///     Writes a value to the buffer.
+        /// </summary>
+        /// <param name="value">The value to write</param>
+        void WriteNext(in T value);
+
+        /// <summary>
+        ///     Reads the next value from the buffer.
+        /// </summary>
+        /// <returns>The value read. if no value is present an <see cref="InvalidOperationException" /> will be thrown.</returns>
+        /// <exception cref="System.InvalidOperationException">Error there is no next value.</exception>
+        /// <exception cref="InvalidOperationException">There is no next value.</exception>
+        T ReadNext();
+
+        /// <summary>
+        ///     Reads the next value from the buffer.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        /// <returns>true if a value could be read. If no next value is present false will be returned.</returns>
+        bool ReadNext(out T value);
+    }
+
+    /// <inheritdoc />
+    /// <summary>
     ///     Circular buffer that overwrites values when the capacity is reached.
     ///     This buffer is threadsafe.
     /// </summary>
     /// <typeparam name="T">The type of the values to buffer.</typeparam>
-    public class ConcurrentCircularOverwriteBuffer<T>
+    public class ConcurrentCircularOverwriteBuffer<T> : IConcurrentCircularOverwriteBuffer<T>
     {
         private const int DefaultBufferSize = 1024;
         private readonly int _capacity;
@@ -83,31 +142,32 @@ namespace Ruzzie.Common.Collections
             _readHeader = -1;
         }
 
+        /// <inheritdoc />
         /// <summary>
         ///     Copies current buffer to target array starting at the specified destination array index.
         /// </summary>
         /// <param name="array">The one-dimensional array that is the destination of the elements copied from the current buffer.</param>
         /// <param name="index">A 32-bit integer that represents the index in <paramref name="array" /> at which copying begins.</param>
         /// <remarks>
-        ///     This method uses the <see cref="Array.CopyTo(Array,int)" /> method to copy the current buffer to destination
+        ///     This method uses the <see cref="M:System.Array.CopyTo(System.Array,System.Int32)" /> method to copy the current buffer to destination
         ///     array. (this is a shallow copy)
         /// </remarks>
-        /// <exception cref="ArgumentNullException"><paramref name="array" /> is null.</exception>
-        /// <exception cref="ArgumentOutOfRangeException">
+        /// <exception cref="T:System.ArgumentNullException"><paramref name="array" /> is null.</exception>
+        /// <exception cref="T:System.ArgumentOutOfRangeException">
         ///     <paramref name="index" /> is less than the lower bound of
         ///     <paramref name="array" />.
         /// </exception>
-        /// <exception cref="ArgumentException">
+        /// <exception cref="T:System.ArgumentException">
         ///     <paramref name="array" /> is multidimensional.-or-The number of elements in the
         ///     source array is greater than the available number of elements from <paramref name="index" /> to the end of the
         ///     destination <paramref name="array" />.
         /// </exception>
-        /// <exception cref="ArrayTypeMismatchException">
+        /// <exception cref="T:System.ArrayTypeMismatchException">
         ///     The type of the source <see cref="T:System.Array" /> cannot be cast
         ///     automatically to the type of the destination <paramref name="array" />.
         /// </exception>
-        /// <exception cref="RankException">The source array is multidimensional.</exception>
-        /// <exception cref="InvalidCastException">
+        /// <exception cref="T:System.RankException">The source array is multidimensional.</exception>
+        /// <exception cref="T:System.InvalidCastException">
         ///     At least one element in the source <see cref="T:System.Array" /> cannot be cast
         ///     to the type of destination <paramref name="array" />.
         /// </exception>
@@ -128,12 +188,13 @@ namespace Ruzzie.Common.Collections
             _buffer[currentWriteIndex & _indexMask] = value;
         }
 
+        /// <inheritdoc />
         /// <summary>
         ///     Reads the next value from the buffer.
         /// </summary>
-        /// <returns>The value read. if no value is present an <see cref="InvalidOperationException" /> will be thrown.</returns>
-        /// <exception cref="System.InvalidOperationException">Error there is no next value.</exception>
-        /// <exception cref="InvalidOperationException">There is no next value.</exception>
+        /// <returns>The value read. if no value is present an <see cref="T:System.InvalidOperationException" /> will be thrown.</returns>
+        /// <exception cref="T:System.InvalidOperationException">Error there is no next value.</exception>
+        /// <exception cref="T:System.InvalidOperationException">There is no next value.</exception>
         public T ReadNext()
         {
             if (ReadNext(out var value))
@@ -143,6 +204,7 @@ namespace Ruzzie.Common.Collections
             throw new InvalidOperationException("Error there is no next value.");
         }
 
+        /// <inheritdoc />
         /// <summary>
         ///     Reads the next value from the buffer.
         /// </summary>

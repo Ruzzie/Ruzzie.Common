@@ -7,6 +7,7 @@ namespace Ruzzie.Common.UnitTests.Hashing
 {    
     public class InvariantUpperCaseStringExtensionsTests
     {
+#if !NET40
         [Theory]
         [InlineData("abcdefghijklmnopqrstuvwxyz", "ABCDEFGHIJKLMNOPQRSTUVWXYZ")]        
         [InlineData("", "")]
@@ -23,5 +24,6 @@ namespace Ruzzie.Common.UnitTests.Hashing
             Action act = () => InvariantUpperCaseStringExtensions.ToUpperInvariant(null);
             act.Should().Throw<ArgumentNullException>();            
         }
+#endif
     }
 }

@@ -4,12 +4,13 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
-using Moq;
+
 using Ruzzie.Common.Threading;
 using Xunit;
 
-#if ! PORTABLE
-#endif
+#if ! NET40
+using Moq;
+
 
 namespace Ruzzie.Common.UnitTests.Threading
 {    
@@ -67,3 +68,4 @@ namespace Ruzzie.Common.UnitTests.Threading
         }
     }
 }
+#endif

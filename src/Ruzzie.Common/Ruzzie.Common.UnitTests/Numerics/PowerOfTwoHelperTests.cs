@@ -7,6 +7,7 @@ namespace Ruzzie.Common.UnitTests.Numerics
 {    
     public class PowerOfTwoHelperTests
     {
+#if !NET40
         [Theory]
         [InlineData(2, 2)]
         [InlineData(250, 256)]
@@ -76,5 +77,6 @@ namespace Ruzzie.Common.UnitTests.Numerics
         {
             value.IsPowerOfTwo().Should().Be(expected);
         }
+#endif
     }
 }

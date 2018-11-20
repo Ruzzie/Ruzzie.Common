@@ -2,9 +2,9 @@
 
 namespace Ruzzie.Common.IO
 {
-#if !PORTABLE
+#if !PORTABLE && !NETSTANDARD1_1 && !NETSTANDARD1_2
     /// <summary>
-    /// Interface for a remote file loader.
+    /// Interface for a remote file loader.B
     /// </summary>
     public interface IRemoteFileLoader
     {

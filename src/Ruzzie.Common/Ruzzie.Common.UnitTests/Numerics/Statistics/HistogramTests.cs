@@ -9,6 +9,7 @@ namespace Ruzzie.Common.UnitTests.Numerics.Statistics
 {    
     public class HistogramTests
     {
+        #if !NET40
         [Theory]
         [InlineData(new[] {0, 1, 1, 1, 2}, 1, 3)]
         [InlineData(new[] {0, 1, 1, 1, 2}, 0, 1)]
@@ -56,7 +57,7 @@ namespace Ruzzie.Common.UnitTests.Numerics.Statistics
             Action act = () => ((int[])null).ToHistogramOrdered();
             act.Should().Throw<ArgumentNullException>();
         }
-
+#endif
         [Fact]
         public void ToToHistogramOrderedOrderingTest()
         {

@@ -9,7 +9,7 @@ namespace Ruzzie.Common.UnitTests
 {
     public class SimpleRandomTests
     {
-
+#if !NET40 
         [Fact]
         public void NextBytesThrowsExceptionWhenBufferIsNull()
         {
@@ -19,6 +19,7 @@ namespace Ruzzie.Common.UnitTests
             
             act.Should().Throw<Exception>();
         }
+
 
         [Theory]
         [InlineData(0,10)]
@@ -37,13 +38,13 @@ namespace Ruzzie.Common.UnitTests
                 result.Should().BeLessThan(maxValue);
             }          
         }
-
+#endif
         [Fact]
         public void NextIntMinMaxReturnsMinValueWhenMinValueIsEqualToMaxValue()
         {            
             new SimpleRandom().Next(1, 1).Should().Be(1);
         }
-
+#if !NET40
         [Fact]
         public void NextIntMinMaxThrowsArgumentOutOfRangeExceptionWhenMaxValueIsLessThanMinValue()
         {
@@ -68,13 +69,13 @@ namespace Ruzzie.Common.UnitTests
                 result.Should().BeLessThan(maxValue);
             }
         }
-
+#endif
         [Fact]
         public void NextIntMaxShouldReturnZeroWhenMaxValueIsZero()
         {
             new SimpleRandom().Next(0).Should().Be(0);
         }
-
+#if !NET40
         [Fact]
         public void NextIntMaxThrowsArgumentOutOfRangeExceptionWhenMaxValueIsLessThanZero()
         {
@@ -83,7 +84,7 @@ namespace Ruzzie.Common.UnitTests
             
             act.Should().Throw<ArgumentOutOfRangeException>();
         }
-
+#endif
         [Fact]
         public void NextShouldNotReturnMax()
         {
@@ -194,7 +195,9 @@ namespace Ruzzie.Common.UnitTests
             result.SampleResult.Entropy.Should().BeApproximately(6.6382366673825759d, 0.00001d);
         }
 
+#if !NET40        
         [Fact]
+ #endif
         public void RandomnessBytesTesterTest()
         {
             RandomnessTestResult result = RandomnessTester.TestBytes(new SimpleRandom(37));

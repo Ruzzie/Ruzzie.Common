@@ -37,9 +37,11 @@ namespace Ruzzie.Common.UnitTests.Hashing
             hashOne.Should().NotBe(hashTwo);
         }
 
+        #if !NET40
         [Theory]
         [InlineData("Enchantment", "Human")]
         [InlineData("Human", "Wizard")]
+        #endif
         public void DifferentHashCodesTest(string a, string b)
         {
             long hashOne = _hashAlgorithm.HashStringCaseInsensitive(a);
@@ -51,7 +53,7 @@ namespace Ruzzie.Common.UnitTests.Hashing
         public class HashStringCaseInsensitive
         {
             private readonly FNV1AHashAlgorithm64 _hashAlgorithm = new FNV1AHashAlgorithm64();
-
+#if !NET40
             [Theory]
             [InlineData("The Doctor", "the doctor")]
             [InlineData("the Doctor", "the doctor")]
@@ -71,7 +73,7 @@ namespace Ruzzie.Common.UnitTests.Hashing
                 Action act = () => _hashAlgorithm.HashStringCaseInsensitive(null);
                 act.Should().Throw<Exception>();                
             }
-
+#endif
             [Fact]
             public void EmptyShouldReturnDefaultHashValue()
             {

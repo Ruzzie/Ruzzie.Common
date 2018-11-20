@@ -190,7 +190,7 @@ namespace Ruzzie.Common.Numerics.Distributions
 
             double expectedCount = (double)sampleSize / (double)(maxValue);
 
-#if PORTABLE
+#if PORTABLE || NETSTANDARD1_1
             double chisq = ChiSquaredP(new Tuple<int, int>(0,maxValue), histogram, expectedCount);
 
             return chisq;

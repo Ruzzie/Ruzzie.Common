@@ -8,13 +8,15 @@ using Xunit;
 namespace Ruzzie.Common.UnitTests.Numerics.Distributions
 {
     public class ChiSquaredTests
-    {        
+    {    
+#if !NET40
         public class ChiSquaredPTests
         {
+           
             [Theory]
             [InlineData(new[] {1, 2, 3}, 1)]
             [InlineData(new[] {1, 1, 1, 1, 1, 1, 1}, 7)]
-            [InlineData(new[] {1, 2, 2, 2, 2, 2, 3}, 6.1428571428571423d)]
+            [InlineData(new[] {1, 2, 2, 2, 2, 2, 3}, 6.1428571428571423d)]          
             public void ChiSquaredPWithHistogramTests(int[] numbers, double expectedChiSquared)
             {
                 //Act
@@ -55,7 +57,7 @@ namespace Ruzzie.Common.UnitTests.Numerics.Distributions
             public void ChiSquaredPWithBytesThrowsArgumentOutOfRangeExceptionWhenSampleSizeIsZero()
             {
                 Action act = () => ChiSquared.ChiSquaredP(0, new byte[] {1, 2, 3});                
-                act.Should().Throw<ArgumentOutOfRangeException>();
+                act.Should().Throw<ArgumentOutOfRangeException>();                
             }
 
             [Fact]
@@ -118,7 +120,6 @@ namespace Ruzzie.Common.UnitTests.Numerics.Distributions
             {
                 ChiSquared.ProbabilityOfChiSquared(ax, degreesOfFreedom).Should().Be(expected);
             }
-
         
             [Fact(Skip = "takes too long")]
             public void PofChiSquaredPerformanceTest()
@@ -131,6 +132,8 @@ namespace Ruzzie.Common.UnitTests.Numerics.Distributions
             }
         }
 
-        //TODO: Calculate for larger dataset       
+        //TODO: Calculate for larger dataset  
+#endif        
     }
+
 }

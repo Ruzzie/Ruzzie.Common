@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Ruzzie.Common.IO
 {
-#if !PORTABLE
+#if !PORTABLE && !NETSTANDARD1_1 && !NETSTANDARD1_2
     /// <summary>
     /// Loads a remote file and caches it locally.
     /// </summary>

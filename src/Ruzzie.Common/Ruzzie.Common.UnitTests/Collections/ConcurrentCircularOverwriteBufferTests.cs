@@ -7,6 +7,7 @@ namespace Ruzzie.Common.UnitTests.Collections
 {    
     public class ConcurrentCircularOverwriteBufferTests
     {
+#if !NET40
         [Theory]
         [InlineData(1)]
         [InlineData(0)]
@@ -18,7 +19,7 @@ namespace Ruzzie.Common.UnitTests.Collections
 
             act.Should().Throw<Exception>();            
         }
-
+#endif
         [Fact]
         public void CountShouldNotExceedCapacity()
         {
@@ -32,7 +33,7 @@ namespace Ruzzie.Common.UnitTests.Collections
             
             buffer.Count.Should().Be(2);
         }
-
+#if !NET40
         [Fact]
         public void ReadNextThrowsExceptionWhenEmpty()
         {
@@ -42,7 +43,7 @@ namespace Ruzzie.Common.UnitTests.Collections
 
             act.Should().Throw<Exception>();
         }
-
+#endif      
         [Fact]
         public void SmokeTest()
         {

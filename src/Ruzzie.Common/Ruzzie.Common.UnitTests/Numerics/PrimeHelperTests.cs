@@ -7,6 +7,7 @@ namespace Ruzzie.Common.UnitTests.Numerics
 {    
     public class PrimeHelperTests
     {
+#if !NET40
         [Theory]
         [InlineData(0,false)]
         [InlineData(1,false)]
@@ -34,6 +35,7 @@ namespace Ruzzie.Common.UnitTests.Numerics
         public void GetPrime(long min, long expected)
         {
            min.GetPrime().Should().Be(expected);
-        }     
+        }  
+#endif        
     }
 }

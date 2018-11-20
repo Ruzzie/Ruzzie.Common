@@ -8,6 +8,7 @@ namespace Ruzzie.Common.UnitTests.Numerics.Statistics
 {    
     public class StreamAverageTests
     {
+#if !NET40
         [Theory]
         [InlineData(new double[] { 1, 1, 1 }, 1.0)]
         [InlineData(new double[] { 1, 1, 1, 2, 2, 2 }, 1.5)]
@@ -44,7 +45,7 @@ namespace Ruzzie.Common.UnitTests.Numerics.Statistics
             avg.Should().Be(expected);
             avg.Should().Be(items.Average());
         }
-
+#endif
         [Fact]
         public void StreamAverageForSetTest()
         {

@@ -74,14 +74,26 @@ namespace Ruzzie.Common.UnitTests
 
             double chisq = 0;
             double pochi = 0;
-            Task calculateChis = Task.Run(() =>
+            Task calculateChis =
+#if NET40
+                new Task( () => 
+                    #else
+                Task.Run(() =>
+#endif
+                
             {
                 chisq = Common.Numerics.Distributions.ChiSquared.ChiSquaredP(byte.MaxValue + 1, numberOfSamples, histogram);
                 pochi = Common.Numerics.Distributions.ChiSquared.ProbabilityOfChiSquared(chisq, byte.MaxValue + 1);// closer to 0.4 - 0.5 is better, <= 0.1 && >= 0.9 is bad
 
             });
 
-            Task<double> calculateEntropy = Task.Run(() => histogram.CalculateEntropy(numberOfSamples) /*must be above 3, higher is better*/);
+            Task<double> calculateEntropy = 
+#if NET40
+                new Task<double>( () => 
+#else
+                Task.Run(() =>
+#endif
+                    histogram.CalculateEntropy(numberOfSamples) /*must be above 3, higher is better*/);
 
             calculateChis.Wait();
             return new SampleResult(average, chisq, pochi, calculateEntropy.Result);

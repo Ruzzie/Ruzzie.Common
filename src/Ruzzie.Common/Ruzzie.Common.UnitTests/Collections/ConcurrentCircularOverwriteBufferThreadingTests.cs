@@ -8,12 +8,29 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Ruzzie.Common.Collections;
 using Xunit;
+#if !NET40
+using Xunit.Abstractions;
+#endif
 
 namespace Ruzzie.Common.UnitTests.Collections
 {
     public class ConcurrentCircularOverwriteBufferThreadingTests
     {
-        private static void ReadFromBufferWhileMustRead(ref bool mustRead, ConcurrentCircularOverwriteBuffer<int> buffer)
+        public ITestOutputHelper Output { get; }
+
+        #if NET40
+        public ConcurrentCircularOverwriteBufferThreadingTests()
+        {
+            Output = new ConsoleOutputShim();
+        }
+        #endif
+
+        public ConcurrentCircularOverwriteBufferThreadingTests(ITestOutputHelper output)
+        {
+            Output = output;
+        }
+
+        private static void ReadFromBufferWhileMustRead(ref bool mustRead, ConcurrentCircularOverwriteBuffer<int> buffer, ITestOutputHelper output)
         {
             Stopwatch timer = new Stopwatch();
             var readCounter = 0;
@@ -23,17 +40,17 @@ namespace Ruzzie.Common.UnitTests.Collections
                 if (buffer.ReadNext(out _))
                 {
                 }
-                readCounter++;
+                ++readCounter;
             }
             timer.Stop();
 
             string message = "Total read calls:        " + readCounter;
             message += "\nAvg timer per read call: " + timer.Elapsed.TotalMilliseconds/readCounter + " ms.";
             message += "\nAvg timer per read call: " + (double) (timer.Elapsed.Ticks*100)/readCounter + " ns.";
-            Trace.WriteLine(message);
+            output.WriteLine(message);
         }
 
-        private static void WriteToBufferWhileMustWrite(ref bool mustWrite, ConcurrentCircularOverwriteBuffer<int> buffer)
+        private static void WriteToBufferWhileMustWrite(ref bool mustWrite, ConcurrentCircularOverwriteBuffer<int> buffer, ITestOutputHelper output)
         {
             Stopwatch timer = new Stopwatch();
             var writeCounter = 0;
@@ -41,33 +58,34 @@ namespace Ruzzie.Common.UnitTests.Collections
             while (mustWrite)
             {
                 buffer.WriteNext(32);
-                writeCounter++;
+                ++writeCounter;
             }
             timer.Stop();
 
             string message = "Total write calls:        " + writeCounter;
             message += "\nAvg timer per write call: " + timer.Elapsed.TotalMilliseconds/writeCounter + " ms.";
             message += "\nAvg timer per write call: " + (double) (timer.Elapsed.Ticks*100)/writeCounter + " ns.";
-            Trace.WriteLine(message);
+            output.WriteLine(message);
         }
 
+        #if !NET40
         [Fact]
         [SuppressMessage("ReSharper", "AccessToModifiedClosure")]
         public void ThreadHammerWritePerformanceTest()
         {
             //Arrange
             var cacheSize = 2048;
-            ConcurrentCircularOverwriteBuffer<int> buffer = new ConcurrentCircularOverwriteBuffer<int>(cacheSize);
+            var buffer = new ConcurrentCircularOverwriteBuffer<int>(cacheSize);
 
             var mustWrite = true;
 
             //Continuously write to the buffer
-            Task writeLoop = Task.Run(() => { WriteToBufferWhileMustWrite(ref mustWrite, buffer); });
+            Task writeLoop = Task.Run(() => { WriteToBufferWhileMustWrite(ref mustWrite, buffer, Output); });
 
-            Task writeLoopTwo = Task.Run(() => { WriteToBufferWhileMustWrite(ref mustWrite, buffer); });
+            Task writeLoopTwo = Task.Run(() => { WriteToBufferWhileMustWrite(ref mustWrite, buffer, Output); });
 
             var mustRead = true;
-            Task readLoop = Task.Run(() => { ReadFromBufferWhileMustRead(ref mustRead, buffer); });
+            Task readLoop = Task.Run(() => { ReadFromBufferWhileMustRead(ref mustRead, buffer, Output); });
 
             Thread.Sleep(1000);
 
@@ -78,7 +96,7 @@ namespace Ruzzie.Common.UnitTests.Collections
             readLoop.Wait();
             //Assert: No Exceptions
         }
-
+        #endif
         [Fact]
         public void ThreadSafeReadTests()
         {
@@ -134,4 +152,18 @@ namespace Ruzzie.Common.UnitTests.Collections
             }
         }
     }
+#if NET40
+    public interface ITestOutputHelper
+    {
+        void WriteLine(string message);
+    }
+
+    public class ConsoleOutputShim : ITestOutputHelper
+    {
+        public void WriteLine(string message)
+        {
+            System.Console.WriteLine(message);
+        }
+    }
+ #endif
 }

@@ -9,10 +9,13 @@ Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Ruzzie.Common.UnitTests.Sha
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ruzzie.Common.NET461.UnitTests", "Ruzzie.Common.NET461.UnitTests\Ruzzie.Common.NET461.UnitTests.csproj", "{60F78A54-DCFA-4DB3-B7AA-841CE3D57980}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ruzzie.Common.NetCore.UnitTests", "Ruzzie.Common.NetCore.UnitTests\Ruzzie.Common.NetCore.UnitTests.csproj", "{8EB7089E-97DD-4E56-BE32-5B2FB89F1053}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ruzzie.Common.NetCore.UnitTests", "Ruzzie.Common.NetCore.UnitTests\Ruzzie.Common.NetCore.UnitTests.csproj", "{8EB7089E-97DD-4E56-BE32-5B2FB89F1053}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ruzzie.Common.NET40.UnitTests", "Ruzzie.Common.NET40.UnitTests\Ruzzie.Common.NET40.UnitTests.csproj", "{1521F58A-A957-4D4D-B279-27B90AF17DF7}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		Ruzzie.Common.UnitTests\Ruzzie.Common.UnitTests.Shared.projitems*{1521f58a-a957-4d4d-b279-27b90af17df7}*SharedItemsImports = 4
 		Ruzzie.Common.UnitTests\Ruzzie.Common.UnitTests.Shared.projitems*{3c8e3843-2c79-4d22-b42c-d5f577ecf7ad}*SharedItemsImports = 13
 		Ruzzie.Common.UnitTests\Ruzzie.Common.UnitTests.Shared.projitems*{60f78a54-dcfa-4db3-b7aa-841ce3d57980}*SharedItemsImports = 4
 	EndGlobalSection
@@ -33,6 +36,10 @@ Global
 		{8EB7089E-97DD-4E56-BE32-5B2FB89F1053}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8EB7089E-97DD-4E56-BE32-5B2FB89F1053}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8EB7089E-97DD-4E56-BE32-5B2FB89F1053}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1521F58A-A957-4D4D-B279-27B90AF17DF7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1521F58A-A957-4D4D-B279-27B90AF17DF7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1521F58A-A957-4D4D-B279-27B90AF17DF7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1521F58A-A957-4D4D-B279-27B90AF17DF7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

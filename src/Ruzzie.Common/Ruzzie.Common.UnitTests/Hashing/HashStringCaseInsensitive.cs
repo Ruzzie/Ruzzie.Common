@@ -10,6 +10,7 @@ namespace Ruzzie.Common.UnitTests.Hashing
     {
         private readonly FNV1AHashAlgorithm _hashAlgorithm = new FNV1AHashAlgorithm();
 
+#if !NET40
         [Theory]
         [InlineData("The Doctor", "the doctor")]
         [InlineData("the Doctor", "the doctor")]
@@ -19,6 +20,7 @@ namespace Ruzzie.Common.UnitTests.Hashing
         [InlineData("1!!", "1!!")]
         [InlineData("Ω", "ω")]
         [InlineData("3 Harvard Square", "3 HARVARD SQUARE")]
+   
         public void IgnoreCaseTests(string casingOne, string casingStyleTwo)
         {
             _hashAlgorithm.HashStringCaseInsensitive(casingOne).Should()
@@ -31,7 +33,7 @@ namespace Ruzzie.Common.UnitTests.Hashing
             Action act = () => _hashAlgorithm.HashStringCaseInsensitive(null);
             act.Should().Throw<Exception>();            
         }
-
+ #endif
         [Fact]
         public void EmptyShouldReturnDefaultHashValue()
         {

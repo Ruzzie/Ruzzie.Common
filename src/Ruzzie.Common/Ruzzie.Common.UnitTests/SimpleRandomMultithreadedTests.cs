@@ -6,12 +6,12 @@ namespace Ruzzie.Common.UnitTests
 {    
     public class SimpleRandomMultiThreadedTests
     {
-        [Fact(Skip = "These test cause timeouts on the buildserver....")]
+        [Fact/*(Skip = "These test cause timeouts on the buildserver....")*/]
         public void SmokeTestWithParallelFor()
         {
-            SimpleRandom random = new SimpleRandom();
+            var random = new SimpleRandom();
 
-            Parallel.For(0, 1000, new ParallelOptions() { MaxDegreeOfParallelism = -1 }, i =>
+            Parallel.For(0, 1000, new ParallelOptions { MaxDegreeOfParallelism = -1 }, i =>
             {
                 var k = random.Next(i + 1);
 
@@ -24,13 +24,18 @@ namespace Ruzzie.Common.UnitTests
 
         }
 
-        [Fact(Skip = "These test cause timeouts on the buildserver....")]
+        [Fact/*(Skip = "These test cause timeouts on the buildserver....")*/]        
         public void SmokeTestWithParallelWhile()
         {// ReSharper disable AccessToModifiedClosure
-            SimpleRandom random = new SimpleRandom();
+            var random = new SimpleRandom();
 
             bool runLoop = true;
-            Task whileTaskOne = Task.Run(() =>
+            Task whileTaskOne = 
+#if NET40
+                new Task( () => 
+#else
+                Task.Run(() =>
+#endif
             {
 
                 while (runLoop)
@@ -41,8 +46,15 @@ namespace Ruzzie.Common.UnitTests
                 }
             }
                 );
-
-            Task whileTaskTwo = Task.Run(() =>
+#if NET40            
+            whileTaskOne.Start();
+#endif
+            Task whileTaskTwo = 
+#if NET40
+                new Task( () => 
+#else
+                Task.Run(() =>
+#endif
             {
                 while (runLoop)
                 {
@@ -51,6 +63,9 @@ namespace Ruzzie.Common.UnitTests
                 }
             }
                 );
+#if NET40            
+            whileTaskTwo.Start();
+#endif
             // ReSharper restore AccessToModifiedClosure
             Thread.Sleep(500);
             runLoop = false;
