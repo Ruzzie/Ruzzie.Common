@@ -29,7 +29,7 @@ namespace Ruzzie.Common.Threading
         /// The result of the conversion.
         /// </returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2225:OperatorOverloadsHaveNamedAlternates")]
-        public static implicit operator VolatileLong(long value)
+        public static implicit operator VolatileLong(in long value)
         {
             return new VolatileLong(value);
         }
@@ -80,7 +80,7 @@ namespace Ruzzie.Common.Threading
         /// <param name="newValue">The new value</param>
         /// <param name="comparand">The comparand (expected value)</param>
         /// <returns>true if the exchange the comparand was equal to the current value, otherwise false.</returns>
-        public bool AtomicCompareExchange(long newValue, long comparand)
+        public bool AtomicCompareExchange(in long newValue, in long comparand)
         {
             return Interlocked.CompareExchange(ref _value, newValue, comparand) == comparand;
         }
@@ -92,6 +92,15 @@ namespace Ruzzie.Common.Threading
         public long AtomicIncrement()
         {
             return Interlocked.Increment(ref _value);
+        }
+
+        /// <summary>
+        /// Atomically decrement the current value and return the new value
+        /// </summary>
+        /// <returns>The decremented value.</returns>
+        public long AtomicDecrement()
+        {
+            return Interlocked.Decrement(ref _value);
         }
     }
 }

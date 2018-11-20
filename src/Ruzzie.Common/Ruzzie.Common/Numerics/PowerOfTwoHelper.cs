@@ -13,7 +13,7 @@ namespace Ruzzie.Common.Numerics
         /// <param name="value">The value.</param>
         /// <returns>integer that is a power of 2.</returns>
         /// <exception cref="System.ArgumentOutOfRangeException">Cannot be negative.</exception>
-        public static int FindNearestPowerOfTwoEqualOrLessThan(this int value)
+        public static int FindNearestPowerOfTwoEqualOrLessThan(this in int value)
         {
             if (value <= 0)
             {
@@ -35,7 +35,7 @@ namespace Ruzzie.Common.Numerics
         /// The value given would result in a value greater than 2^32 for a signed integer. Maximum value supported is  +
         ///                     maxSignedPowerOfTwo
         /// </exception>
-        public static int FindNearestPowerOfTwoEqualOrGreaterThan(this int value)
+        public static int FindNearestPowerOfTwoEqualOrGreaterThan(this in int value)
         {
             if (value <= 0)
             {
@@ -91,7 +91,7 @@ namespace Ruzzie.Common.Numerics
         /// </summary>
         /// <param name="candidate">The x.</param>
         /// <returns>true if x is a power of two, otherwise false.</returns>
-        private static bool IsPowerOfTwo(this uint candidate)
+        private static bool IsPowerOfTwoUint(this in uint candidate)
         {          
             return ((candidate & (candidate - 1)) == 0);
         }
@@ -101,9 +101,9 @@ namespace Ruzzie.Common.Numerics
         /// </summary>
         /// <param name="candidate">The x.</param>
         /// <returns>true if x is a power of two, otherwise false.</returns>
-        public static bool IsPowerOfTwo(this long candidate)
-        {
-            return IsPowerOfTwo( (uint) candidate);
+        public static bool IsPowerOfTwo(this in long candidate)
+        {            
+            return IsPowerOfTwoUint((uint) candidate);
         }
     }
 }

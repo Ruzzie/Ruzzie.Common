@@ -60,5 +60,25 @@ namespace Ruzzie.Common.UnitTests.Threading
 
             index.ReadUnfenced().Should().Be(long.MinValue);
         }
+
+        [Fact]
+        public void AtomicDecrement()
+        {
+            long initialValue = 1L;
+            VolatileLong index = initialValue;
+
+            index.AtomicDecrement().Should().Be(0L);
+            index.ReadUnfenced().Should().Be(0L);
+        }
+
+        [Fact]
+        public void AtomicDecrementUnderflowTest()
+        {
+            VolatileLong index = long.MinValue;
+
+            index.AtomicDecrement();
+
+            index.ReadUnfenced().Should().Be(long.MaxValue);
+        }
     }
 }

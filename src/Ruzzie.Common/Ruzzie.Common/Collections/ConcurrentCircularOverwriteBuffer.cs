@@ -42,7 +42,7 @@ namespace Ruzzie.Common.Collections
         ///     At least one element in the source <see cref="T:System.Array" /> cannot be cast
         ///     to the type of destination <paramref name="array" />.
         /// </exception>
-        void CopyTo(in Array array, int index);
+        void CopyTo(in Array array, in int index);
 
         /// <summary>
         ///     Writes a value to the buffer.
@@ -128,7 +128,7 @@ namespace Ruzzie.Common.Collections
         ///     <see cref="DefaultBufferSize" />
         /// </param>
         /// <exception cref="ArgumentOutOfRangeException">size;Size has to be greater or equal to 2.</exception>
-        public ConcurrentCircularOverwriteBuffer(int capacity = DefaultBufferSize)
+        public ConcurrentCircularOverwriteBuffer(in int capacity = DefaultBufferSize)
         {
             if (capacity < 2)
             {
@@ -171,7 +171,7 @@ namespace Ruzzie.Common.Collections
         ///     At least one element in the source <see cref="T:System.Array" /> cannot be cast
         ///     to the type of destination <paramref name="array" />.
         /// </exception>
-        public void CopyTo(in Array array, int index)
+        public void CopyTo(in Array array, in int index)
         {
             _buffer.CopyTo(array, index);
         }
