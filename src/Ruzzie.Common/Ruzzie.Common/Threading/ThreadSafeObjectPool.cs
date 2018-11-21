@@ -83,7 +83,6 @@ namespace Ruzzie.Common.Threading
             } while (true);
         }
 
-
         /// <summary>
         /// Disposed unmanaged resources. If T is of IDisposable it will dispose all objects in the object pool.
         /// </summary>
@@ -92,7 +91,7 @@ namespace Ruzzie.Common.Threading
         {
             if (disposing)
             {
-                #if NET40 || NETSTANDARD2_0
+                #if HAVE_TYPEISASSIGNABLEFROM
                 if (typeof(T).IsAssignableFrom(typeof(IDisposable)))
                 {
                 #endif
@@ -102,7 +101,7 @@ namespace Ruzzie.Common.Threading
                         var currentObject = _objects[i] as IDisposable;
                         currentObject?.Dispose();
                     }
-                #if NET40 || NETSTANDARD2_0
+                #if HAVE_TYPEISASSIGNABLEFROM
                 }
                 #endif
             }

@@ -49,7 +49,7 @@ namespace Ruzzie.Common.Hashing
             return GetInvariantCaseInsensitiveHashCode(stringToHash);
         }
 
-#if !PORTABLE
+#if HAVE_METHODINLINING
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         private static int HashBytesInternal(in byte[] bytesToHash)
@@ -64,7 +64,7 @@ namespace Ruzzie.Common.Hashing
             return (int)hash;
         }
 
-#if !PORTABLE
+#if HAVE_METHODINLINING
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         private static int GetInvariantCaseInsensitiveHashCode(in string stringToHash)
@@ -81,7 +81,7 @@ namespace Ruzzie.Common.Hashing
                     {                        
                         var currChar = pMap[*currStr];
                         byte byteOne = (byte)currChar; //lower bytes              
-                        byte byteTwo = (byte)(currChar >> 8); //uppper byts                     
+                        byte byteTwo = (byte)(currChar >> 8); //upper bytes                     
                         hash = HashByte(HashByte(hash, byteOne), byteTwo);
                         currStr++;                        
                     }
@@ -92,7 +92,7 @@ namespace Ruzzie.Common.Hashing
             {
                 ushort currChar = stringToHash[i].ToUpperInvariant();
                 byte byteOne = (byte) currChar; //lower bytes              
-                byte byteTwo = (byte) (currChar >> 8); //uppper byts
+                byte byteTwo = (byte) (currChar >> 8); //upper bytes
 
                 hash = HashByte(HashByte(hash, byteOne), byteTwo);
             }
@@ -101,7 +101,7 @@ namespace Ruzzie.Common.Hashing
             return (int)hash;
         }
 
-#if ! PORTABLE
+#if HAVE_METHODINLINING
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         private static uint HashByte(in uint currentHash, in byte byteToHash)

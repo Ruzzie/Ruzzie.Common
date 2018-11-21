@@ -8,7 +8,7 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("Ruzzie.Common")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("Common libraries used in other projects")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("D Crafting")]
 [assembly: AssemblyProduct("Ruzzie.Common")]

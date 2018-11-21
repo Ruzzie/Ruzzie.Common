@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using Ruzzie.Common.Numerics.Statistics;
-#if !PORTABLE
+#if !NETSTANDARD1_1
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading.Tasks;
@@ -190,7 +190,7 @@ namespace Ruzzie.Common.Numerics.Distributions
 
             double expectedCount = (double)sampleSize / (double)(maxValue);
 
-#if PORTABLE || NETSTANDARD1_1
+#if NETSTANDARD1_1
             double chisq = ChiSquaredP(new Tuple<int, int>(0,maxValue), histogram, expectedCount);
 
             return chisq;

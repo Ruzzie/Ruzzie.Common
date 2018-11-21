@@ -2,7 +2,7 @@
 
 namespace Ruzzie.Common.IO
 {
-#if !PORTABLE && !NETSTANDARD1_1 && !NETSTANDARD1_2
+#if HAVE_FILEINFO
     /// <summary>
     /// Interface for a remote file loader.B
     /// </summary>

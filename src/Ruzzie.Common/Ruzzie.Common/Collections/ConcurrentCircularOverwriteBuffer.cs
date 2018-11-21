@@ -226,7 +226,7 @@ namespace Ruzzie.Common.Collections
             return true;
         }
 
-#if !PORTABLE
+#if HAVE_METHODINLINING
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         private static bool HasNext(in long readHeader, in long writeHeader)

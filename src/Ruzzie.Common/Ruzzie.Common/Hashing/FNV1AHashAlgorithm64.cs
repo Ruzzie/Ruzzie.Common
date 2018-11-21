@@ -51,7 +51,7 @@ namespace Ruzzie.Common.Hashing
             return GetInvariantCaseInsensitiveHashCode(stringToHash);
         }
 
-#if !PORTABLE
+#if HAVE_METHODINLINING
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         private static long HashBytesInternal(in byte[] bytesToHash)
@@ -66,7 +66,7 @@ namespace Ruzzie.Common.Hashing
             return (long)hash;
         }
 
-#if !PORTABLE
+#if HAVE_METHODINLINING
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         private static long GetInvariantCaseInsensitiveHashCode(in string stringToHash)
@@ -103,7 +103,7 @@ namespace Ruzzie.Common.Hashing
             return (long)hash;
         }
 
-#if ! PORTABLE
+#if HAVE_METHODINLINING
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         private static ulong HashByte(in ulong currentHash, in byte byteToHash)

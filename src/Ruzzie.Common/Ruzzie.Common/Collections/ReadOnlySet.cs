@@ -5,14 +5,14 @@ using System.Collections.Generic;
 namespace Ruzzie.Common.Collections
 {
 
-#if !PORTABLE
+#if !NET40
     /// <summary>
-    /// Genereric readonly wrapper for a <see cref="HashSet{T}"/>. Internally a <see cref="HashSet{T}"/> is used. All write operations throw a <see cref="NotSupportedException"/>.
+    /// Generic readonly wrapper for a <see cref="HashSet{T}"/>. Internally a <see cref="HashSet{T}"/> is used. All write operations throw a <see cref="NotSupportedException"/>.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-#if HAVE_SERIALIZABLE
+    #if HAVE_SERIALIZABLE
     [Serializable]
-#endif
+    #endif
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1710:IdentifiersShouldHaveCorrectSuffix", Justification = "By design.")]    
     public class ReadOnlySet<T> : ISet<T>, IReadOnlyCollection<T> 
 #else
