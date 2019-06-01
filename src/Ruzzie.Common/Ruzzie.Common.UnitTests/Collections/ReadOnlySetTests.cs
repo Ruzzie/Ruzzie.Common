@@ -81,7 +81,7 @@ namespace Ruzzie.Common.UnitTests.Collections
                 //Assert                
                 readOnlySet.Count.Should().Be(hashSet.Count - 1);
             }
-
+            
             [Fact]
             public void EnumerableAndComparerCtorDoesNotThrowsExceptionWhenComparer()
             {

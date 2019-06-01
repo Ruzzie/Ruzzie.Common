@@ -69,7 +69,7 @@ namespace Ruzzie.Common.Collections
     /// <inheritdoc />
     /// <summary>
     ///     Circular buffer that overwrites values when the capacity is reached.
-    ///     This buffer is threadsafe.
+    ///     This buffer is thread-safe.
     /// </summary>
     /// <typeparam name="T">The type of the values to buffer.</typeparam>
     public class ConcurrentCircularOverwriteBuffer<T> : IConcurrentCircularOverwriteBuffer<T>
@@ -214,7 +214,7 @@ namespace Ruzzie.Common.Collections
         {
             if (!HasNext(_readHeader.ReadUnfenced(), _writeHeader.ReadUnfenced()))
             {
-                value = default;
+                value = default!;
                 return false;
             }
 

@@ -1,11 +1,12 @@
 ﻿using System;
+// ReSharper disable once RedundantUsingDirective
 using System.Reflection;
 using System.Threading;
 
 namespace Ruzzie.Common.Threading
 {
     /// <summary>
-    /// Contains a pool of objects that can be used to execute a method thread safe. The pool is created so multiple threads can execute simulanuously, this is done by creating multiple instances of type T.
+    /// Contains a pool of objects that can be used to execute a method thread safe. The pool is created so multiple threads can execute simultaneously, this is done by creating multiple instances of type T.
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <seealso cref="IDisposable" />
@@ -23,7 +24,7 @@ namespace Ruzzie.Common.Threading
         /// <param name="createTypeFactory">The factory method to create instances of type T</param>
         /// <param name="poolSize">Size of the pool.</param>
         /// <exception cref="ArgumentNullException">When the createTypeFactory is null. </exception>
-        /// <exception cref="ArgumentOutOfRangeException">When the poolsize is less than or equal to 0.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">When the poolSize is less than or equal to 0.</exception>
         public ThreadSafeObjectPool(in Func<T> createTypeFactory, int poolSize = 16)
         {
             if (createTypeFactory == null)
@@ -65,7 +66,7 @@ namespace Ruzzie.Common.Threading
             long currentIndex = _index.CompilerFencedValue;
             do
             {
-                currentIndex = currentIndex & _indexMask;
+                currentIndex &= _indexMask;
 
                 if (Monitor.TryEnter(_lockSlots[currentIndex]))
                 {

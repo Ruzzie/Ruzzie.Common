@@ -2,7 +2,7 @@
 using System.Threading;
 using Ruzzie.Common.Collections;
 using Ruzzie.Common.Numerics;
-
+#nullable enable
 namespace Ruzzie.Common
 {
     /// <summary>
@@ -134,9 +134,11 @@ namespace Ruzzie.Common
 
         internal class RandomSampler
         {
+            private const int MinBufferSize = 4;
             private readonly ulong _pOnePowThree;
             private readonly ulong _pTwoPowTwo;
             private ConcurrentCircularOverwriteBuffer<ulong> _buffer;
+            private static readonly int BufferSize = Environment.ProcessorCount * MinBufferSize;
 
             public RandomSampler(int seed, in int hValue, in int eValue)
             {
@@ -156,13 +158,13 @@ namespace Ruzzie.Common
                     _pTwoPowTwo = pTwo * pTwo;
                 }
 
-                InitializeNewBuffer(seed);
+                _buffer = CreateNewBuffer(BufferSize);
+                GenerateSampleFromSeed(seed);
             }
 
-            private void InitializeNewBuffer(in int seed)
+            private static ConcurrentCircularOverwriteBuffer<ulong> CreateNewBuffer(in int bufferSize)
             {
-                _buffer = new ConcurrentCircularOverwriteBuffer<ulong>(Environment.ProcessorCount*4);
-                GenerateSampleFromSeed(seed);
+                return new ConcurrentCircularOverwriteBuffer<ulong>(bufferSize);
             }
 
             private void GenerateSampleFromSeed(in int seed)
@@ -215,7 +217,8 @@ namespace Ruzzie.Common
 
             public void Reset(int newSeed)
             {
-               InitializeNewBuffer(newSeed);
+                _buffer = CreateNewBuffer(BufferSize);
+                GenerateSampleFromSeed(newSeed);
             }
         }
 
