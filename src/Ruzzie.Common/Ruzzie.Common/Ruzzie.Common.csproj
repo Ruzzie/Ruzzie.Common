@@ -111,8 +111,7 @@
     <DefineConstants>$(DefineConstants);HAVE_METHODINLINING</DefineConstants>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net40|AnyCPU'">
-    <DebugType>full</DebugType>
+  <PropertyGroup Condition="'$(Configuration)'=='Release'">
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   
