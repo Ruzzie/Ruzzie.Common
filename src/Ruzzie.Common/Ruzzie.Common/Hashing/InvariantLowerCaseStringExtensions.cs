@@ -6,39 +6,39 @@ namespace Ruzzie.Common.Hashing
     /// <summary>
     /// Optimized string methods for invariant string.
     /// </summary>
-    public static class InvariantUpperCaseStringExtensions
+    public static class InvariantLowerCaseStringExtensions
     {
-        internal static readonly char[] UpperCaseMap;
-        static InvariantUpperCaseStringExtensions()
+        internal static readonly char[] LowerCaseMap;
+        static InvariantLowerCaseStringExtensions()
         {
-            int maxIndexOfUpperCaseMap = char.MaxValue;
-            UpperCaseMap = new char[maxIndexOfUpperCaseMap+1];
+            int maxIndexOfLowerCaseMap = char.MaxValue;
+            LowerCaseMap = new char[maxIndexOfLowerCaseMap+1];
             var invariantCultureTextInfo = CultureInfo.InvariantCulture.TextInfo;
          
-            for (int i = maxIndexOfUpperCaseMap; i >= 0; i--)
+            for (int i = maxIndexOfLowerCaseMap; i >= 0; i--)
             {               
-                UpperCaseMap[i] = invariantCultureTextInfo.ToUpper((char) i);
+                LowerCaseMap[i] = invariantCultureTextInfo.ToLower((char) i);
             }
         }
 
         /// <summary>
-        /// Converts the specified character to uppercase.
+        /// Converts the specified character to lowercase.
         /// </summary>
-        /// <param name="c">The character to convert to uppercase.</param>
-        /// <returns>The specified character converted to uppercase.</returns>
-        public static char ToUpperInvariant(this char c)
+        /// <param name="c">The character to convert to lowercase.</param>
+        /// <returns>The specified character converted to lowercase.</returns>
+        public static char ToLowerInvariant(this char c)
         {
-            return UpperCaseMap[c];
+            return LowerCaseMap[c];
         }
 
         /// <summary>
-        /// Modifies the buffer to uppercase.
+        /// Modifies the buffer to lowercase.
         /// </summary>
         /// <param name="buffer">The buffer.</param>
         /// <param name="startIndex">The start index.</param>
         /// <param name="length">The length.</param>
         [CLSCompliant(false)]
-        public static unsafe void ToUpperInvariant(char* buffer, int startIndex, int length)
+        public static unsafe void ToLowerInvariant(char* buffer, int startIndex, int length)
         {
             if (length <= 0)
             {
@@ -51,7 +51,7 @@ namespace Ruzzie.Common.Hashing
                 return;
             }
 
-            fixed (char* pMap = UpperCaseMap)
+            fixed (char* pMap = LowerCaseMap)
             {
                 for (int i = startIndex; i < length; i++)
                 {
@@ -62,12 +62,12 @@ namespace Ruzzie.Common.Hashing
         }
 
         /// <summary>
-        /// Modifies the buffer to uppercase.
+        /// Modifies the buffer to lowercase.
         /// </summary>
         /// <param name="buffer">The buffer.</param>
         /// <param name="startIndex">The start index.</param>
         /// <param name="length">The length.</param>
-        public static unsafe void ToUpperInvariant(char[] buffer, int startIndex, int length)
+        public static unsafe void ToLowerInvariant(char[] buffer, int startIndex, int length)
         {
             if (length <= 0)
             {
@@ -79,7 +79,7 @@ namespace Ruzzie.Common.Hashing
                 return;
             }
 
-            fixed (char* pMap = UpperCaseMap)
+            fixed (char* pMap = LowerCaseMap)
             {
                 for (int i = startIndex; i < length; i++)
                 {
@@ -88,16 +88,16 @@ namespace Ruzzie.Common.Hashing
                 }
             }
         }
-
+        
         /// <summary>
-        /// Converts the specified string to uppercase.
+        /// Converts the specified string to lowercase.
         /// </summary>
-        /// <param name="str">The string to convert to uppercase</param>
+        /// <param name="str">The string to convert to lowercase</param>
         /// <returns>
-        /// The specified string converted to uppercase.
+        /// The specified string converted to lowercase.
         /// </returns>
         /// <exception cref="ArgumentNullException">str is null.</exception>
-        public static string ToUpperInvariant(in string str)
+        public static string ToLowerInvariant(in string str)
         {
             if (str == null)
             {
@@ -109,7 +109,7 @@ namespace Ruzzie.Common.Hashing
             unsafe
             {
                 char* pTarget = stackalloc char[strLength];
-                fixed (char* pSource = str, pMap = UpperCaseMap)
+                fixed (char* pSource = str, pMap = LowerCaseMap)
                 {
                     char* pSourceChar = pSource;
                     for (int i = 0; i < strLength; i++)

@@ -9,7 +9,6 @@
     <Import_RootNamespace>Ruzzie.Common.UnitTests</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-	<Compile Include="$(MSBuildThisFileDirectory)\**\*.cs" Exclude="$(MSBuildThisFileDirectory)\bin\**\*.*;$(MSBuildThisFileDirectory)\obj\**\*.*" />
-
+    <Compile Include="$(MSBuildThisFileDirectory)\**\*.cs" Exclude="$(MSBuildThisFileDirectory)\bin\**\*.*;$(MSBuildThisFileDirectory)\obj\**\*.*" />
   </ItemGroup>
 </Project>

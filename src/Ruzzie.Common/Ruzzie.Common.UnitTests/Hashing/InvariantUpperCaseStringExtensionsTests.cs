@@ -25,5 +25,30 @@ namespace Ruzzie.Common.UnitTests.Hashing
             act.Should().Throw<ArgumentNullException>();            
         }
 #endif
+        [Fact]
+        public void UnsafeBufferToUpperCase()
+        {
+            string original = "The European hare (Lepus europaeus)";
+            unsafe
+            {
+                fixed (char* buffer = original)
+                {
+                    InvariantUpperCaseStringExtensions.ToUpperInvariant(buffer, 0, original.Length);
+
+                    new string(buffer).Should().Be("THE EUROPEAN HARE (LEPUS EUROPAEUS)");
+                }
+            }
+        }
+
+        [Fact]
+        public void BufferToUpperCase()
+        {
+            string original = "The European hare (Lepus europaeus)";
+            var buffer = original.ToCharArray();
+           
+            InvariantUpperCaseStringExtensions.ToUpperInvariant(buffer, 0, original.Length);
+
+            new string(buffer).Should().Be("THE EUROPEAN HARE (LEPUS EUROPAEUS)");
+        }
     }
 }
