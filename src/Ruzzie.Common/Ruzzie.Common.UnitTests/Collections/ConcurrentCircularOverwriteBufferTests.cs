@@ -33,6 +33,15 @@ namespace Ruzzie.Common.UnitTests.Collections
             
             buffer.Count.Should().Be(2);
         }
+
+        [Fact]
+        public void HasCapacityProperty()
+        {
+            var size = 2;
+            var buffer = new ConcurrentCircularOverwriteBuffer<int>(size);
+
+            buffer.Capacity.Should().Be(2);
+        }
 #if !NET40
         [Fact]
         public void ReadNextThrowsExceptionWhenEmpty()

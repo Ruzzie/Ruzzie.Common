@@ -64,6 +64,14 @@ namespace Ruzzie.Common.Collections
         /// <param name="value">The value.</param>
         /// <returns>true if a value could be read. If no next value is present false will be returned.</returns>
         bool ReadNext(out T value);
+
+        /// <summary>
+        /// Gets the capacity in number of items of the buffer.
+        /// </summary>
+        /// <value>
+        /// The capacity.
+        /// </value>
+        int Capacity { get; }
     }
 
     /// <inheritdoc />
@@ -224,6 +232,17 @@ namespace Ruzzie.Common.Collections
             value = _buffer[currentReadIndex & _indexMask];
 
             return true;
+        }
+
+        /// <summary>
+        /// Gets the capacity in number of items of the buffer.
+        /// </summary>
+        /// <value>
+        /// The capacity.
+        /// </value>
+        public int Capacity
+        {
+            get { return _capacity; }
         }
 
 #if HAVE_METHODINLINING
