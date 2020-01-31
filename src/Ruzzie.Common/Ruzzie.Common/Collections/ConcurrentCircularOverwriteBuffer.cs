@@ -4,6 +4,7 @@ using System.Runtime.CompilerServices;
 using Ruzzie.Common.Numerics;
 using Ruzzie.Common.Threading;
 
+
 //since volatile is used with interlocking, disable the warning.
 #pragma warning disable 420
 namespace Ruzzie.Common.Collections
@@ -77,7 +78,7 @@ namespace Ruzzie.Common.Collections
     /// <inheritdoc />
     /// <summary>
     ///     Circular buffer that overwrites values when the capacity is reached.
-    ///     This buffer is thread-safe.
+    ///     This buffer is thread-safe when <b>not</b> using an many readers many writers strategy.
     /// </summary>
     /// <typeparam name="T">The type of the values to buffer.</typeparam>
     public class ConcurrentCircularOverwriteBuffer<T> : IConcurrentCircularOverwriteBuffer<T>
@@ -146,8 +147,8 @@ namespace Ruzzie.Common.Collections
             _buffer = new T[_capacity];
             _indexMask = _capacity - 1;
 
-            _writeHeader = -1;
-            _readHeader = -1;
+            _writeHeader = 0;
+            _readHeader = 0;
         }
 
         /// <inheritdoc />
@@ -193,6 +194,7 @@ namespace Ruzzie.Common.Collections
             long nextWriteIndex = _writeHeader.AtomicIncrement();
             long currentWriteIndex = nextWriteIndex - 1;
 
+           // Interlocked.Exchange(ref _buffer[currentWriteIndex & _indexMask], value);
             _buffer[currentWriteIndex & _indexMask] = value;
         }
 
@@ -228,7 +230,7 @@ namespace Ruzzie.Common.Collections
 
             long nextReadIndex = _readHeader.AtomicIncrement();
             long currentReadIndex = nextReadIndex - 1;
-
+           
             value = _buffer[currentReadIndex & _indexMask];
 
             return true;
@@ -248,9 +250,26 @@ namespace Ruzzie.Common.Collections
 #if HAVE_METHODINLINING
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        private static bool HasNext(in long readHeader, in long writeHeader)
+        internal static bool HasNext(in long readHeader, in long writeHeader)
         {
-            return writeHeader - readHeader != 0;           
+            ulong writeHeaderUL = (ulong) writeHeader;
+            ulong readHeaderUL = (ulong) readHeader;
+
+            return writeHeaderUL - readHeaderUL > 0 && writeHeaderUL > readHeaderUL;
         }
     }
+
+    class BufferHeaders
+    {
+        internal readonly VolatileLong WriteHeader;
+        internal readonly VolatileLong ReadHeader;
+
+        public BufferHeaders(VolatileLong writeHeader, VolatileLong readHeader)
+        {
+            WriteHeader = writeHeader;
+            ReadHeader = readHeader;
+        }
+    }
+
+    
 }

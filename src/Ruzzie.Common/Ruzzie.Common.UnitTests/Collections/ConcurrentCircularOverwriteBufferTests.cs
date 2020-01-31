@@ -7,7 +7,24 @@ namespace Ruzzie.Common.UnitTests.Collections
 {    
     public class ConcurrentCircularOverwriteBufferTests
     {
+
 #if !NET40
+        [Theory]
+        [InlineData(1, 2, true)]
+        [InlineData(0, long.MaxValue, true)]
+        [InlineData(long.MaxValue, long.MinValue, true)] //write header has wrapped around
+        [InlineData(long.MinValue, long.MaxValue, false)]
+        [InlineData(long.MaxValue, long.MaxValue, false)]
+        [InlineData(long.MinValue, long.MinValue, false)]
+        [InlineData(0, 0, false)]
+        [InlineData(255, 0, false)]
+        [InlineData(255, 254, false)]
+        [InlineData(255, -1, true)]
+        public void HasNextTests(long readHeader, long writeHeader, bool expected)
+        {
+            ConcurrentCircularOverwriteBuffer<object>.HasNext(readHeader, writeHeader).Should().Be(expected);
+        }
+
         [Theory]
         [InlineData(1)]
         [InlineData(0)]

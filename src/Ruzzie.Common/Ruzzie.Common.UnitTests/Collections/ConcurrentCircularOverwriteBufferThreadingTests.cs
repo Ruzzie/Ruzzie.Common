@@ -151,6 +151,56 @@ namespace Ruzzie.Common.UnitTests.Collections
                 allValuesHashSet.Should().Contain(i, "Did not contain: " + i);
             }
         }
+
+        //[Fact]
+        public void ThreadRaceConditionWithNullTests()
+        {
+            //Arrange
+            var cacheSize = 1280;
+            var buffer = new ConcurrentCircularOverwriteBuffer<ValueContainer>(cacheSize);
+
+            //Act
+            Parallel.For(0, cacheSize, new ParallelOptions {MaxDegreeOfParallelism = 4},
+                i =>
+                {
+                    if (!buffer.ReadNext(out var readValue))
+                    {
+                        buffer.WriteNext(new ValueContainer{Data = new List<int>{i}});
+                    }
+                    else
+                    {
+                        readValue.Should().NotBeNull();
+                        readValue.Data.Should().NotBeNull();
+                        readValue.Data = null;
+                    }
+
+                    if (!buffer.ReadNext(out var readValueTwo))
+                    {
+                        buffer.WriteNext(new ValueContainer{Data = new List<int>{i}});
+                    }
+                    else
+                    {
+                        readValueTwo.Should().NotBeNull();
+                        readValueTwo.Data.Should().NotBeNull();
+                        readValueTwo.Data = null;
+                    }
+
+                    if (buffer.ReadNext(out var readValueThree))
+                    {
+                        readValueThree.Should().NotBeNull();
+                        readValueThree.Data.Should().NotBeNull();
+                        readValueThree.Data = null;
+                    }
+                });
+
+            //Assert
+            buffer.Count.Should().Be(0);
+        }
+
+        class ValueContainer
+        {
+            public List<int> Data { get; set; }
+        }
     }
 #if NET40
     public interface ITestOutputHelper
