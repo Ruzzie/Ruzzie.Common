@@ -219,6 +219,22 @@ namespace Ruzzie.Common.UnitTests
             
             value.Should().Be(random.Next()).And.NotBe(random.Next());
         }
-    }
 
+        [Fact]
+        public void RandomNextWithOnlyMaxShouldReturnSameAsNextWithMinAndMaxAfterReset()
+        {
+            //I don't know if this is a valid case
+
+            SimpleRandom random = new SimpleRandom(1);
+            random.Reset(123123);
+
+            int value = random.Next(4);
+            value.Should().Be(0);
+           
+            random.Reset(123123);
+
+            value = random.Next(0, 4);
+            value.Should().Be(2);
+        }
+    }
 }
