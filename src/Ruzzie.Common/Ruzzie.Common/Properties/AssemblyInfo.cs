@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Resources;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 #if !PORTABLE
 using System.Runtime.InteropServices;
 #endif
@@ -30,7 +31,10 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
 [assembly: CLSCompliant(true)]
-
+[assembly: InternalsVisibleTo("Ruzzie.Common.NET40.UnitTests")]
+[assembly: InternalsVisibleTo("Ruzzie.Common.NET461.UnitTests")]
+[assembly: InternalsVisibleTo("Ruzzie.Common.NetCore.UnitTests")]
+[assembly: InternalsVisibleTo("Ruzzie.Common.UnitTests")]
 #if !PORTABLE
 [assembly: ComVisible(false)]
 #endif
