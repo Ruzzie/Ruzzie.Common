@@ -108,12 +108,14 @@ namespace Ruzzie.Common.Collections
                     {
                         return 0;
                     }
-                    long remainder = (itemCount%_capacity);
+
+                    long remainder = (itemCount % _capacity);
 
                     if (remainder > 0)
                     {
-                        return itemCount/_capacity + remainder;
+                        return itemCount / _capacity + remainder;
                     }
+
                     return _capacity;
                 }
             }
@@ -143,12 +145,13 @@ namespace Ruzzie.Common.Collections
             {
                 throw new ArgumentOutOfRangeException(nameof(capacity), "Size has to be greater or equal to 2.");
             }
-            _capacity = capacity.FindNearestPowerOfTwoEqualOrGreaterThan();
-            _buffer = new T[_capacity];
+
+            _capacity  = capacity.FindNearestPowerOfTwoEqualOrGreaterThan();
+            _buffer    = new T[_capacity];
             _indexMask = _capacity - 1;
 
             _writeHeader = 0;
-            _readHeader = 0;
+            _readHeader  = 0;
         }
 
         /// <inheritdoc />
@@ -194,7 +197,7 @@ namespace Ruzzie.Common.Collections
             long nextWriteIndex = _writeHeader.AtomicIncrement();
             long currentWriteIndex = nextWriteIndex - 1;
 
-           // Interlocked.Exchange(ref _buffer[currentWriteIndex & _indexMask], value);
+            // Interlocked.Exchange(ref _buffer[currentWriteIndex & _indexMask], value);
             _buffer[currentWriteIndex & _indexMask] = value;
         }
 
@@ -211,6 +214,7 @@ namespace Ruzzie.Common.Collections
             {
                 return value;
             }
+
             throw new InvalidOperationException("Error there is no next value.");
         }
 
@@ -230,7 +234,7 @@ namespace Ruzzie.Common.Collections
 
             long nextReadIndex = _readHeader.AtomicIncrement();
             long currentReadIndex = nextReadIndex - 1;
-           
+
             value = _buffer[currentReadIndex & _indexMask];
 
             return true;
@@ -258,18 +262,4 @@ namespace Ruzzie.Common.Collections
             return writeHeaderUL - readHeaderUL > 0 && writeHeaderUL > readHeaderUL;
         }
     }
-
-    class BufferHeaders
-    {
-        internal readonly VolatileLong WriteHeader;
-        internal readonly VolatileLong ReadHeader;
-
-        public BufferHeaders(VolatileLong writeHeader, VolatileLong readHeader)
-        {
-            WriteHeader = writeHeader;
-            ReadHeader = readHeader;
-        }
-    }
-
-    
-}
+}   
