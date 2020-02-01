@@ -13,7 +13,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("D Crafting")]
 [assembly: AssemblyProduct("Ruzzie.Common")]
-[assembly: AssemblyCopyright("Copyright © Dorus Verhoeckx 2018")]
+[assembly: AssemblyCopyright("Copyright © Dorus Verhoeckx 2020")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: NeutralResourcesLanguage("en")]
@@ -34,6 +34,7 @@ using System.Runtime.InteropServices;
 [assembly: InternalsVisibleTo("Ruzzie.Common.NET40.UnitTests")]
 [assembly: InternalsVisibleTo("Ruzzie.Common.NET461.UnitTests")]
 [assembly: InternalsVisibleTo("Ruzzie.Common.NetCore.UnitTests")]
+[assembly: InternalsVisibleTo("Ruzzie.Common.NetCore31.UnitTests")]
 [assembly: InternalsVisibleTo("Ruzzie.Common.UnitTests")]
 #if !PORTABLE
 [assembly: ComVisible(false)]

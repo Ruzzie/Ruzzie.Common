@@ -28,8 +28,7 @@ namespace Ruzzie.Common
 
             byte[] samples = new byte[count];
             random.NextBytes(samples);
-            return samples;           
-
+            return samples;
         }
     }
 }

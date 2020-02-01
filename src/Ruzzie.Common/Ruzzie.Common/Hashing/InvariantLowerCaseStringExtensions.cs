@@ -88,7 +88,7 @@ namespace Ruzzie.Common.Hashing
                 }
             }
         }
-        
+
         /// <summary>
         /// Converts the specified string to lowercase.
         /// </summary>
@@ -108,15 +108,15 @@ namespace Ruzzie.Common.Hashing
 #if !PORTABLE
             unsafe
             {
-                char* pTarget = stackalloc char[strLength];
+                var pTarget = stackalloc char[strLength];
                 fixed (char* pSource = str, pMap = LowerCaseMap)
                 {
-                    char* pSourceChar = pSource;
+                    char* pCurrSourceChar = pSource;
                     for (int i = 0; i < strLength; i++)
                     {
-                        char sourceChar = *pSourceChar;                        
+                        char sourceChar = *pCurrSourceChar;                        
                         pTarget[i] = pMap[sourceChar];
-                        pSourceChar++;
+                        pCurrSourceChar++;
                     }
                 }
                 return new string(pTarget, 0, strLength);

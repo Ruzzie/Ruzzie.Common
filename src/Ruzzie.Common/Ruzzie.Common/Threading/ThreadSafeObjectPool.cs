@@ -88,23 +88,16 @@ namespace Ruzzie.Common.Threading
         /// Disposed unmanaged resources. If T is of IDisposable it will dispose all objects in the object pool.
         /// </summary>
         /// <param name="disposing"></param>
-        private void Dispose(bool disposing)
+        protected virtual void Dispose(bool disposing)
         {
             if (disposing)
             {
-                #if HAVE_TYPEISASSIGNABLEFROM
-                if (typeof(T).IsAssignableFrom(typeof(IDisposable)))
+                // Dispose of resources held by this instance.
+                for (int i = 0; i < _poolSize; i++)
                 {
-                #endif
-                    // Dispose of resources held by this instance.
-                    for (int i = 0; i < _poolSize; i++)
-                    {
-                        var currentObject = _objects[i] as IDisposable;
-                        currentObject?.Dispose();
-                    }
-                #if HAVE_TYPEISASSIGNABLEFROM
+                    var currentObject = _objects[i] as IDisposable;
+                    currentObject?.Dispose();
                 }
-                #endif
             }
         }
 

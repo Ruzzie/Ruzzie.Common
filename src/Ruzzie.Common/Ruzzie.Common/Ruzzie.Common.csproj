@@ -2,11 +2,11 @@
 
   <PropertyGroup>
     <Description>Common libraries used in other projects</Description>
-    <Copyright>Copyright © Dorus Verhoeckx 2018</Copyright>
+    <Copyright>Copyright © Dorus Verhoeckx 2020</Copyright>
     <AssemblyTitle>Ruzzie.Common</AssemblyTitle>
     <NeutralLanguage>en-US</NeutralLanguage>
     <Authors>Dorus Verhoeckx</Authors>
-    <TargetFrameworks>net40;net45;net451;net46;net461;net472;netstandard1.1;netstandard1.2;netstandard1.3;netstandard1.4;netstandard1.6;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>net40;net45;net451;net46;net461;net472;netstandard1.1;netstandard1.2;netstandard1.3;netstandard1.4;netstandard1.6;netstandard2.0;netstandard2.1</TargetFrameworks>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AssemblyName>Ruzzie.Common</AssemblyName>   
@@ -67,14 +67,15 @@
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.6' ">
     <PackageReference Include="System.Threading.Tasks.Parallel" Version="4.0.1" />   
-    <PackageReference Include="System.Runtime.Serialization.Formatters" Version="4.3.0" />   
-    <PackageReference Include="System.Reflection.Primitives" Version="4.3.0" />   
-    <PackageReference Include="System.Reflection.TypeExtensions" Version="4.3.0" />   
     <PackageReference Include="System.IO.FileSystem" Version="4.3.0" />   
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
-    <PackageReference Include="System.Reflection.TypeExtensions" Version="4.3.0" />  
+    
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.1' ">
+    
   </ItemGroup>
 
 <!--COMPILE CONSTANTS -->
@@ -86,6 +87,10 @@
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net45' &#xD;&#xA;                 Or '$(TargetFramework)' == 'net451' &#xD;&#xA;                 Or '$(TargetFramework)' == 'net46' &#xD;&#xA;                 Or '$(TargetFramework)' == 'net461' &#xD;&#xA;                 Or '$(TargetFramework)' == 'net472' ">
     <DefineConstants>$(DefineConstants);HAVE_SERIALIZABLE;HAVE_METHODINLINING;HAVE_TYPEISASSIGNABLEFROM;HAVE_FILEINFO</DefineConstants>
   </PropertyGroup>
+
+<PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.1' ">
+  <DefineConstants>$(DefineConstants);HAVE_SERIALIZABLE;HAVE_METHODINLINING;HAVE_TYPEISASSIGNABLEFROM;HAVE_FILEINFO</DefineConstants>
+</PropertyGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
     <DefineConstants>$(DefineConstants);HAVE_SERIALIZABLE;HAVE_METHODINLINING;HAVE_TYPEISASSIGNABLEFROM;HAVE_FILEINFO</DefineConstants>
@@ -115,7 +120,7 @@
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net40|AnyCPU'">
+  <PropertyGroup>
     <DocumentationFile>Ruzzie.Common.xml</DocumentationFile>
   </PropertyGroup>
   
