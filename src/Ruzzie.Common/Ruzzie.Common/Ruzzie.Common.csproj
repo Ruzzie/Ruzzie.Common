@@ -114,5 +114,9 @@
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net40|AnyCPU'">
+    <DocumentationFile>Ruzzie.Common.xml</DocumentationFile>
+  </PropertyGroup>
   
 </Project>
