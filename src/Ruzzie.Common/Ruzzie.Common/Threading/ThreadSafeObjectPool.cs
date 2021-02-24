@@ -10,7 +10,7 @@ namespace Ruzzie.Common.Threading
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <seealso cref="IDisposable" />
-    public class ThreadSafeObjectPool<T> : IDisposable
+    public class ThreadSafeObjectPool<T> : IObjectPool<T>
     {
         private readonly int _poolSize;
         private readonly int _indexMask;
@@ -22,7 +22,7 @@ namespace Ruzzie.Common.Threading
         /// Initializes a new instance of the <see cref="ThreadSafeObjectPool{T}"/> class.
         /// </summary>
         /// <param name="createTypeFactory">The factory method to create instances of type T</param>
-        /// <param name="poolSize">Size of the pool.</param>
+        /// <param name="poolSize">Size of the pool, will be rounded to the nearest power of 2.</param>
         /// <exception cref="ArgumentNullException">When the createTypeFactory is null. </exception>
         /// <exception cref="ArgumentOutOfRangeException">When the poolSize is less than or equal to 0.</exception>
         public ThreadSafeObjectPool(in Func<T> createTypeFactory, int poolSize = 16)
@@ -49,6 +49,11 @@ namespace Ruzzie.Common.Threading
             }
             _indexMask = _poolSize - 1;
         }
+
+        /// <summary>
+        /// The PoolSize
+        /// </summary>
+        public int PoolSize => _poolSize;
 
         /// <summary>
         /// Executes the method the on available object. This is thread safe.
