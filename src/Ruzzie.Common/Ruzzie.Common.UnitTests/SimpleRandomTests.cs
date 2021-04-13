@@ -9,14 +9,14 @@ namespace Ruzzie.Common.UnitTests
 {
     public class SimpleRandomTests
     {
-#if !NET40 
+#if !NET40
         [Fact]
         public void NextBytesThrowsExceptionWhenBufferIsNull()
         {
             SimpleRandom random = new SimpleRandom();
             // ReSharper disable once AssignNullToNotNullAttribute
             Action act = (() => random.NextBytes(null));
-            
+
             act.Should().Throw<Exception>();
         }
 
@@ -25,7 +25,7 @@ namespace Ruzzie.Common.UnitTests
         [InlineData(0,10)]
         [InlineData(1,10)]
         [InlineData(-5,0)]
-        [InlineData(-5,1)]       
+        [InlineData(-5,1)]
         public void NextIntMinMax(int minValue, int maxValue)
         {
             SimpleRandom random = new SimpleRandom();
@@ -33,15 +33,15 @@ namespace Ruzzie.Common.UnitTests
             for (int i = 0; i < 100; i++)
             {
                 int result = random.Next(minValue, maxValue);
-                
-                result.Should().BeGreaterOrEqualTo(minValue);                
+
+                result.Should().BeGreaterOrEqualTo(minValue);
                 result.Should().BeLessThan(maxValue);
-            }          
+            }
         }
 #endif
         [Fact]
         public void NextIntMinMaxReturnsMinValueWhenMinValueIsEqualToMaxValue()
-        {            
+        {
             new SimpleRandom().Next(1, 1).Should().Be(1);
         }
 #if !NET40
@@ -50,7 +50,7 @@ namespace Ruzzie.Common.UnitTests
         {
             // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
             Action act = ()=> new SimpleRandom().Next(10, 9);
-            act.Should().Throw<ArgumentOutOfRangeException>();                        
+            act.Should().Throw<ArgumentOutOfRangeException>();
         }
         [Theory]
         [InlineData(10)]
@@ -64,8 +64,8 @@ namespace Ruzzie.Common.UnitTests
             for (int i = 0; i < 100; i++)
             {
                 int result = random.Next(maxValue);
-                
-                result.Should().BeGreaterOrEqualTo(0);                
+
+                result.Should().BeGreaterOrEqualTo(0);
                 result.Should().BeLessThan(maxValue);
             }
         }
@@ -81,27 +81,27 @@ namespace Ruzzie.Common.UnitTests
         {
             // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
             Action act = ()=> new SimpleRandom().Next(-9);
-            
+
             act.Should().Throw<ArgumentOutOfRangeException>();
         }
 #endif
         [Fact]
         public void NextShouldNotReturnMax()
         {
-            int initialSeed = 1;
-            SimpleRandom random = new SimpleRandom(initialSeed);
-            
+            int          initialSeed = 1;
+            SimpleRandom random      = new SimpleRandom(initialSeed);
+
             random.Next(10).Should().BeLessThan(10);
         }
 
         [Fact]
         public void NextDoubleShouldBeLessThanOne()
         {
-            SimpleRandom random = new SimpleRandom(1, 1664637461, 476397391);
-            int sampleSize = 127500;
+            SimpleRandom random     = new SimpleRandom(1, 1664637461, 476397391);
+            int          sampleSize = 127500;
 
             List<double> samples = new List<double>(sampleSize);
-            double average = 0;
+            double       average = 0;
 
             for (int i = 0; i < sampleSize; i++)
             {
@@ -113,15 +113,15 @@ namespace Ruzzie.Common.UnitTests
 
             Console.WriteLine("Min: " + samples.Min());
             Console.WriteLine("Max: " + samples.Max());
-            
-            samples.Should().NotContain(1.0);            
+
+            samples.Should().NotContain(1.0);
             average.Should().Be(0.50025237100076547d);
         }
 
         [Fact]
         public void TestValues()
         {
-            SimpleRandom simpleRandom = new SimpleRandom(1, 862314265, 311308189);            
+            SimpleRandom simpleRandom = new SimpleRandom(1, 862314265, 311308189);
 
             simpleRandom.NextByte().Should().Be(242);
             simpleRandom.NextByte().Should().Be(248);
@@ -143,7 +143,7 @@ namespace Ruzzie.Common.UnitTests
         [Fact]
         public void NextIntSmokeTest()
         {
-            SimpleRandom simpleRandom = new SimpleRandom(); 
+            SimpleRandom simpleRandom = new SimpleRandom();
 
             simpleRandom.Next().Should().Be(999359663);
             simpleRandom.Next().Should().Be(1963915219);
@@ -164,9 +164,9 @@ namespace Ruzzie.Common.UnitTests
 
         [Fact]
         public void NextIntAverageTest()
-        {           
-            SimpleRandom random = new SimpleRandom(2332454);
-            int sampleSize = 500000;
+        {
+            SimpleRandom random     = new SimpleRandom(2332454);
+            int          sampleSize = 500000;
 
             List<int> samples = new List<int>(sampleSize);
 
@@ -177,7 +177,7 @@ namespace Ruzzie.Common.UnitTests
 
             Console.WriteLine("Min: " + samples.Min());
             Console.WriteLine("Max: " + samples.Max());
-            
+
             samples.Should().Contain(0);
             samples.Should().Contain(99);
             samples.Select(b => b).Average().Should().Be(49.518106000000003d);
@@ -186,8 +186,8 @@ namespace Ruzzie.Common.UnitTests
         [Fact]
         public void RandomnessTesterTest()
         {
-            int maxValue = 100;
-            RandomnessTestResult result = RandomnessTester.TestInt(new SimpleRandom(), maxValue);
+            int                  maxValue = 100;
+            RandomnessTestResult result   = RandomnessTester.TestInt(new SimpleRandom(), maxValue);
 
             result.SampleResult.Average.Should().Be(49.862699999999855d);
             result.SampleResult.Chi.Should().BeApproximately(77.639999999999986d, 0.01d);
@@ -195,9 +195,9 @@ namespace Ruzzie.Common.UnitTests
             result.SampleResult.Entropy.Should().BeApproximately(6.6382366673825759d, 0.00001d);
         }
 
-#if !NET40        
+#if !NET40
         [Fact]
- #endif
+#endif
         public void RandomnessBytesTesterTest()
         {
             RandomnessTestResult result = RandomnessTester.TestBytes(new SimpleRandom(37));
@@ -216,7 +216,7 @@ namespace Ruzzie.Common.UnitTests
             int value = random.Next();
 
             random.Reset(1);
-            
+
             value.Should().Be(random.Next()).And.NotBe(random.Next());
         }
 
@@ -230,11 +230,31 @@ namespace Ruzzie.Common.UnitTests
 
             int value = random.Next(4);
             value.Should().Be(0);
-           
+
             random.Reset(123123);
 
             value = random.Next(0, 4);
             value.Should().Be(2);
         }
+
+        [Fact]
+        public void SeedWithGetSeedShouldHaveSameResult()
+        {
+            //Arrange
+            var random = new SimpleRandom(Environment.TickCount);
+            random.NextByte();
+            var currentSeed = random.Seed;
+            var expected    = random.Next();
+
+            var simpleRandom = new SimpleRandom(currentSeed);
+
+            //Act
+            var actual = simpleRandom.Next();
+
+            //Assert
+            actual.Should().Be(expected);
+            random.Seed.Should().Be(simpleRandom.Seed);
+        }
     }
 }
+

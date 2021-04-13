@@ -2,6 +2,7 @@
 using System.Threading;
 using Ruzzie.Common.Collections;
 using Ruzzie.Common.Numerics;
+
 #nullable enable
 namespace Ruzzie.Common
 {
@@ -19,18 +20,18 @@ namespace Ruzzie.Common
         /// <param name="seed">The seed.</param>
         /// <param name="hValue">The h value.</param>
         /// <param name="eValue">The e value.</param>
-        public SimpleRandom(int seed, in int hValue, in int eValue)
+        public SimpleRandom(long seed, in int hValue, in int eValue)
         {
-            //For bytes: 0,00106736330262713 127,5 H1741966517 E1631200041 
+            //For bytes: 0,00106736330262713 127,5 H1741966517 E1631200041
             //0,000000001594884 0,499999998405116 H1612099793 E1610967361, with _pTwo PrimeToolHash.GetPrime(hashOrValue.FindNearestPowerOfTwoLessThan())
-            _randomSampler = new RandomSampler(seed, hValue, eValue);
+            _randomSampler = new RandomSampler((ulong) seed, hValue, eValue);
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SimpleRandom"/> class.
         /// </summary>
         /// <param name="seed">The seed.</param>
-        public SimpleRandom(int seed = 1) : this(seed, 160938768, 837541626)
+        public SimpleRandom(long seed = 1) : this(seed, 160938768, 837541626)
         {
 
         }
@@ -132,15 +133,22 @@ namespace Ruzzie.Common
             return _randomSampler.Next(maxValue);
         }
 
+        /// <summary>
+        /// Get the Seed. This can be used to reinitialize the <see cref="SimpleRandom"/>.
+        /// </summary>
+        public long Seed => (long) _randomSampler.LastSeedUsed;
+
         internal class RandomSampler
         {
-            private const int MinBufferSize = 4;
-            private readonly ulong _pOnePowThree;
-            private readonly ulong _pTwoPowTwo;
-            private ConcurrentCircularOverwriteBuffer<ulong> _buffer;
+            private const           int MinBufferSize = 4;
+            private readonly        ulong _pOnePowThree;
+            private readonly        ulong _pTwoPowTwo;
+            private                 ConcurrentCircularOverwriteBuffer<ulong> _buffer;
             private static readonly int BufferSize = Environment.ProcessorCount * MinBufferSize;
+            private                 ulong _lastSeedUsed;
 
-            public RandomSampler(int seed, in int hValue, in int eValue)
+            internal ulong LastSeedUsed => _lastSeedUsed;
+            public RandomSampler(ulong seed, in int hValue, in int eValue)
             {
                 int noiseVariable;
 
@@ -167,9 +175,9 @@ namespace Ruzzie.Common
                 return new ConcurrentCircularOverwriteBuffer<ulong>(bufferSize);
             }
 
-            private void GenerateSampleFromSeed(in int seed)
+            private void GenerateSampleFromSeed(in ulong seed)
             {
-                ulong sample = Sample((ulong)seed);
+                ulong sample = Sample(seed);
                 _buffer.WriteNext(sample);
             }
 
@@ -180,7 +188,7 @@ namespace Ruzzie.Common
                     var number = (int) (NextSample() % int.MaxValue);
                     return number % exclusiveMaximum;
                 }
-            }          
+            }
 
 #if PORTABLE
             readonly object _waitLockObject = new object();
@@ -197,11 +205,13 @@ namespace Ruzzie.Common
                     {
 #if !PORTABLE
                         spinWait.SpinOnce();
-#else                       
+#else
                         Monitor.TryEnter(_waitLockObject, OneTickTimeSpan);//Fastest way found so far to emulate SpinOnce behavior for pcl.
 #endif
-                    }    
+                    }
                 }
+
+                Ruzzie.Common.Threading.Volatile.WriteValueType(ref _lastSeedUsed, sample);
 
                 _buffer.WriteNext(Sample(sample));
                 return sample;
@@ -215,9 +225,10 @@ namespace Ruzzie.Common
                 }
             }
 
-            public void Reset(int newSeed)
+            public void Reset(ulong newSeed)
             {
-                _buffer = CreateNewBuffer(BufferSize);
+                var newBuffer = CreateNewBuffer(BufferSize);
+                Interlocked.Exchange(ref _buffer, newBuffer);
                 GenerateSampleFromSeed(newSeed);
             }
         }
@@ -226,9 +237,9 @@ namespace Ruzzie.Common
         /// Resets the the generator with a new seed.
         /// </summary>
         /// <param name="newSeed">The new seed.</param>
-        public void Reset(int newSeed)
+        public void Reset(long newSeed)
         {
-            _randomSampler.Reset(newSeed);
+            _randomSampler.Reset((ulong) newSeed);
         }
     }
 }
