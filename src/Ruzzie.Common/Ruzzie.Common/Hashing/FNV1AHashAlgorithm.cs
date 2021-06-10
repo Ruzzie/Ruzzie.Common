@@ -12,10 +12,10 @@ namespace Ruzzie.Common.Hashing
     public class FNV1AHashAlgorithm : IHashCaseInsensitiveAlgorithm
     {
         // ReSharper disable InconsistentNaming
-        private const uint FNVPrime32 = 16777619;        
+        private const uint FNVPrime32 = 16777619;
         private const uint FNVOffsetBasis32 = 2166136261;
         // ReSharper restore InconsistentNaming
-        
+
         /// <inheritdoc />
         /// <summary>
         /// Hashes the bytes.
@@ -71,32 +71,22 @@ namespace Ruzzie.Common.Hashing
         {
             uint hash = FNVOffsetBasis32;
             int stringLength = stringToHash.Length;
-#if !PORTABLE
+
             unsafe
             {
                 fixed (char* pStr = stringToHash, pMap = InvariantUpperCaseStringExtensions.UpperCaseMap)
                 {
                     char* currStr = pStr;
                     for (int i = 0; i < stringLength; ++i)
-                    {                        
-                        var currChar = pMap[*currStr];
-                        byte byteOne = (byte)currChar; //lower bytes              
-                        byte byteTwo = (byte)(currChar >> 8); //upper bytes                     
+                    {
+                        var  currChar = pMap[*currStr];
+                        byte byteOne  = (byte) currChar;        //lower bytes
+                        byte byteTwo  = (byte) (currChar >> 8); //upper bytes
                         hash = HashByte(HashByte(hash, byteOne), byteTwo);
-                        currStr++;                        
+                        currStr++;
                     }
-                }             
+                }
             }
-#else
-            for (int i = 0; i < stringLength; ++i)
-            {
-                ushort currChar = stringToHash[i].ToUpperInvariant();
-                byte byteOne = (byte) currChar; //lower bytes              
-                byte byteTwo = (byte) (currChar >> 8); //upper bytes
-
-                hash = HashByte(HashByte(hash, byteOne), byteTwo);
-            }
-#endif
 
             return (int)hash;
         }

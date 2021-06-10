@@ -11,7 +11,7 @@ namespace Ruzzie.Common.UnitTests.Collections
     public class ReadOnlySetTests
     {
         public class ConstructorTests
-        {           
+        {
             [Fact]
             // ReSharper disable once InconsistentNaming
             public void ISetCtorWrapsSet()
@@ -22,10 +22,9 @@ namespace Ruzzie.Common.UnitTests.Collections
                 //Act
                 var readOnlySet = new ReadOnlySet<string>(mySet);
 
-                //Assert                
+                //Assert
                 readOnlySet.Count.Should().Be(mySet.Count);
             }
-          
 
             [Fact]
             public void HashSetCtorWrapsAndCopiesSet()
@@ -37,10 +36,10 @@ namespace Ruzzie.Common.UnitTests.Collections
                 var readOnlySet = new ReadOnlySet<string>(mySet);
                 mySet.Add("D");
 
-                //Assert                
+                //Assert
                 readOnlySet.Count.Should().Be(mySet.Count - 1);
             }
-#if !NET40
+
             [Fact]
             public void HashSetCtorThrowsExceptionWhenInputIsNull()
             {
@@ -66,7 +65,7 @@ namespace Ruzzie.Common.UnitTests.Collections
                 Action act = () => new ReadOnlySet<int>(((IEnumerable<int>) null));
                 act.Should().Throw<Exception>();
             }
-#endif
+
             [Fact]
             public void EnumerableCtorCreateHashSet()
             {
@@ -78,10 +77,10 @@ namespace Ruzzie.Common.UnitTests.Collections
                 var readOnlySet = new ReadOnlySet<string>(mySet);
                 hashSet.Add("D");
 
-                //Assert                
+                //Assert
                 readOnlySet.Count.Should().Be(hashSet.Count - 1);
             }
-            
+
             [Fact]
             public void EnumerableAndComparerCtorDoesNotThrowsExceptionWhenComparer()
             {
@@ -108,7 +107,6 @@ namespace Ruzzie.Common.UnitTests.Collections
 
         public class ModificationTests
         {
-#if !NET40
             [Fact]
             public void AddThrowsException()
             {
@@ -150,7 +148,7 @@ namespace Ruzzie.Common.UnitTests.Collections
                 Action act = () => new ReadOnlySet<string>(new[] {"A"}).SymmetricExceptWith(new[] {"B"});
                 act.Should().Throw<NotSupportedException>();
             }
-#endif
+
             [Fact]
             public void PropertyIsReadOnlyIsTrue()
             {
@@ -182,7 +180,7 @@ namespace Ruzzie.Common.UnitTests.Collections
                 string[] arr = new string[2];
                 _readOnlySet.CopyTo(arr, 0);
 
-                //Assert                
+                //Assert
                 arr[0].Should().NotBeNull();
                 arr[1].Should().NotBeNull();
             }

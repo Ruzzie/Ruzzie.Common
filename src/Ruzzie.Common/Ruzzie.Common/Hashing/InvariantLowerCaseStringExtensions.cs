@@ -14,9 +14,9 @@ namespace Ruzzie.Common.Hashing
             int maxIndexOfLowerCaseMap = char.MaxValue;
             LowerCaseMap = new char[maxIndexOfLowerCaseMap+1];
             var invariantCultureTextInfo = CultureInfo.InvariantCulture.TextInfo;
-         
+
             for (int i = maxIndexOfLowerCaseMap; i >= 0; i--)
-            {               
+            {
                 LowerCaseMap[i] = invariantCultureTextInfo.ToLower((char) i);
             }
         }
@@ -104,8 +104,8 @@ namespace Ruzzie.Common.Hashing
                 throw new ArgumentNullException(nameof(str));
             }
             int strLength = str.Length;
-            
-#if !PORTABLE
+
+
             unsafe
             {
                 var pTarget = stackalloc char[strLength];
@@ -114,21 +114,14 @@ namespace Ruzzie.Common.Hashing
                     char* pCurrSourceChar = pSource;
                     for (int i = 0; i < strLength; i++)
                     {
-                        char sourceChar = *pCurrSourceChar;                        
+                        char sourceChar = *pCurrSourceChar;
                         pTarget[i] = pMap[sourceChar];
                         pCurrSourceChar++;
                     }
                 }
+
                 return new string(pTarget, 0, strLength);
             }
-#else
-            char[] newStr = new char[strLength];
-            for (int i = 0; i < strLength; i++)
-            {
-                newStr[i] = str[i].ToUpperInvariant();
-            }
-            return new string(newStr);
-#endif  
         }
     }
 }

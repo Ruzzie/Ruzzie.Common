@@ -8,7 +8,7 @@
   <PropertyGroup Label="Configuration">
     <Import_RootNamespace>Ruzzie.Common.UnitTests</Import_RootNamespace>
   </PropertyGroup>
-  <ItemGroup>
+  <ItemGroup>    
     <Compile Include="$(MSBuildThisFileDirectory)\**\*.cs" Exclude="$(MSBuildThisFileDirectory)\bin\**\*.*;$(MSBuildThisFileDirectory)\obj\**\*.*" />
   </ItemGroup>
 </Project>

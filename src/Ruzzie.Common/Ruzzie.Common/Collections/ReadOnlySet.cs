@@ -5,23 +5,15 @@ using System.Collections.Generic;
 namespace Ruzzie.Common.Collections
 {
 
-#if !NET40
+
     /// <summary>
     /// Generic readonly wrapper for a <see cref="HashSet{T}"/>. Internally a <see cref="HashSet{T}"/> is used. All write operations throw a <see cref="NotSupportedException"/>.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    #if HAVE_SERIALIZABLE
+
     [Serializable]
-    #endif
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1710:IdentifiersShouldHaveCorrectSuffix", Justification = "By design.")]    
-    public class ReadOnlySet<T> : ISet<T>, IReadOnlyCollection<T> 
-#else
-    /// <summary>
-    /// Genereric readonly wrapper for a <see cref="HashSet{T}"/>. Internally a <see cref="HashSet{T}"/> is used. All write operations throw a <see cref="NotSupportedException"/>.
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    public class ReadOnlySet<T> : ISet<T>
-#endif
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1710:IdentifiersShouldHaveCorrectSuffix", Justification = "By design.")]
+    public class ReadOnlySet<T> : ISet<T>, IReadOnlyCollection<T>
     {
         private readonly ISet<T> _wrappedSet;
 
@@ -59,7 +51,7 @@ namespace Ruzzie.Common.Collections
         /// If you want to use another set type use the <see cref="ReadOnlySet{T}(ISet{T})"/> constructor.
         /// </summary>
         /// <param name="collection">The collection to wrap, a <see cref="HashSet{T}"/> is used by default to wrap the collection.</param>
-        public ReadOnlySet(IEnumerable<T> collection) 
+        public ReadOnlySet(IEnumerable<T> collection)
         {
             _wrappedSet = new HashSet<T>(collection);
         }

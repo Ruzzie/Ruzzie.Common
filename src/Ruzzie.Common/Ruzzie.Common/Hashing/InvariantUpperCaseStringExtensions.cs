@@ -9,14 +9,15 @@ namespace Ruzzie.Common.Hashing
     public static class InvariantUpperCaseStringExtensions
     {
         internal static readonly char[] UpperCaseMap;
+
         static InvariantUpperCaseStringExtensions()
         {
             int maxIndexOfUpperCaseMap = char.MaxValue;
-            UpperCaseMap = new char[maxIndexOfUpperCaseMap+1];
+            UpperCaseMap = new char[maxIndexOfUpperCaseMap + 1];
             var invariantCultureTextInfo = CultureInfo.InvariantCulture.TextInfo;
-         
+
             for (int i = maxIndexOfUpperCaseMap; i >= 0; i--)
-            {               
+            {
                 UpperCaseMap[i] = invariantCultureTextInfo.ToUpper((char) i);
             }
         }
@@ -103,9 +104,9 @@ namespace Ruzzie.Common.Hashing
             {
                 throw new ArgumentNullException(nameof(str));
             }
+
             int strLength = str.Length;
-            
-#if !PORTABLE
+
             unsafe
             {
                 char* pTarget = stackalloc char[strLength];
@@ -114,21 +115,14 @@ namespace Ruzzie.Common.Hashing
                     char* pSourceChar = pSource;
                     for (int i = 0; i < strLength; i++)
                     {
-                        char sourceChar = *pSourceChar;                        
+                        char sourceChar = *pSourceChar;
                         pTarget[i] = pMap[sourceChar];
                         pSourceChar++;
                     }
                 }
+
                 return new string(pTarget, 0, strLength);
             }
-#else
-            char[] newStr = new char[strLength];
-            for (int i = 0; i < strLength; i++)
-            {
-                newStr[i] = str[i].ToUpperInvariant();
-            }
-            return new string(newStr);
-#endif  
         }
     }
 }

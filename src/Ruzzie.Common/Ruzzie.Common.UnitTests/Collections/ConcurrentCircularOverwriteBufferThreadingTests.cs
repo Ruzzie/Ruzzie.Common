@@ -8,22 +8,13 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Ruzzie.Common.Collections;
 using Xunit;
-#if !NET40
 using Xunit.Abstractions;
-#endif
 
 namespace Ruzzie.Common.UnitTests.Collections
 {
     public class ConcurrentCircularOverwriteBufferThreadingTests
     {
         public ITestOutputHelper Output { get; }
-
-        #if NET40
-        public ConcurrentCircularOverwriteBufferThreadingTests()
-        {
-            Output = new ConsoleOutputShim();
-        }
-        #endif
 
         public ConcurrentCircularOverwriteBufferThreadingTests(ITestOutputHelper output)
         {
@@ -68,7 +59,6 @@ namespace Ruzzie.Common.UnitTests.Collections
             output.WriteLine(message);
         }
 
-        #if !NET40
         [Fact]
         [SuppressMessage("ReSharper", "AccessToModifiedClosure")]
         public void ThreadHammerWritePerformanceTest()
@@ -96,7 +86,7 @@ namespace Ruzzie.Common.UnitTests.Collections
             readLoop.Wait();
             //Assert: No Exceptions
         }
-        #endif
+
         [Fact]
         public void ThreadSafeReadTests()
         {
@@ -122,7 +112,7 @@ namespace Ruzzie.Common.UnitTests.Collections
                 readValuesHashSet.TryAdd(readNext, 1);
 
                 allValuesHashSet.ContainsKey(readNext).Should().BeTrue("Did not contain: " + readNext);
-            });            
+            });
 
             readValuesHashSet.Keys.Distinct().Count().Should().Be(cacheSize);
             buffer.Count.Should().Be(0);
@@ -143,16 +133,16 @@ namespace Ruzzie.Common.UnitTests.Collections
             buffer.CopyTo(allValues, 0);
 
             var allValuesHashSet = new HashSet<int>(allValues);
-            
+
             buffer.Count.Should().Be(cacheSize);
 
             for (var i = 0; i < cacheSize; i++)
-            {                
+            {
                 allValuesHashSet.Should().Contain(i, "Did not contain: " + i);
             }
         }
 
-        //[Fact]
+        [Fact(Skip = "disables, this reproduces multi-reader, multi-writer concurrency problem")]
         public void ThreadRaceConditionWithNullTests()
         {
             //Arrange
@@ -202,18 +192,4 @@ namespace Ruzzie.Common.UnitTests.Collections
             public List<int> Data { get; set; }
         }
     }
-#if NET40
-    public interface ITestOutputHelper
-    {
-        void WriteLine(string message);
-    }
-
-    public class ConsoleOutputShim : ITestOutputHelper
-    {
-        public void WriteLine(string message)
-        {
-            System.Console.WriteLine(message);
-        }
-    }
- #endif
 }

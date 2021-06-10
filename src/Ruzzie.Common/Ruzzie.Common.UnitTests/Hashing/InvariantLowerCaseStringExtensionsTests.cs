@@ -7,7 +7,6 @@ namespace Ruzzie.Common.UnitTests.Hashing
 {
     public class InvariantLowerCaseStringExtensionsTests
     {
-#if !NET40
         [Theory]
         [InlineData("ABCDEFGHIJKLMNOPQRSTUVWXYZ","abcdefghijklmnopqrstuvwxyz")]
         [InlineData("", "")]
@@ -22,11 +21,9 @@ namespace Ruzzie.Common.UnitTests.Hashing
         public void ToUpperInvariantStringNullThrowsException()
         {
             Action act = () => InvariantLowerCaseStringExtensions.ToLowerInvariant(null);
-            act.Should().Throw<ArgumentNullException>();            
+            act.Should().Throw<ArgumentNullException>();
         }
 
-
-#endif
         [Fact]
         public void UnsafeBufferToLowerCase()
         {
@@ -47,7 +44,7 @@ namespace Ruzzie.Common.UnitTests.Hashing
         {
             string original = "The European hare (Lepus europaeus)";
             var buffer = original.ToCharArray();
-           
+
             InvariantLowerCaseStringExtensions.ToLowerInvariant(buffer, 0, original.Length);
 
             new string(buffer).Should().Be("the european hare (lepus europaeus)");

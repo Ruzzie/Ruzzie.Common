@@ -3,14 +3,20 @@ using System.Diagnostics;
 using FluentAssertions;
 using Ruzzie.Common.Hashing;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Ruzzie.Common.UnitTests.Hashing
-{    
+{
     public class HashStringCaseInsensitiveTests
     {
+        private readonly ITestOutputHelper  _testOutputHelper;
         private readonly FNV1AHashAlgorithm _hashAlgorithm = new FNV1AHashAlgorithm();
 
-#if !NET40
+        public HashStringCaseInsensitiveTests(ITestOutputHelper testOutputHelper)
+        {
+            _testOutputHelper = testOutputHelper;
+        }
+
         [Theory]
         [InlineData("The Doctor", "the doctor")]
         [InlineData("the Doctor", "the doctor")]
@@ -20,7 +26,6 @@ namespace Ruzzie.Common.UnitTests.Hashing
         [InlineData("1!!", "1!!")]
         [InlineData("Ω", "ω")]
         [InlineData("3 Harvard Square", "3 HARVARD SQUARE")]
-   
         public void IgnoreCaseTests(string casingOne, string casingStyleTwo)
         {
             _hashAlgorithm.HashStringCaseInsensitive(casingOne).Should()
@@ -31,9 +36,9 @@ namespace Ruzzie.Common.UnitTests.Hashing
         public void NullShouldThrowException()
         {
             Action act = () => _hashAlgorithm.HashStringCaseInsensitive(null);
-            act.Should().Throw<Exception>();            
+            act.Should().Throw<Exception>();
         }
- #endif
+
         [Fact]
         public void EmptyShouldReturnDefaultHashValue()
         {
@@ -68,8 +73,8 @@ namespace Ruzzie.Common.UnitTests.Hashing
             }
             sw.Stop();
 
-            Console.WriteLine("For " + numberOfIterations + " iterations. Total time of:" + sw.Elapsed.TotalSeconds + " seconds. ticks / string: " +
-                              (sw.Elapsed.Ticks / numberOfIterations));
+            _testOutputHelper.WriteLine("For " + numberOfIterations + " iterations. Total time of:" + sw.Elapsed.TotalSeconds + " seconds. ticks / string: " +
+                                        (sw.Elapsed.Ticks / numberOfIterations));
 
         }
     }

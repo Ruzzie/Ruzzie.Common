@@ -4,12 +4,11 @@ using Ruzzie.Common.Hashing;
 using Xunit;
 
 namespace Ruzzie.Common.UnitTests.Hashing
-{    
+{
     public class InvariantUpperCaseStringExtensionsTests
     {
-#if !NET40
         [Theory]
-        [InlineData("abcdefghijklmnopqrstuvwxyz", "ABCDEFGHIJKLMNOPQRSTUVWXYZ")]        
+        [InlineData("abcdefghijklmnopqrstuvwxyz", "ABCDEFGHIJKLMNOPQRSTUVWXYZ")]
         [InlineData("", "")]
         [InlineData("3 Harvard Square", "3 HARVARD SQUARE")]
         [InlineData("2130 South Fort Union Blvd.", "2130 SOUTH FORT UNION BLVD.")]
@@ -22,9 +21,9 @@ namespace Ruzzie.Common.UnitTests.Hashing
         public void ToUpperInvariantStringNullThrowsException()
         {
             Action act = () => InvariantUpperCaseStringExtensions.ToUpperInvariant(null);
-            act.Should().Throw<ArgumentNullException>();            
+            act.Should().Throw<ArgumentNullException>();
         }
-#endif
+
         [Fact]
         public void UnsafeBufferToUpperCase()
         {
@@ -45,7 +44,7 @@ namespace Ruzzie.Common.UnitTests.Hashing
         {
             string original = "The European hare (Lepus europaeus)";
             var buffer = original.ToCharArray();
-           
+
             InvariantUpperCaseStringExtensions.ToUpperInvariant(buffer, 0, original.Length);
 
             new string(buffer).Should().Be("THE EUROPEAN HARE (LEPUS EUROPAEUS)");

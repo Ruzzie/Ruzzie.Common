@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Xunit;
 
 namespace Ruzzie.Common.UnitTests
-{    
+{
     public class SimpleRandomMultiThreadedTests
     {
         [Fact/*(Skip = "These test cause timeouts on the buildserver....")*/]
@@ -24,48 +24,37 @@ namespace Ruzzie.Common.UnitTests
 
         }
 
-        [Fact/*(Skip = "These test cause timeouts on the buildserver....")*/]        
+        [Fact/*(Skip = "These test cause timeouts on the buildserver....")*/]
         public void SmokeTestWithParallelWhile()
         {// ReSharper disable AccessToModifiedClosure
             var random = new SimpleRandom();
 
             bool runLoop = true;
-            Task whileTaskOne = 
-#if NET40
-                new Task( () => 
-#else
+            Task whileTaskOne =
                 Task.Run(() =>
-#endif
-            {
 
-                while (runLoop)
+                         {
 
-                {
-                    // ReSharper disable once UnusedVariable
-                    var k = random.Next(100);
-                }
-            }
-                );
-#if NET40            
-            whileTaskOne.Start();
-#endif
-            Task whileTaskTwo = 
-#if NET40
-                new Task( () => 
-#else
+                             while (runLoop)
+
+                             {
+                                 // ReSharper disable once UnusedVariable
+                                 var k = random.Next(100);
+                             }
+                         }
+                        );
+
+            Task whileTaskTwo =
                 Task.Run(() =>
-#endif
-            {
-                while (runLoop)
-                {
-                    // ReSharper disable once UnusedVariable
-                    var k = random.Next(100);
-                }
-            }
-                );
-#if NET40            
-            whileTaskTwo.Start();
-#endif
+
+                         {
+                             while (runLoop)
+                             {
+                                 // ReSharper disable once UnusedVariable
+                                 var k = random.Next(100);
+                             }
+                         }
+                        );
             // ReSharper restore AccessToModifiedClosure
             Thread.Sleep(500);
             runLoop = false;

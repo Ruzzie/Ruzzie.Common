@@ -29,5 +29,6 @@
   </ItemGroup>
 
   <Import Project="..\Ruzzie.Common.UnitTests\Ruzzie.Common.UnitTests.Shared.projitems" Label="Shared" />
+  
 
 </Project>

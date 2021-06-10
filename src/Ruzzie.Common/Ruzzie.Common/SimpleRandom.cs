@@ -16,11 +16,11 @@ namespace Ruzzie.Common
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SimpleRandom"/> class.
-        /// </summary>
-        /// <param name="seed">The seed.</param>
-        /// <param name="hValue">The h value.</param>
-        /// <param name="eValue">The e value.</param>
-        public SimpleRandom(long seed, in int hValue, in int eValue)
+                                                                            /// </summary>
+                                                                            /// <param name="seed">The seed.</param>
+                                                                            /// <param name="hValue">The h value.</param>
+                                                                            /// <param name="eValue">The e value.</param>
+                                                                            public SimpleRandom(long seed, in int hValue, in int eValue)
         {
             //For bytes: 0,00106736330262713 127,5 H1741966517 E1631200041
             //0,000000001594884 0,499999998405116 H1612099793 E1610967361, with _pTwo PrimeToolHash.GetPrime(hashOrValue.FindNearestPowerOfTwoLessThan())
@@ -190,28 +190,22 @@ namespace Ruzzie.Common
                 }
             }
 
-#if PORTABLE
-            readonly object _waitLockObject = new object();
-            private static readonly TimeSpan OneTickTimeSpan = new TimeSpan(1);
-#endif
             private ulong NextSample()
             {
                 if (!_buffer.ReadNext(out ulong sample))
                 {
-#if !PORTABLE
+
                     var spinWait = default(SpinWait);
-#endif
+
                     while (!_buffer.ReadNext(out sample))
                     {
-#if !PORTABLE
+
                         spinWait.SpinOnce();
-#else
-                        Monitor.TryEnter(_waitLockObject, OneTickTimeSpan);//Fastest way found so far to emulate SpinOnce behavior for pcl.
-#endif
+
                     }
                 }
 
-                Ruzzie.Common.Threading.Volatile.WriteValueType(ref _lastSeedUsed, sample);
+                Threading.Volatile.WriteValueType(ref _lastSeedUsed, sample);
 
                 _buffer.WriteNext(Sample(sample));
                 return sample;

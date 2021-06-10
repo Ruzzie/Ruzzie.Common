@@ -5,7 +5,7 @@ using System.Threading;
 namespace Ruzzie.Common.Threading
 {
     /// <summary>
-    /// A structure to capture a long value on a sinlge cache line. With different read and write strategies for usage across threads.
+    /// A structure to capture a long value on a single cache line. With different read and write strategies for usage across threads.
     /// </summary>
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1815:OverrideEqualsAndOperatorEqualsOnValueTypes")]
     [StructLayout(LayoutKind.Explicit, Size = CacheLineSize * 2)]
@@ -45,7 +45,7 @@ namespace Ruzzie.Common.Threading
             get
             {
                 return Volatile.ReadValueType(ref _value);
-                
+
             }
             set
             {

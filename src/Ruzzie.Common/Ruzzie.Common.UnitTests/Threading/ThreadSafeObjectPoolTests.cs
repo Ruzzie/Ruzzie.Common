@@ -8,12 +8,10 @@ using FluentAssertions;
 using Ruzzie.Common.Threading;
 using Xunit;
 
-#if ! NET40
 using Moq;
 
-
 namespace Ruzzie.Common.UnitTests.Threading
-{    
+{
     public class ThreadSafeObjectPoolTests
     {
         [Fact]
@@ -24,7 +22,6 @@ namespace Ruzzie.Common.UnitTests.Threading
             Parallel.For(0, 100000, i => { sha1ObjectPool.ExecuteOnAvailableObject(sha1 => sha1.ComputeHash(Encoding.Unicode.GetBytes("ThreadSafeObjectPoolTests SmokeTest" + i))); });
         }
 
-#if ! PORTABLE
         [Fact]
         public void DisposeTest()
         {
@@ -37,7 +34,7 @@ namespace Ruzzie.Common.UnitTests.Threading
             //Assert
             disposableMock.Verify(disposable => disposable.Dispose(), Times.Once);
         }
-#endif
+
         [Fact]
         public void ContentionTest()
         {
@@ -47,7 +44,7 @@ namespace Ruzzie.Common.UnitTests.Threading
             //Each execution should be handled by a different object
             var resultOne = Task.Run(() => pool.ExecuteOnAvailableObject(o => o.ExecuteAndHoldLock(100)));
             var resultTwo = Task.Run(() => pool.ExecuteOnAvailableObject(o => o.ExecuteAndHoldLock(100)));
-            
+
             resultOne.Result.Should().NotBe(resultTwo.Result);
         }
 
@@ -68,4 +65,3 @@ namespace Ruzzie.Common.UnitTests.Threading
         }
     }
 }
-#endif
