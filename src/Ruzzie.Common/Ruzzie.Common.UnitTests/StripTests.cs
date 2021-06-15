@@ -2,7 +2,7 @@ using FluentAssertions;
 using Ruzzie.Common;
 using Xunit;
 
-namespace Ruzzie.FuzzyStrings.UnitTests
+namespace Ruzzie.Common.UnitTests
 {
     public class StripTests
     {
