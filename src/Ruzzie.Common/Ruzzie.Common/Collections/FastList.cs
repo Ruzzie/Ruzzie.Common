@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Buffers;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
 #nullable enable
@@ -97,28 +98,6 @@ namespace Ruzzie.Common.Collections
             return list.AsReadOnlySpan();
         }
 
-        /// <summary>
-        /// Copies the contents of the given value to the current list.
-        /// </summary>
-        /// <param name="value"></param>
-        public void AddRange(ReadOnlySpan<T> value)
-        {
-            var toAddSize = value.Length;
-
-            if (toAddSize > 0)
-            {
-                //what to do with possible errors ...
-
-                var currentSize = _count;
-                var newSize     = currentSize + toAddSize;
-                EnsureCapacity(newSize);
-
-                var to = _array.AsSpan(_count..);
-                value.TryCopyTo(to);
-
-                _count = newSize;
-            }
-        }
 
         ///Attempts to copy the contents of this <see cref="FastList{T}"/> into a <see cref="Span{T}"/> and returns a value to indicate whether or not the operation succeeded.
         public bool TryCopyTo(Span<T> target)
@@ -133,7 +112,7 @@ namespace Ruzzie.Common.Collections
         public void Dispose()
         {
             _arrayPool?.Return(_array);
-            _array = null!;//force a dereference, is this the best way, I don't know..
+            _array = null!; //force a dereference, is this the best way, I don't know..
         }
 
         /// <inheritdoc />
@@ -153,6 +132,62 @@ namespace Ruzzie.Common.Collections
         internal ReadOnlySpan<T> AsReadOnlySpan()
         {
             return new ReadOnlySpan<T>(_array, 0, _count);
+        }
+
+        /// Copies the contents of the given value to the end of the current list.
+        public void AddRange(ReadOnlySpan<T> value)
+        {
+            var toAddSize = value.Length;
+
+            if (toAddSize > 0)
+            {
+                //what to do with possible errors ...
+                var currentSize = _count;
+                var newSize     = currentSize + toAddSize;
+                EnsureCapacity(newSize);
+
+                var to = _array.AsSpan(_count..);
+                value.TryCopyTo(to);
+
+                _count = newSize;
+            }
+        }
+
+        ///Copies the values of the given array to the end of this list.
+        public void AddRange(T[] value)
+        {
+            AddRange(new ReadOnlySpan<T>(value));
+        }
+
+        /// Adds the elements of the given collection to the end of this list. If
+        /// required, the capacity of the list is increased to twice the previous
+        /// capacity or the new size, whichever is larger.
+        public void AddRange(ICollection<T> otherCollection)
+        {
+            var toAddCount = otherCollection.Count;
+            if (toAddCount > 0)
+            {
+                EnsureCapacity(_count + toAddCount);
+                otherCollection.CopyTo(_array, _count);
+                _count += toAddCount;
+            }
+        }
+
+        /// Adds the elements of the given Enumerable to the end of this list.
+        public void AddRange(IEnumerable<T> otherCollection)
+        {
+            if (otherCollection is ICollection<T> asCollection)
+            {
+                AddRange(asCollection);
+            }
+            else
+            {
+                using var en = otherCollection.GetEnumerator();
+                while (en.MoveNext())
+                {
+                    Add(en.Current);
+                }
+            }
         }
     }
 }

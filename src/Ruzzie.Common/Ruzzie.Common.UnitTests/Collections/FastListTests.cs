@@ -1,5 +1,4 @@
-﻿using System;
-using System.Buffers;
+﻿using System.Buffers;
 using System.Collections.Generic;
 using System.Drawing;
 using FluentAssertions;
@@ -65,7 +64,7 @@ namespace Ruzzie.Common.UnitTests.Collections
         {
             //Arrange
             using var list = new FastList<int>(16);
-            list.AddRange(new []{1,2,3,4,5,6,7,8,9,0});
+            list.AddRange(new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 0 });
             var receiver = new int[10];
 
             //Act
@@ -81,13 +80,13 @@ namespace Ruzzie.Common.UnitTests.Collections
             //Arrange
             var list = new FastList<Point>(16);
 
-            list.Add(new Point(1,1));
-            list.Add(new Point(2,2));
+            list.Add(new Point(1, 1));
+            list.Add(new Point(2, 2));
 
             var otherList = new FastList<Point>(2);
 
-            otherList.Add(new Point(3,3));
-            otherList.Add(new Point(4,4));
+            otherList.Add(new Point(3, 3));
+            otherList.Add(new Point(4, 4));
 
             //Act
             list.AddRange(otherList);
@@ -128,7 +127,7 @@ namespace Ruzzie.Common.UnitTests.Collections
             list.Add(1); // make sure count is not zero, to force copy
 
             //Act
-            list.AddRange(new []{1,2,3,4,5,6,7,8,9,0});
+            list.AddRange(new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 0 });
 
             //Assert
             list.Capacity.Should().BeGreaterThan(oldCapacity);
@@ -143,7 +142,7 @@ namespace Ruzzie.Common.UnitTests.Collections
             list.Add(1); // make sure count is not zero, to force copy
 
             //Act
-            list.AddRange(new []{1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0});
+            list.AddRange(new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0 });
 
             //Assert
             list.Capacity.Should().BeGreaterThan(oldCapacity);
@@ -161,6 +160,90 @@ namespace Ruzzie.Common.UnitTests.Collections
 
             //Assert
             list.Count.Should().Be(values.Length + 1);
+        }
+
+        [Fact]
+        public void AddRangeCollectionTest()
+        {
+            //Arrange
+            using var list = new FastList<int>(16);
+            list.Add(1);
+
+            var otherCollection = new HashSet<int>();
+            otherCollection.Add(2);
+            otherCollection.Add(3);
+
+            //Act
+            list.AddRange(otherCollection);
+
+            //Assert
+            list.Count.Should().Be(3);
+
+            var span = list.AsSpan();
+            span[1].Should().Be(2);
+            span[2].Should().Be(3);
+        }
+
+        [Fact]
+        public void AddRangeEnumerableTest()
+        {
+            //Arrange
+            using var list = new FastList<int>(16);
+            list.Add(1);
+
+            var enumerable = new Queue<int>();
+            enumerable.Enqueue(2);
+            enumerable.Enqueue(3);
+
+            //Act
+            list.AddRange(enumerable);
+
+            //Assert
+            list.Count.Should().Be(3);
+
+            var span = list.AsSpan();
+            span[1].Should().Be(2);
+            span[2].Should().Be(3);
+        }
+
+        [Fact]
+        public void AddRangeEnumerableThatIsCollectionTest()
+        {
+            //Arrange
+            using var list = new FastList<int>(16);
+            list.Add(1);
+
+            var otherCollection = new HashSet<int>();
+            otherCollection.Add(2);
+            otherCollection.Add(3);
+            IEnumerable<int> enumerable =  otherCollection;
+
+            //Act
+            list.AddRange(enumerable);
+
+            //Assert
+            list.Count.Should().Be(3);
+
+            var span = list.AsSpan();
+            span[1].Should().Be(2);
+            span[2].Should().Be(3);
+        }
+
+        [Fact]
+        public void AddRangeAddSelfShouldDuplicate()
+        {
+            //Arrange
+            using var list = new FastList<int>(16);
+            list.Add(1);
+            list.Add(2);
+
+            //Act
+            list.AddRange(list);
+
+            //Assert
+            list.Count.Should().Be(4);
+
+            list.AsSpan().ToArray().Should().BeEquivalentTo(new[] { 1, 2, 1, 2 });
         }
     }
 }
