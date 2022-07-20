@@ -1,5 +1,4 @@
 using FluentAssertions;
-using Ruzzie.Common;
 using Xunit;
 
 namespace Ruzzie.Common.UnitTests;

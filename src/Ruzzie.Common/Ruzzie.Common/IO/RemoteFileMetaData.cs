@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Ruzzie.Common.IO;
+﻿namespace Ruzzie.Common.IO;
 
 /// <summary>
 /// Metadata for a remote file.

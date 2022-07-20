@@ -1,5 +1,4 @@
-﻿using System;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 
 namespace Ruzzie.Common.Hashing;
 
@@ -61,7 +60,11 @@ public class FNV1AHashAlgorithm : IHashCaseInsensitiveAlgorithm
         {
             hash = HashByte(hash, bytesToHash[i]);
         }
-        return (int)hash;
+
+        unchecked
+        {
+            return (int)hash;    
+        }
     }
 
 #if HAVE_METHODINLINING
@@ -88,7 +91,10 @@ public class FNV1AHashAlgorithm : IHashCaseInsensitiveAlgorithm
             }
         }
 
-        return (int)hash;
+        unchecked
+        {
+            return (int)hash;
+        }
     }
 
 #if HAVE_METHODINLINING

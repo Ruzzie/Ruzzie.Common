@@ -1,7 +1,4 @@
-﻿using System;
-using System.IO;
-
-namespace Ruzzie.Common.IO;
+﻿namespace Ruzzie.Common.IO;
 #if HAVE_FILEINFO
 /// <summary>
 /// Loads a remote file and caches it locally.

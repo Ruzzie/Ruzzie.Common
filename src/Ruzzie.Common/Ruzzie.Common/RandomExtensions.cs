@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Ruzzie.Common;
+﻿namespace Ruzzie.Common;
 
 /// <summary>
 /// This class implements extension methods for the <see cref="System.Random"/> class.

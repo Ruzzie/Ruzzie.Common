@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Ruzzie.Common.Numerics.Statistics;
+﻿namespace Ruzzie.Common.Numerics.Statistics;
 
 /// <summary>
 /// Functions for calculating entropy

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Ruzzie.Common;
+﻿namespace Ruzzie.Common;
 
 /// <summary>
 /// Extension methods for strings.
@@ -23,9 +21,9 @@ public static class StringExtensions
         int length      = str.Length;
         int appendIndex = 0;
 
-        const int maxStackLimit = 1024;
+        const int MAX_STACK_LIMIT = 1024;
 
-        var buffer = length <= maxStackLimit ? stackalloc char[length] : new char[length];
+        var buffer = length <= MAX_STACK_LIMIT ? stackalloc char[length] : new char[length];
 
         for (int i = 0; i < length; ++i)
         {

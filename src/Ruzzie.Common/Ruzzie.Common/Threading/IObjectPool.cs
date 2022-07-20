@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Ruzzie.Common.Threading;
+﻿namespace Ruzzie.Common.Threading;
 
 /// <summary>
 /// Interface to execute actions in an ObjectPool

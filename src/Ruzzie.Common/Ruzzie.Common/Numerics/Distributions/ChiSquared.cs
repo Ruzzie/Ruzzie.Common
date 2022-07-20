@@ -1,11 +1,7 @@
-using System;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using Ruzzie.Common.Numerics.Statistics;
 #if !NETSTANDARD1_1
 using System.Collections.Concurrent;
-using System.Linq;
-using System.Threading.Tasks;
 #endif
 
 namespace Ruzzie.Common.Numerics.Distributions

@@ -1,6 +1,4 @@
-﻿using System.IO;
-
-namespace Ruzzie.Common.IO;
+﻿namespace Ruzzie.Common.IO;
 #if HAVE_FILEINFO
 /// <summary>
 /// Interface for a remote file loader.B
