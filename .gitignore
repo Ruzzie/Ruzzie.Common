@@ -189,3 +189,5 @@ project.lock.json
 results.xml
 src/Ruzzie.Common/Ruzzie.Common/Ruzzie.Common.xml
 src/Ruzzie.Common/Ruzzie.Common.Benchmarks/BenchmarkDotNet.Artifacts/
+src/Ruzzie.Common/.idea/.idea.Ruzzie.Common/.idea/.gitignore
+src/Ruzzie.Common/.idea/
