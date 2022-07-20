@@ -1,10 +1,8 @@
-﻿using System;
-
-namespace Ruzzie.Common.Threading;
+﻿namespace Ruzzie.Common.Threading;
 
 /// <summary>
 /// A <see cref="IObjectPool{T}"/> of 1.
-/// The single object acces is wrapped in the <see cref="IObjectPool{T}"/> interface. No locking is done, please make sure that <typeparamref name="T"/>'s methods are all thread safe and it can be reused over multiple threads.
+/// The single object access is wrapped in the <see cref="IObjectPool{T}"/> interface. No locking is done, please make sure that <typeparamref name="T"/>'s methods are all thread safe and it can be reused over multiple threads.
 /// </summary>
 /// <typeparam name="T"></typeparam>
 public class SingleObjectPool<T> : IObjectPool<T>

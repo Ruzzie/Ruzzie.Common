@@ -78,7 +78,7 @@ public interface IConcurrentCircularOverwriteBuffer<T>
 /// <inheritdoc />
 /// <summary>
 ///     Circular buffer that overwrites values when the capacity is reached.
-///     This buffer is thread-safe when <b>not</b> using an many readers many writers strategy.
+///     This buffer is thread-safe when <b>not</b> using a many readers many writers strategy.
 /// </summary>
 /// <typeparam name="T">The type of the values to buffer.</typeparam>
 public class ConcurrentCircularOverwriteBuffer<T> : IConcurrentCircularOverwriteBuffer<T>

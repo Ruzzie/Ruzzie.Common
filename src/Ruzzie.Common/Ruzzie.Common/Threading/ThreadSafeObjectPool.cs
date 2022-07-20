@@ -1,7 +1,5 @@
-﻿using System;
-// ReSharper disable once RedundantUsingDirective
+﻿// ReSharper disable once RedundantUsingDirective
 using System.Reflection;
-using System.Threading;
 
 namespace Ruzzie.Common.Threading;
 
