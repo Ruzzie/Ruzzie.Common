@@ -46,7 +46,7 @@ public sealed class QueueBuffer<T> : IDisposable
     /// </summary>
     /// <param name="minCapacity">the minimum capacity</param>
     /// <param name="arrayPool">optional <see cref="ArrayPool{T}"/> to allocate the arrays from</param>
-    /// <exception cref="ArgumentOutOfRangeException">when <see cref="minCapacity"/> is 0 or less</exception>
+    /// <exception cref="ArgumentOutOfRangeException">when <paramref name="minCapacity"/> is 0 or less</exception>
     public QueueBuffer(int minCapacity = 1024, ArrayPool<T>? arrayPool = null)
     {
         if (minCapacity <= 0)
