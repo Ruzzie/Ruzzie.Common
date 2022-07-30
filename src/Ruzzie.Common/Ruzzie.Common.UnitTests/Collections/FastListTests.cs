@@ -1,4 +1,5 @@
-﻿using System.Buffers;
+﻿using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Drawing;
 using FluentAssertions;
@@ -244,5 +245,45 @@ public class FastListTests
         list.Count.Should().Be(4);
 
         list.AsSpan().ToArray().Should().BeEquivalentTo(new[] { 1, 2, 1, 2 });
+    }
+
+    [Fact]
+    public void IndexerGetSuccess()
+    {
+        //Arrange
+        using var list = new FastList<string>(2);
+        list.Add("first item");
+        list.Add("second item");
+        
+        //Act
+        var first  = list[0];
+        var second = list[1];
+
+        //Assert
+        first.Should().Be("first item");
+        second.Should().Be("second item");
+    }
+
+    [Fact]
+    public void IndexerGetOutOfRange()
+    {
+        //Arrange
+        using var list = new FastList<int>(2);
+        list.Add(20);
+        
+        var act = () => list[1];
+        
+        //Assert
+        act.Should().Throw<ArgumentOutOfRangeException>();
+    }
+
+    [Property]
+    public void IndexerThrowsOutOfRangePropertyTest(int index)
+    {
+        using var list = new FastList<int>(0);
+        
+        var act = () => list[index];
+        
+        act.Should().Throw<ArgumentOutOfRangeException>();
     }
 }

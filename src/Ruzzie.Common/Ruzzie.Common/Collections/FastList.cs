@@ -95,8 +95,7 @@ public sealed class FastList<T> : IMemoryOwner<T>
     {
         return list.AsReadOnlySpan();
     }
-
-
+    
     ///Attempts to copy the contents of this <see cref="FastList{T}"/> into a <see cref="Span{T}"/> and returns a value to indicate whether or not the operation succeeded.
     public bool TryCopyTo(Span<T> target)
     {
@@ -126,8 +125,9 @@ public sealed class FastList<T> : IMemoryOwner<T>
         return new Span<T>(_array, 0, _count);
     }
 
+    /// Returns the data as a readonly span. Be careful of the lifecycle of the List and multi-threading scenario's..
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal ReadOnlySpan<T> AsReadOnlySpan()
+    public ReadOnlySpan<T> AsReadOnlySpan()
     {
         return new ReadOnlySpan<T>(_array, 0, _count);
     }
@@ -185,6 +185,25 @@ public sealed class FastList<T> : IMemoryOwner<T>
             {
                 Add(en.Current);
             }
+        }
+    }
+    
+    /// <summary>
+    /// Gets the element at the given index.
+    /// </summary>
+    /// <param name="index"></param>
+    /// <exception cref="ArgumentOutOfRangeException"></exception>
+    public ref T this[int index]
+    { 
+        get
+        {
+            // This trick can reduce the range check by 1
+            if ((uint)index >= (uint)_count)
+            {
+                throw new ArgumentOutOfRangeException(nameof(index), index, "out of bounds");
+            }
+            
+            return ref _array[index];
         }
     }
 }
