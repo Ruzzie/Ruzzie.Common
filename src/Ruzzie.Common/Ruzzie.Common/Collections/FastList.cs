@@ -95,7 +95,7 @@ public sealed class FastList<T> : IMemoryOwner<T>
     {
         return list.AsReadOnlySpan();
     }
-    
+
     ///Attempts to copy the contents of this <see cref="FastList{T}"/> into a <see cref="Span{T}"/> and returns a value to indicate whether or not the operation succeeded.
     public bool TryCopyTo(Span<T> target)
     {
@@ -130,6 +130,12 @@ public sealed class FastList<T> : IMemoryOwner<T>
     public ReadOnlySpan<T> AsReadOnlySpan()
     {
         return new ReadOnlySpan<T>(_array, 0, _count);
+    }
+
+    /// Gets an enumerator for this list
+    public ReadOnlySpan<T>.Enumerator GetEnumerator()
+    {
+        return AsReadOnlySpan().GetEnumerator();
     }
 
     /// Copies the contents of the given value to the end of the current list.
@@ -187,14 +193,14 @@ public sealed class FastList<T> : IMemoryOwner<T>
             }
         }
     }
-    
+
     /// <summary>
     /// Gets the element at the given index.
     /// </summary>
     /// <param name="index"></param>
     /// <exception cref="ArgumentOutOfRangeException"></exception>
     public ref T this[int index]
-    { 
+    {
         get
         {
             // This trick can reduce the range check by 1
@@ -202,7 +208,7 @@ public sealed class FastList<T> : IMemoryOwner<T>
             {
                 throw new ArgumentOutOfRangeException(nameof(index), index, "out of bounds");
             }
-            
+
             return ref _array[index];
         }
     }

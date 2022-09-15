@@ -33,9 +33,26 @@ public class FastListTests
     }
 
     [Fact]
+    public void CanIterateAsEnumerable()
+    {
+        //Arrange
+        using var list = new FastList<string>(2);
+        list.Add("One");
+        list.Add("Two");
+
+
+        //Act & Assert
+        foreach (var str in list)
+        {
+            str.Should().NotBeNullOrWhiteSpace();
+        }
+    }
+
+    [Fact]
     public void AddItemToEmptyList()
     {
         //Arrange
+
         using var list = new FastList<int>(0);
 
         //Act
@@ -217,7 +234,7 @@ public class FastListTests
         var otherCollection = new HashSet<int>();
         otherCollection.Add(2);
         otherCollection.Add(3);
-        IEnumerable<int> enumerable =  otherCollection;
+        IEnumerable<int> enumerable = otherCollection;
 
         //Act
         list.AddRange(enumerable);
@@ -254,7 +271,7 @@ public class FastListTests
         using var list = new FastList<string>(2);
         list.Add("first item");
         list.Add("second item");
-        
+
         //Act
         var first  = list[0];
         var second = list[1];
@@ -270,9 +287,9 @@ public class FastListTests
         //Arrange
         using var list = new FastList<int>(2);
         list.Add(20);
-        
+
         var act = () => list[1];
-        
+
         //Assert
         act.Should().Throw<ArgumentOutOfRangeException>();
     }
@@ -281,9 +298,9 @@ public class FastListTests
     public void IndexerThrowsOutOfRangePropertyTest(int index)
     {
         using var list = new FastList<int>(0);
-        
+
         var act = () => list[index];
-        
+
         act.Should().Throw<ArgumentOutOfRangeException>();
     }
 }
