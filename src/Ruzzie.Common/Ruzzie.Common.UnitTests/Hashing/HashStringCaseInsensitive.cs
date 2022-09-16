@@ -28,22 +28,21 @@ public class HashStringCaseInsensitiveTests
     [InlineData("3 Harvard Square", "3 HARVARD SQUARE")]
     public void IgnoreCaseTests(string casingOne, string casingStyleTwo)
     {
-        _hashAlgorithm.HashStringCaseInsensitive(casingOne).Should()
+        _hashAlgorithm.HashStringCaseInsensitive(casingOne)
+                      .Should()
                       .Be(_hashAlgorithm.HashStringCaseInsensitive(casingStyleTwo));
     }
 
     [Fact]
-    public void NullShouldThrowException()
+    public void NullShouldNotThrowException()
     {
-        Action act = () => _hashAlgorithm.HashStringCaseInsensitive(null);
-        act.Should().Throw<Exception>();
+        _hashAlgorithm.HashStringCaseInsensitive(null).Should().Be(-2128831035);
     }
 
     [Fact]
     public void EmptyShouldReturnDefaultHashValue()
     {
-        var defaultHash = 2166136261;
-        _hashAlgorithm.HashStringCaseInsensitive("").Should().Be((int) defaultHash);
+        _hashAlgorithm.HashStringCaseInsensitive("").Should().Be(-2128831035);
     }
 
     [Fact]
@@ -62,6 +61,7 @@ public class HashStringCaseInsensitiveTests
             {
                 chars[j] = (char)random.Next(1, ushort.MaxValue + 1);
             }
+
             randomStrings[i] = new string(chars);
         }
 
@@ -71,10 +71,11 @@ public class HashStringCaseInsensitiveTests
         {
             _hashAlgorithm.HashStringCaseInsensitive(randomStrings[i]);
         }
+
         sw.Stop();
 
-        _testOutputHelper.WriteLine("For " + numberOfIterations + " iterations. Total time of:" + sw.Elapsed.TotalSeconds + " seconds. ticks / string: " +
+        _testOutputHelper.WriteLine("For "                  + numberOfIterations + " iterations. Total time of:" +
+                                    sw.Elapsed.TotalSeconds + " seconds. ticks / string: " +
                                     (sw.Elapsed.Ticks / numberOfIterations));
-
     }
 }

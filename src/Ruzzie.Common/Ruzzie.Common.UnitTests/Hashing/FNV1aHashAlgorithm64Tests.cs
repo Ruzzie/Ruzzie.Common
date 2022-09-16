@@ -61,22 +61,22 @@ public class FNV1aHashAlgorithm64Tests
         [InlineData("3 Harvard Square", "3 HARVARD SQUARE")]
         public void IgnoreCaseTests(string casingOne, string casingStyleTwo)
         {
-            _hashAlgorithm.HashStringCaseInsensitive(casingOne).Should()
+            _hashAlgorithm.HashStringCaseInsensitive(casingOne)
+                          .Should()
                           .Be(_hashAlgorithm.HashStringCaseInsensitive(casingStyleTwo));
         }
 
         [Fact]
-        public void NullShouldThrowException()
+        public void NullShouldNotThrowException()
         {
-            Action act = () => _hashAlgorithm.HashStringCaseInsensitive(null);
-            act.Should().Throw<Exception>();
+            _hashAlgorithm.HashStringCaseInsensitive(null).Should().Be(-3750763034362895579L);
         }
 
         [Fact]
         public void EmptyShouldReturnDefaultHashValue()
         {
-            var defaultHash = 14695981039346656037;
-            _hashAlgorithm.HashStringCaseInsensitive("").Should().Be((long) defaultHash);
+            var defaultHash = -3750763034362895579L;
+            _hashAlgorithm.HashStringCaseInsensitive("").Should().Be(defaultHash);
         }
     }
 }
