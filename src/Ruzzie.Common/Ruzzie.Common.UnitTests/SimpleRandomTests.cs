@@ -14,9 +14,24 @@ public class SimpleRandomTests
     {
         SimpleRandom random = new SimpleRandom();
         // ReSharper disable once AssignNullToNotNullAttribute
-        Action act = (() => random.NextBytes(null));
+        Action act = () => random.NextBytes(null);
 
         act.Should().Throw<Exception>();
+    }
+
+    [Fact]
+    public void NextBytesSpanSmokeTest()
+    {
+        //Arrange
+        var        random = new SimpleRandom(1);
+        Span<byte> buffer = stackalloc byte[2];
+
+        //Act
+        random.NextBytes(buffer);
+
+        //Assert
+        buffer[0].Should().Be(0xAF);
+        buffer[1].Should().Be(0XD3);
     }
 
 
@@ -48,9 +63,10 @@ public class SimpleRandomTests
     public void NextIntMinMaxThrowsArgumentOutOfRangeExceptionWhenMaxValueIsLessThanMinValue()
     {
         // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
-        Action act = ()=> new SimpleRandom().Next(10, 9);
+        Action act = () => new SimpleRandom().Next(10, 9);
         act.Should().Throw<ArgumentOutOfRangeException>();
     }
+
     [Theory]
     [InlineData(10)]
     [InlineData(2)]
@@ -79,7 +95,7 @@ public class SimpleRandomTests
     public void NextIntMaxThrowsArgumentOutOfRangeExceptionWhenMaxValueIsLessThanZero()
     {
         // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
-        Action act = ()=> new SimpleRandom().Next(-9);
+        Action act = () => new SimpleRandom().Next(-9);
 
         act.Should().Throw<ArgumentOutOfRangeException>();
     }

@@ -22,7 +22,7 @@ public class SimpleRandom : Random
     {
         //For bytes: 0,00106736330262713 127,5 H1741966517 E1631200041
         //0,000000001594884 0,499999998405116 H1612099793 E1610967361, with _pTwo PrimeToolHash.GetPrime(hashOrValue.FindNearestPowerOfTwoLessThan())
-        _randomSampler = new RandomSampler((ulong) seed, hValue, eValue);
+        _randomSampler = new RandomSampler((ulong)seed, hValue, eValue);
     }
 
     /// <summary>
@@ -31,7 +31,6 @@ public class SimpleRandom : Random
     /// <param name="seed">The seed.</param>
     public SimpleRandom(long seed = 1) : this(seed, 160938768, 837541626)
     {
-
     }
 
     /// <summary>
@@ -77,6 +76,7 @@ public class SimpleRandom : Random
         {
             throw new ArgumentOutOfRangeException(nameof(minValue), "minValue is greater than maxValue.");
         }
+
         double random = NextDouble();
         int    range  = maxValue - minValue;
 
@@ -95,6 +95,12 @@ public class SimpleRandom : Random
             throw new ArgumentNullException(nameof(buffer));
         }
 
+        NextBytes(new Span<byte>(buffer));
+    }
+
+    /// <inheritdoc />
+    public override void NextBytes(Span<byte> buffer)
+    {
         for (int i = 0; i < buffer.Length; i++)
         {
             buffer[i] = NextByte();
@@ -134,7 +140,7 @@ public class SimpleRandom : Random
     /// <summary>
     /// Get the Seed. This can be used to reinitialize the <see cref="SimpleRandom"/>.
     /// </summary>
-    public long Seed => (long) _randomSampler.LastSeedUsed;
+    public long Seed => (long)_randomSampler.LastSeedUsed;
 
     internal class RandomSampler
     {
@@ -146,6 +152,7 @@ public class SimpleRandom : Random
         private                 ulong _lastSeedUsed;
 
         internal ulong LastSeedUsed => _lastSeedUsed;
+
         public RandomSampler(ulong seed, in int hValue, in int eValue)
         {
             int noiseVariable;
@@ -160,7 +167,7 @@ public class SimpleRandom : Random
 
             unchecked
             {
-                _pOnePowThree = (pOne * pOne * pOne);
+                _pOnePowThree = pOne * pOne * pOne;
                 _pTwoPowTwo   = pTwo * pTwo;
             }
 
@@ -183,7 +190,7 @@ public class SimpleRandom : Random
         {
             unchecked
             {
-                var number = (int) (NextSample() % int.MaxValue);
+                var number = (int)(NextSample() % int.MaxValue);
                 return number % exclusiveMaximum;
             }
         }
@@ -192,14 +199,11 @@ public class SimpleRandom : Random
         {
             if (!_buffer.ReadNext(out ulong sample))
             {
-
                 var spinWait = default(SpinWait);
 
                 while (!_buffer.ReadNext(out sample))
                 {
-
                     spinWait.SpinOnce();
-
                 }
             }
 
@@ -231,6 +235,6 @@ public class SimpleRandom : Random
     /// <param name="newSeed">The new seed.</param>
     public void Reset(long newSeed)
     {
-        _randomSampler.Reset((ulong) newSeed);
+        _randomSampler.Reset((ulong)newSeed);
     }
 }
