@@ -1,11 +1,11 @@
 ﻿using System.Buffers;
+using System.Runtime.CompilerServices;
 
 namespace Ruzzie.Common.Collections;
 
-
 /// <summary>
 /// A Buffer (queue) that supports
-/// multiple concurrent (lock-free) writers (1 (max. 2?) cas op) (MPSC)
+/// multiple concurrent (lock-free, not wait free (spinning)) writers  (MPSC)
 /// ,single reader, that reads in batches
 ///   the reader should only read every N messages, otherwise another
 ///   data-structure is more appropriate.
@@ -30,44 +30,92 @@ public sealed class QueueBuffer<T> : IDisposable
 {
     private readonly ArrayPool<T>? _arrayPool;
 
-    /// multiple threads may write to the front-buffer
-    private BufferSegment _frontBuffer;
-
-    /// only one thread may read from the back-buffer
-    private BufferSegment _backBuffer;
-
-    // this is only used to ensure the single reader, reading is not lock-free
-    //   however since there can only be a single consumer that reads in batches
-    //   the contention should be low / non-existent
-    private readonly object _freezeLock = new();
+    private readonly T[][] _doubleBuffers;
 
     /// <summary>
     /// Creates a new <see cref="QueueBuffer{T}"/>
     /// </summary>
-    /// <param name="minCapacity">the minimum capacity</param>
+    /// <param name="capacity">the minimum capacity</param>
     /// <param name="arrayPool">optional <see cref="ArrayPool{T}"/> to allocate the arrays from</param>
-    /// <exception cref="ArgumentOutOfRangeException">when <paramref name="minCapacity"/> is 0 or less</exception>
-    public QueueBuffer(int minCapacity = 1024, ArrayPool<T>? arrayPool = null)
+    /// <exception cref="ArgumentOutOfRangeException">when <paramref name="capacity"/> is 0 or less</exception>
+    public QueueBuffer(int capacity = 1024, ArrayPool<T>? arrayPool = null)
     {
-        if (minCapacity <= 0)
+        if (capacity <= 0)
         {
-            throw new ArgumentOutOfRangeException(nameof(minCapacity));
+            throw new ArgumentOutOfRangeException(nameof(capacity), "too small");
         }
 
-        _arrayPool = arrayPool;
+        if (capacity >= QueueBuffer.BufferSelectionMask)
+        {
+            throw new ArgumentOutOfRangeException(nameof(capacity), "too large");
+        }
 
-        _frontBuffer = new BufferSegment(arrayPool?.Rent(minCapacity) ?? new T[minCapacity]);
-        _backBuffer  = new BufferSegment(arrayPool?.Rent(minCapacity) ?? new T[minCapacity]);
+        _arrayPool     = arrayPool;
+        _doubleBuffers = new T[2][];
+
+        _doubleBuffers[0] = arrayPool?.Rent(capacity) ?? new T[capacity];
+        _doubleBuffers[1] = arrayPool?.Rent(capacity) ?? new T[capacity];
+
+        _capacity = capacity;
     }
+
+    private readonly int _capacity;
+
+    private int _writeHeader; // contains in which buffer to write (front or back) and the nat. index of the buffer
+
+    private  SpinLock _spinLock        = new SpinLock();
+    internal bool     LockedForReading = false;
 
     /// Add an item to the queue, this is thread-safe
     public bool TryAdd(in T value)
     {
-        // always write to the front buffer
-        // maybe we need a memory barrier, atomic read here, first we need
-        //   some tests
-        Interlocked.MemoryBarrier();
-        return BufferSegment.TryAdd(_frontBuffer, value);
+        // fast path
+        if (QueueBuffer.SelectIndex(_writeHeader) >= _capacity)
+        {
+            //full
+            return false;
+        }
+
+        bool lockTaken = false;
+        try
+        {
+            //Todo: error handling strategy, this stuff can throw exceptions all around
+            _spinLock.Enter(ref lockTaken);
+
+            // since we increment first
+            //   we subtract 1. When we start at 0
+            //   the increment will set it to 1.
+            //   however we need write in Index 0;
+            var nextWriteHeader =
+                // since we use a spinLock, can we omit atomic operations ...?
+                ++_writeHeader - 1;
+            //Interlocked.Increment(ref _writeHeader) - 1;
+
+            // remove the the buffer selection mask
+            //  such that we can index the array by its natural index
+            var nextIndex = QueueBuffer.SelectIndex(nextWriteHeader);
+
+            if (nextIndex >= _capacity)
+            {
+                //full
+                return false;
+            }
+
+            // write to the front buffer
+            // fun exercise, is it branch free when we use a T[][] of 2 and use an index ...?
+            _doubleBuffers
+                [
+                 // 0 or 1, depending on the front or backbuffer
+                 // select the current 'write' buffer
+                 QueueBuffer.SelectBuffer(nextWriteHeader)][nextIndex] = value;
+        }
+        finally
+        {
+            if (lockTaken)
+                _spinLock.Exit();
+        }
+
+        return true;
     }
 
     /// Snapshots the writes up until now and returns a ReadHandle from which
@@ -80,157 +128,138 @@ public sealed class QueueBuffer<T> : IDisposable
     /// </remarks>
     public ReadHandle<T> ReadBuffer()
     {
-        lock (_freezeLock)
-            // we take the hit of a mutex.
-            //   since reading is done in batches the assumption
-            //   is that this offsets the perf impact.
+        if (Volatile.Read(ref LockedForReading))
         {
-            if (_backBuffer.LockedForReading)
+            // no swap, the lock is not freed by the reader yet,
+            //   a ReadHandle is still in use
+            throw new
+                InvalidOperationException("Tried to create a ReadHandle for the Buffer, but another ReadHandle was already given. Maybe the previous ReadHandle was not freed yet?");
+        }
+
+        /*if (Interlocked.Exchange(ref LockedForReading, true))
+        {
+            
+        }*/
+
+        var lockTaken = false;
+
+        try
+        {
+            _spinLock.Enter(ref lockTaken);
+            LockedForReading = true; // no volatile / atomic write needed since we lock
+
+            var currentWriteHeader = _writeHeader;
+
+            // the natural index can be reset to 0 and swap the front and back buffer
+            var swappedWriteHeader = QueueBuffer.SwapAndResetWriteHeader(currentWriteHeader);
+
+
+            //Compare and swap the write index (flip front and back buffer and reset write index)
+            while (currentWriteHeader !=
+                   Interlocked.CompareExchange(ref _writeHeader, swappedWriteHeader, currentWriteHeader))
             {
-                // no swap, the lock is not freed by the reader yet,
-                //   a ReadHandle is still in use
-                throw new
-                    InvalidOperationException("Tried to create a ReadHandle for the Buffer, but another ReadHandle was already given. Maybe the previous ReadHandle was not freed yet?");
+                currentWriteHeader = _writeHeader;
+                swappedWriteHeader = QueueBuffer.SwapAndResetWriteHeader(currentWriteHeader);
             }
 
-            //_backBuffer.LockedForReading = true;
+            // so now we have swapped the buffers and we know how many items are in the 'backbuffer'
 
-            // clear / reset the 'old' backbuffer,
-            //   all data is read, so we should be able to clear this
-            BufferSegment.Reset(_backBuffer);
+            // due to optimization (and concurrency) the _index could be larger than the
+            //   length so we need to take that into account when calculating the length
+            var numberOfItems = Math.Min(QueueBuffer.SelectIndex(currentWriteHeader), _capacity);
 
-            _backBuffer.LockedForReading = false;
-
-            // set the front buffer to the backbuffer (part 1 of swap)
-            var oldFrontBuffer = Interlocked.Exchange(ref _frontBuffer
-                                                    , _backBuffer);
-
-
-            // the old frontBuffer is now the new backbuffer
-            _backBuffer                  = oldFrontBuffer;
-            _backBuffer.LockedForReading = true;
-
-            return new ReadHandle<T>(_backBuffer);
+            return new ReadHandle<T>(new ReadOnlySpan<T>(
+                                                         _doubleBuffers[QueueBuffer.SelectBuffer(currentWriteHeader)]
+                                                       , 0
+                                                       , numberOfItems)
+                                   , this);
+        }
+        finally
+        {
+            if (lockTaken)
+                _spinLock.Exit();
         }
     }
-    
+
     /// Returns the backing arrays to the array pool if they were allocated
     public void Dispose()
     {
-        
-        _arrayPool?.Return(_frontBuffer.Buffer, true);
-        _arrayPool?.Return(_backBuffer.Buffer);
-    }
-
-    // note:
-    //   this is a class (and not a struct) because we use CAS swapping
-    //     (Interlocked.Exchange) and there is no typed api to
-    //     swap refs to structs.
-    internal sealed class BufferSegment
-    {
-        public readonly  T[]  Buffer;
-        public           long Index;
-        public volatile  bool LockedForReading;
-        private readonly int  _bufferLength;
-
-        internal BufferSegment(T[] buffer)
+        try
         {
-            Buffer        = buffer;
-            _bufferLength = buffer.Length;
+            _arrayPool?.Return(_doubleBuffers[0]);
         }
-
-        /// resets the index and items to default, this is not thread-safe
-        /// <remarks>
-        /// static method with a `this` reference
-        ///    so that il is `call` instead of `callvirt`
-        /// </remarks>
-        public static void Reset(BufferSegment me)
+        finally
         {
-            if (!me.LockedForReading)
-            {
-                throw new
-                    InvalidOperationException("The BufferSegment is NOT locked for reading, please lock the BufferSegment for reading before resetting");
-            }
-
-            // not clearing could be a 'security' issue but is a lot faster
-            //me.Buffer.AsSpan().Clear(); 
-            me.Index = 0;
-        }
-
-        /// adds an item to the Buffer (ordered) this is thread-safe
-        /// <remarks>
-        /// static method with a `this` reference
-        ///    so that il is `call` instead of `callvirt`
-        /// </remarks>
-        public static bool TryAdd(BufferSegment me, in T value)
-        {
-            if (me.LockedForReading)
-            {
-                throw new
-                    InvalidOperationException("The BufferSegment is locked for reading, please Dispose the ReadHandle to enable writing to this BufferSegment");
-            }
-
-            // fast path
-            if (me.Index + 1 >= me._bufferLength)
-            {
-                //full
-                return false;
-            }
-
-            var nextIndex = Interlocked.Increment(ref me.Index);
-            if (nextIndex >= me._bufferLength)
-            {
-                // we are full
-                return false;
-            }
-
-            // yes! we have a spot available
-            me.Buffer[nextIndex] = value;
-            return true;
+            _arrayPool?.Return(_doubleBuffers[1]);
         }
     }
-
-    
 }
 
 /// A ReadHandle to read the Buffer, this should only be used in a single thread and should be immediately disposed after reading.
-public readonly struct ReadHandle<T> : IDisposable
+public readonly ref struct ReadHandle<T> // : IDisposable
 {
-    // note the reference is readonly, the _backBuffer itself can
-    //   and will be mutated (setting, the LockedForReading state)
-    private readonly QueueBuffer<T>.BufferSegment _backBuffer;
+    private readonly ReadOnlySpan<T> _backBuffer;
+    private readonly QueueBuffer<T>  _owner;
 
-    internal ReadHandle(QueueBuffer<T>.BufferSegment backBuffer)
+    internal ReadHandle(ReadOnlySpan<T> backBuffer, QueueBuffer<T> owner)
     {
-        if (backBuffer.LockedForReading == false)
+        if (owner.LockedForReading == false)
         {
             throw new
-                InvalidOperationException("Given BufferSegment was not locked for reading. Cannot create a valid ReadHandle for this");
+                InvalidOperationException("Given Buffer was not locked for reading. Cannot create a valid ReadHandle for this");
         }
 
         _backBuffer = backBuffer;
+        _owner      = owner;
     }
 
     /// Get the contents of the buffer for reading
     public ReadOnlySpan<T> AsSpan()
     {
-        if (_backBuffer.LockedForReading == false)
+        if (_owner.LockedForReading == false)
         {
             throw new
-                InvalidOperationException("The BufferSegment to read from was not locked for reading. This ReadHandle is invalid. Please dispose all ReadHandles after use, only one ReadHandle can be active at a time.");
+                InvalidOperationException("The Buffer to read from was not locked for reading. This ReadHandle is invalid. Please dispose all ReadHandles after use, only one ReadHandle can be active at a time.");
         }
 
-        return new ReadOnlySpan<T>(_backBuffer.Buffer
-                                 , 0
-                                  ,
-                                   // due to optimization (and concurrency) the _index can be larger than the
-                                   //   length so we need to take that into account when calculating the length
-                                   (int)Math.Min(_backBuffer.Index + 1, _backBuffer.Buffer.Length));
+        return _backBuffer;
     }
 
-    /// <inheritdoc />
+    /// <summary>
+    /// Disposes the handle
+    /// </summary>
     public void Dispose()
     {
-        _backBuffer.LockedForReading = false;
+        // yuck....
+        Volatile.Write(ref _owner.LockedForReading, false);
+        // should we clear the array contents (for security and easier debugging purposes) ...?
+    }
+}
+
+internal static class QueueBuffer
+{
+    // this indicates whether to write to the first or the second buffer (front or back)
+    //  front and backbuffer are swapped by flipping this bit
+    //   we should guard against the max size which is capped by this
+    internal const int BufferSelectionMask = 0b1 << 30;
+    internal const int SelectIndexMask     = 0b00111111_11111111_11111111_11111111;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal static int SelectBuffer(int writeHeader)
+    {
+        return (writeHeader & BufferSelectionMask) >> 30;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal static int SelectIndex(int writeHeader)
+    {
+        return writeHeader & SelectIndexMask;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal static int SwapAndResetWriteHeader(int writeHeader)
+    {
+        // the natural index can be reset to 0 and swap the front and back buffer
+        return (writeHeader ^ BufferSelectionMask) & ~SelectIndexMask;
     }
 }

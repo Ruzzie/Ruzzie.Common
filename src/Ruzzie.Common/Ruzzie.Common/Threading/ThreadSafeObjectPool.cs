@@ -1,10 +1,12 @@
 ﻿// ReSharper disable once RedundantUsingDirective
+
 using System.Reflection;
 
 namespace Ruzzie.Common.Threading;
 
 /// <summary>
-/// Contains a pool of objects that can be used to execute a method thread safe. The pool is created so multiple threads can execute simultaneously, this is done by creating multiple instances of type T.
+/// Contains a pool of objects that can be used to execute a method thread safe.
+///   The pool is created so multiple threads can execute simultaneously, this is done by creating multiple instances of type T.
 /// </summary>
 /// <typeparam name="T"></typeparam>
 /// <seealso cref="IDisposable" />
@@ -45,6 +47,7 @@ public class ThreadSafeObjectPool<T> : IObjectPool<T>
             _lockSlots[i] = new object();
             _objects[i]   = createTypeFactory();
         }
+
         _indexMask = _poolSize - 1;
     }
 
@@ -83,6 +86,7 @@ public class ThreadSafeObjectPool<T> : IObjectPool<T>
                     _index.AtomicIncrement();
                 }
             }
+
             ++currentIndex;
         } while (true);
     }

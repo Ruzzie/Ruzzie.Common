@@ -29,11 +29,12 @@ public class RemoteFileLoader : IRemoteFileLoader
         {
             throw new ArgumentException("Value cannot be null or whitespace.", nameof(filename));
         }
+
         if (string.IsNullOrWhiteSpace(localPathToStoreFile))
         {
             throw new ArgumentException("Value cannot be null or whitespace.", nameof(localPathToStoreFile));
         }
-            
+
         if (!Directory.Exists(localPathToStoreFile))
         {
             Directory.CreateDirectory(localPathToStoreFile);
@@ -69,7 +70,6 @@ public class RemoteFileLoader : IRemoteFileLoader
         }
         else
         {
-            //Dont check for a new version if it was less than a day ago (perf opt)
             //Check if there is a newer version of the file
             var       localFileLastWriteTime         = fileInfo.LastWriteTimeUtc;
             DateTime? remoteFileLastModifiedDateTime = _fileDownloader.MetaData.LastModifiedTimeUtc;

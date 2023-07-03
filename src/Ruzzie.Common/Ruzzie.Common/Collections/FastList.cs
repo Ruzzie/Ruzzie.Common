@@ -7,7 +7,7 @@ namespace Ruzzie.Common.Collections;
 /// A base fast List (dynamic array) where you can access the underlying Span (Array).
 /// This is optimized for scenario's where resizing is minimal and you want to reduce copying of data and still
 ///  need access to the underlying data via ref's.
-/// Collection modification is not thread-safe. Please manage the lifecycle of this object with the Dispose method.
+/// Collection modification is __not__ thread-safe. Please manage the lifecycle of this object with the Dispose method.
 public sealed class FastList<T> : IMemoryOwner<T>
 {
     private readonly ArrayPool<T>? _arrayPool;

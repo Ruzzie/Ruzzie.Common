@@ -6,7 +6,8 @@ namespace Ruzzie.Common.Threading;
 /// <summary>
 /// A structure to capture a long value on a single cache line. With different read and write strategies for usage across threads.
 /// </summary>
-[System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1815:OverrideEqualsAndOperatorEqualsOnValueTypes")]
+[System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance"
+                                               , "CA1815:OverrideEqualsAndOperatorEqualsOnValueTypes")]
 [StructLayout(LayoutKind.Explicit, Size = CacheLineSize * 2)]
 public struct VolatileLong
 {
@@ -41,15 +42,8 @@ public struct VolatileLong
     /// </value>
     public long VolatileValue
     {
-        get
-        {
-            return Volatile.ReadValueType(ref _value);
-
-        }
-        set
-        {
-            Volatile.WriteValueType(ref _value, value);
-        }
+        get { return Volatile.ReadValueType(ref _value); }
+        set { Volatile.WriteValueType(ref _value, value); }
     }
 
     /// <summary>
@@ -60,8 +54,10 @@ public struct VolatileLong
     /// </value>
     public long CompilerFencedValue
     {
-        [MethodImpl(MethodImplOptions.NoOptimization)] get { return _value; }
-        [MethodImpl(MethodImplOptions.NoOptimization)] set { _value = value; }
+        [MethodImpl(MethodImplOptions.NoOptimization)]
+        get { return _value; }
+        [MethodImpl(MethodImplOptions.NoOptimization)]
+        set { _value = value; }
     }
 
     /// <summary>

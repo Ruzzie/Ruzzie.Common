@@ -2,15 +2,16 @@
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
-        <TargetFramework>netcoreapp3.1</TargetFramework>
+        <TargetFramework>net6.0</TargetFramework>
+        <LangVersion>default</LangVersion>
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Ruzzie.Common\Ruzzie.Common.csproj" />
+      <PackageReference Include="BenchmarkDotNet" Version="0.13.5" />
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="BenchmarkDotNet" Version="0.13.0" />
+      <ProjectReference Include="..\Ruzzie.Common\Ruzzie.Common.csproj" />
     </ItemGroup>
 
 </Project>

@@ -1,72 +1,72 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <Description>Common libraries used in other projects</Description>
-    <Copyright>Copyright © Dorus Verhoeckx 2022</Copyright>
-    <AssemblyTitle>Ruzzie.Common</AssemblyTitle>
-    <NeutralLanguage>en-US</NeutralLanguage>
-    <Authors>Dorus Verhoeckx</Authors>
-    <Company>D Crafting</Company>
-    <TargetFrameworks>netstandard2.1;net6.0</TargetFrameworks>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <AssemblyName>Ruzzie.Common</AssemblyName>
-    <PackageId>Ruzzie.Common</PackageId>
-    <PackageTitle>Ruzzie.Common</PackageTitle>
-    <PackageProjectUrl>https://github.com/Ruzzie/Ruzzie.Common</PackageProjectUrl>
-    <License>MIT</License>
+    <PropertyGroup>
+        <Description>Common libraries used in other projects</Description>
+        <Copyright>Copyright © Dorus Verhoeckx 2023</Copyright>
+        <AssemblyTitle>Ruzzie.Common</AssemblyTitle>
+        <NeutralLanguage>en-US</NeutralLanguage>
+        <Authors>Dorus Verhoeckx</Authors>
+        <Company>D Crafting</Company>
+        <TargetFramework>net6.0</TargetFramework>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <AssemblyName>Ruzzie.Common</AssemblyName>
+        <PackageId>Ruzzie.Common</PackageId>
+        <PackageTitle>Ruzzie.Common</PackageTitle>
+        <PackageProjectUrl>https://github.com/Ruzzie/Ruzzie.Common</PackageProjectUrl>
+        <License>MIT</License>
 
-    <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>git://github.com/Ruzzie/Ruzzie.Common</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <RepositoryUrl>git://github.com/Ruzzie/Ruzzie.Common</RepositoryUrl>
 
-    <!-- including PDB files in NuGet for source link because symbolsource.org does not support portable PDBs -->
-    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
-    <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
-    <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
-    <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
-    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
-    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
-    <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
-    <GenerateNeutralResourcesLanguageAttribute>false</GenerateNeutralResourcesLanguageAttribute>
-    <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
-    <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
-    
-    
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <IsTrimmable>true</IsTrimmable>
-    <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
-    <PublishTrimmed>true</PublishTrimmed>
+        <!-- including PDB files in NuGet for source link because symbolsource.org does not support portable PDBs -->
+        <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+        <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
+        <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
+        <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
+        <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
+        <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+        <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
+        <GenerateNeutralResourcesLanguageAttribute>false</GenerateNeutralResourcesLanguageAttribute>
+        <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
+        <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
 
-    <!-- Prevent warnings from unused code in dependencies -->
-    <TrimmerDefaultAction>link</TrimmerDefaultAction>
-    
-  </PropertyGroup>
 
-  <PropertyGroup>
-    <LangVersion>default</LangVersion>
-    <NullableContextOptions>enable</NullableContextOptions>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <WarningsAsErrors />
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-  </PropertyGroup>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <IsTrimmable>true</IsTrimmable>
+        <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
+        <PublishTrimmed>true</PublishTrimmed>
 
-<!--COMPILE CONSTANTS -->
+        <!-- Prevent warnings from unused code in dependencies -->
+        <TrimmerDefaultAction>link</TrimmerDefaultAction>
 
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
-    <DefineConstants>$(DefineConstants);HAVE_SERIALIZABLE;HAVE_METHODINLINING;HAVE_TYPEISASSIGNABLEFROM;HAVE_FILEINFO;HAVE_SPAN</DefineConstants>
-  </PropertyGroup>
-  
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.1' ">
-    <DefineConstants>$(DefineConstants);HAVE_SERIALIZABLE;HAVE_METHODINLINING;HAVE_TYPEISASSIGNABLEFROM;HAVE_FILEINFO;HAVE_SPAN</DefineConstants>
-  </PropertyGroup>
-  
-  <PropertyGroup Condition="'$(Configuration)'=='Release'">
-    <DebugSymbols>true</DebugSymbols>
-  </PropertyGroup>
+    </PropertyGroup>
 
-  <PropertyGroup>
-    <DocumentationFile>Ruzzie.Common.xml</DocumentationFile>
-  </PropertyGroup>
+    <PropertyGroup>
+        <LangVersion>default</LangVersion>
+        <NullableContextOptions>enable</NullableContextOptions>
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+        <WarningsAsErrors/>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    </PropertyGroup>
+
+    <!--COMPILE CONSTANTS -->
+
+    <PropertyGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
+        <DefineConstants>$(DefineConstants);HAVE_SERIALIZABLE;HAVE_METHODINLINING;HAVE_TYPEISASSIGNABLEFROM;HAVE_FILEINFO;HAVE_SPAN</DefineConstants>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.1' ">
+        <DefineConstants>$(DefineConstants);HAVE_SERIALIZABLE;HAVE_METHODINLINING;HAVE_TYPEISASSIGNABLEFROM;HAVE_FILEINFO;HAVE_SPAN</DefineConstants>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)'=='Release'">
+        <DebugSymbols>true</DebugSymbols>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <DocumentationFile>Ruzzie.Common.xml</DocumentationFile>
+    </PropertyGroup>
 
 </Project>

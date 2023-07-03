@@ -255,8 +255,8 @@ public class ConcurrentCircularOverwriteBuffer<T> : IConcurrentCircularOverwrite
 #endif
     internal static bool HasNext(in long readHeader, in long writeHeader)
     {
-        ulong writeHeaderUL = (ulong) writeHeader;
-        ulong readHeaderUL  = (ulong) readHeader;
+        ulong writeHeaderUL = (ulong)writeHeader;
+        ulong readHeaderUL  = (ulong)readHeader;
 
         return writeHeaderUL - readHeaderUL > 0 && writeHeaderUL > readHeaderUL;
     }

@@ -1,9 +1,14 @@
 ﻿using System;
 using System.Buffers;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
+using System.Threading;
+using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Mathematics;
+using BenchmarkDotNet.Order;
 using BenchmarkDotNet.Running;
 using Ruzzie.Common.Collections;
 
@@ -13,7 +18,197 @@ namespace Ruzzie.Common.Benchmarks
     {
         static void Main(string[] args)
         {
-            var allBenchmarks = BenchmarkRunner.Run(typeof(Program).Assembly);
+            var allBenchmarks = BenchmarkRunner.Run(new[] { typeof(QueueBufferReadWriteOne) });
+        }
+    }
+
+    [GcServer(true)]
+    [Orderer(SummaryOrderPolicy.FastestToSlowest)]
+    [RankColumn(NumeralSystem.Roman)]
+    [AllStatisticsColumn]
+    public class QueueBufferReadUnderPressure
+    {
+        private readonly QueueBuffer<int>    _queueBuffer;
+        private readonly QueueBufferAlt<int> _altBuffer;
+
+        private readonly int[] _queueOutputPlaceholder = new int[N];
+
+        private const int N = 8388607 >> 7;
+
+        private const    int    ConcurrentProducersCount = 2;
+        private readonly Task[] _producerTasks           = new Task[ConcurrentProducersCount];
+        private readonly Task[] _altProducerTasks        = new Task[ConcurrentProducersCount];
+
+        public QueueBufferReadUnderPressure()
+        {
+            _queueBuffer = new QueueBuffer<int>(N);
+            _altBuffer   = new QueueBufferAlt<int>(N);
+            //new TaskFactory(TaskCreationOptions.LongRunning,TaskContinuationOptions.LongRunning)
+        }
+
+        private volatile bool _running;
+
+        private void AddItems()
+        {
+            int trivial  = 0;
+            var spinWait = new SpinWait();
+            while (_running)
+            {
+                bool addResult = _queueBuffer.TryAdd(++trivial);
+                if (addResult == false)
+                    spinWait.SpinOnce();
+                /*else
+                    spinWait.Reset();*/
+            }
+        }
+
+        private void AddItemsAlt()
+        {
+            int trivial = 0;
+            //var spinWait = new SpinWait();
+            while (_running)
+            {
+                bool addResult = _altBuffer.TryAdd(++trivial);
+                /*if (addResult == false)
+                    spinWait.SpinOnce();*/
+                /*else
+                    spinWait.Reset();*/
+            }
+        }
+
+        [GlobalSetup]
+        public void Setup()
+        {
+            Console.WriteLine(" // GLOBAL SETUP!");
+            _running = true;
+            for (int i = 0; i < ConcurrentProducersCount; i++)
+            {
+                _producerTasks[i]    = Task.Run(AddItems);
+                _altProducerTasks[i] = Task.Run(AddItemsAlt);
+            }
+        }
+
+        [GlobalCleanup]
+        public void Cleanup()
+        {
+            Console.WriteLine(" // GLOBAL CLEANUP!");
+            _running = false;
+            Task.WhenAll(_producerTasks).GetAwaiter().GetResult();
+            Task.WhenAll(_altProducerTasks).GetAwaiter().GetResult();
+        }
+
+        [Benchmark]
+        public ReadOnlySpan<int> ReadAllQueueBuffer()
+        {
+            using var readHandle = _queueBuffer.ReadBuffer();
+            return readHandle.AsSpan();
+        }
+
+        [Benchmark]
+        public ReadOnlySpan<int> ReadAllQueueBufferAlt()
+        {
+            using var readHandle = _altBuffer.ReadBuffer();
+            return readHandle.AsSpan();
+        }
+
+        [Benchmark]
+        public ReadOnlySpan<int> ArrayAsSpanBaseLine()
+        {
+            return _queueOutputPlaceholder;
+        }
+    }
+
+    [GcServer(true)]
+    [Orderer(SummaryOrderPolicy.FastestToSlowest)]
+    [RankColumn(NumeralSystem.Roman)]
+    [AllStatisticsColumn]
+    public class QueueBufferReadWriteOne
+    {
+        private readonly QueueBuffer<int>    _filledQueueBuffer;
+        private readonly QueueBufferAlt<int> _filledQueueAltBuffer;
+        private readonly int[]               _queueOutputPlaceholder = new int[N];
+
+        private const int N = 1024;
+        private       int _value;
+
+        public QueueBufferReadWriteOne()
+        {
+            _filledQueueBuffer    = new QueueBuffer<int>(N);
+            _filledQueueAltBuffer = new QueueBufferAlt<int>(N);
+            _value                = new Random().Next();
+        }
+
+        [Benchmark]
+        public ReadOnlySpan<int> ReadAllQueueBuffer()
+        {
+            _filledQueueBuffer.TryAdd(_value);
+            using var readHandle = _filledQueueBuffer.ReadBuffer();
+            return readHandle.AsSpan();
+        }
+
+        [Benchmark]
+        public ReadOnlySpan<int> ReadAllQueueBufferAlt()
+        {
+            _filledQueueAltBuffer.TryAdd(_value);
+            using var readHandle = _filledQueueAltBuffer.ReadBuffer();
+            return readHandle.AsSpan();
+        }
+
+        [Benchmark]
+        public ReadOnlySpan<int> ArrayAsSpanBaseLine()
+        {
+            _queueOutputPlaceholder[0] = _value;
+            return _queueOutputPlaceholder;
+        }
+    }
+
+    [GcServer(true)]
+    [Orderer(SummaryOrderPolicy.FastestToSlowest)]
+    [RankColumn(NumeralSystem.Roman)]
+    [AllStatisticsColumn]
+    public class QueueBufferWrite
+    {
+        private readonly QueueBuffer<int>    _queueBuffer;
+        private readonly QueueBufferAlt<int> _queueBufferAlt;
+
+        private const int N = 1024;
+
+        private int _writeValue;
+
+        [Params(10, 100)]
+        public int NumberOfItems;
+
+        public QueueBufferWrite()
+        {
+            _queueBuffer    = new QueueBuffer<int>(N);
+            _queueBufferAlt = new QueueBufferAlt<int>(N);
+            _writeValue     = new Random().Next();
+        }
+
+        [Benchmark(Baseline = true)]
+        public bool WriteQueueBuffer()
+        {
+            bool res = true;
+
+            for (int i = 0; i < NumberOfItems; i++)
+            {
+                res &= _queueBuffer.TryAdd(_writeValue);
+            }
+
+            return res;
+        }
+
+        [Benchmark]
+        public bool WriteQueueBufferAlt()
+        {
+            bool res = true;
+
+            for (int i = 0; i < NumberOfItems; i++)
+            {
+                res &= _queueBufferAlt.TryAdd(_writeValue);
+            }
+
+            return res;
         }
     }
 
