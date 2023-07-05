@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Buffers;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
@@ -16,9 +15,9 @@ namespace Ruzzie.Common.Benchmarks
 {
     class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
-            var allBenchmarks = BenchmarkRunner.Run(new[] { typeof(QueueBufferReadWriteOne) });
+            var _ = BenchmarkRunner.Run(new[] { typeof(QueueBufferReadUnderPressure) });
         }
     }
 
@@ -28,12 +27,13 @@ namespace Ruzzie.Common.Benchmarks
     [AllStatisticsColumn]
     public class QueueBufferReadUnderPressure
     {
-        private readonly QueueBuffer<int>    _queueBuffer;
-        private readonly QueueBufferAlt<int> _altBuffer;
+        private readonly QueueBufferSL<int> _queueBufferSl;
+        private readonly QueueBufferSW<int> _swBuffer;
 
         private readonly int[] _queueOutputPlaceholder = new int[N];
 
         private const int N = 8388607 >> 7;
+
 
         private const    int    ConcurrentProducersCount = 2;
         private readonly Task[] _producerTasks           = new Task[ConcurrentProducersCount];
@@ -41,38 +41,37 @@ namespace Ruzzie.Common.Benchmarks
 
         public QueueBufferReadUnderPressure()
         {
-            _queueBuffer = new QueueBuffer<int>(N);
-            _altBuffer   = new QueueBufferAlt<int>(N);
-            //new TaskFactory(TaskCreationOptions.LongRunning,TaskContinuationOptions.LongRunning)
+            _queueBufferSl = new QueueBufferSL<int>(N);
+            _swBuffer      = new QueueBufferSW<int>(N);
         }
 
         private volatile bool _running;
 
         private void AddItems()
         {
-            int trivial  = 0;
-            var spinWait = new SpinWait();
+            int trivial = 0;
+
             while (_running)
             {
-                bool addResult = _queueBuffer.TryAdd(++trivial);
+                bool addResult = _queueBufferSl.TryAdd(++trivial);
                 if (addResult == false)
-                    spinWait.SpinOnce();
-                /*else
-                    spinWait.Reset();*/
+                    Thread.Sleep(30);
+                else
+                    Thread.Sleep(0);
             }
         }
 
         private void AddItemsAlt()
         {
             int trivial = 0;
-            //var spinWait = new SpinWait();
+
             while (_running)
             {
-                bool addResult = _altBuffer.TryAdd(++trivial);
-                /*if (addResult == false)
-                    spinWait.SpinOnce();*/
-                /*else
-                    spinWait.Reset();*/
+                bool addResult = _swBuffer.TryAdd(++trivial);
+                if (addResult == false)
+                    Thread.Sleep(30);
+                else
+                    Thread.Sleep(0);
             }
         }
 
@@ -98,16 +97,16 @@ namespace Ruzzie.Common.Benchmarks
         }
 
         [Benchmark]
-        public ReadOnlySpan<int> ReadAllQueueBuffer()
+        public ReadOnlySpan<int> ReadAllQueueBufferAlt()
         {
-            using var readHandle = _queueBuffer.ReadBuffer();
+            using var readHandle = _swBuffer.ReadBuffer();
             return readHandle.AsSpan();
         }
 
         [Benchmark]
-        public ReadOnlySpan<int> ReadAllQueueBufferAlt()
+        public ReadOnlySpan<int> ReadAllQueueBuffer()
         {
-            using var readHandle = _altBuffer.ReadBuffer();
+            using var readHandle = _queueBufferSl.ReadBuffer();
             return readHandle.AsSpan();
         }
 
@@ -124,33 +123,33 @@ namespace Ruzzie.Common.Benchmarks
     [AllStatisticsColumn]
     public class QueueBufferReadWriteOne
     {
-        private readonly QueueBuffer<int>    _filledQueueBuffer;
-        private readonly QueueBufferAlt<int> _filledQueueAltBuffer;
-        private readonly int[]               _queueOutputPlaceholder = new int[N];
+        private readonly QueueBufferSL<int> _filledQueueBufferSl;
+        private readonly QueueBufferSW<int> _filledQueueSwBuffer;
+        private readonly int[]              _queueOutputPlaceholder = new int[N];
 
         private const int N = 1024;
         private       int _value;
 
         public QueueBufferReadWriteOne()
         {
-            _filledQueueBuffer    = new QueueBuffer<int>(N);
-            _filledQueueAltBuffer = new QueueBufferAlt<int>(N);
-            _value                = new Random().Next();
+            _filledQueueBufferSl = new QueueBufferSL<int>(N);
+            _filledQueueSwBuffer = new QueueBufferSW<int>(N);
+            _value               = new Random().Next();
         }
 
         [Benchmark]
         public ReadOnlySpan<int> ReadAllQueueBuffer()
         {
-            _filledQueueBuffer.TryAdd(_value);
-            using var readHandle = _filledQueueBuffer.ReadBuffer();
+            _filledQueueBufferSl.TryAdd(_value);
+            using var readHandle = _filledQueueBufferSl.ReadBuffer();
             return readHandle.AsSpan();
         }
 
         [Benchmark]
         public ReadOnlySpan<int> ReadAllQueueBufferAlt()
         {
-            _filledQueueAltBuffer.TryAdd(_value);
-            using var readHandle = _filledQueueAltBuffer.ReadBuffer();
+            _filledQueueSwBuffer.TryAdd(_value);
+            using var readHandle = _filledQueueSwBuffer.ReadBuffer();
             return readHandle.AsSpan();
         }
 
@@ -168,21 +167,72 @@ namespace Ruzzie.Common.Benchmarks
     [AllStatisticsColumn]
     public class QueueBufferWrite
     {
-        private readonly QueueBuffer<int>    _queueBuffer;
-        private readonly QueueBufferAlt<int> _queueBufferAlt;
+        private readonly QueueBufferSL<int> _queueBufferSl;
+        private readonly QueueBufferSW<int> _queueBufferSw;
 
         private const int N = 1024;
 
+        private Task _consumeTask;
+        private Task _consumeAltTask;
+
+
         private int _writeValue;
 
-        [Params(10, 100)]
+        [Params(1, 10, 100)]
         public int NumberOfItems;
 
         public QueueBufferWrite()
         {
-            _queueBuffer    = new QueueBuffer<int>(N);
-            _queueBufferAlt = new QueueBufferAlt<int>(N);
-            _writeValue     = new Random().Next();
+            _queueBufferSl = new QueueBufferSL<int>(N);
+            _queueBufferSw = new QueueBufferSW<int>(N);
+            _writeValue    = new Random().Next();
+        }
+
+        private volatile bool _running;
+
+        public void Consume()
+        {
+            Span<int> data = new int[N];
+            while (_running)
+            {
+                using var readHandle = _queueBufferSl.ReadBuffer();
+                var       buffer     = readHandle.AsSpan();
+                for (int i = 0; i < buffer.Length; i++)
+                {
+                    data[i] = buffer[i];
+                }
+            }
+        }
+
+        public void ConsumeAlt()
+        {
+            Span<int> data = new int[N];
+            while (_running)
+            {
+                using var readHandle = _queueBufferSw.ReadBuffer();
+                var       buffer     = readHandle.AsSpan();
+                for (int i = 0; i < buffer.Length; i++)
+                {
+                    data[i] = buffer[i];
+                }
+            }
+        }
+
+        [GlobalSetup]
+        public void Setup()
+        {
+            Console.WriteLine(" // GLOBAL SETUP!");
+            _running        = true;
+            _consumeTask    = Task.Run(Consume);
+            _consumeAltTask = Task.Run(ConsumeAlt);
+        }
+
+        [GlobalCleanup]
+        public void Cleanup()
+        {
+            Console.WriteLine(" // GLOBAL CLEANUP!");
+            _running = false;
+            Task.WhenAll(_consumeTask, _consumeAltTask).GetAwaiter().GetResult();
         }
 
         [Benchmark(Baseline = true)]
@@ -192,7 +242,7 @@ namespace Ruzzie.Common.Benchmarks
 
             for (int i = 0; i < NumberOfItems; i++)
             {
-                res &= _queueBuffer.TryAdd(_writeValue);
+                res &= _queueBufferSl.TryAdd(_writeValue);
             }
 
             return res;
@@ -205,7 +255,7 @@ namespace Ruzzie.Common.Benchmarks
 
             for (int i = 0; i < NumberOfItems; i++)
             {
-                res &= _queueBufferAlt.TryAdd(_writeValue);
+                res &= _queueBufferSw.TryAdd(_writeValue);
             }
 
             return res;

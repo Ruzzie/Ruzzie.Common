@@ -6,14 +6,13 @@ namespace Ruzzie.Common.Threading;
 /// <summary>
 /// A structure to capture a long value on a single cache line. With different read and write strategies for usage across threads.
 /// </summary>
-[System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance"
-                                               , "CA1815:OverrideEqualsAndOperatorEqualsOnValueTypes")]
-[StructLayout(LayoutKind.Explicit, Size = CacheLineSize * 2)]
+[StructLayout(LayoutKind.Sequential)]
 public struct VolatileLong
 {
-    internal const int CacheLineSize = 64;
+    // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable
+    // CacheLine padding
+    private readonly nint _padding = 0x0;
 
-    [FieldOffset(CacheLineSize)]
     private long _value;
 
     private VolatileLong(long value)
@@ -35,7 +34,7 @@ public struct VolatileLong
     }
 
     /// <summary>
-    /// Reads or writes the value with full memorybarrier, this inserts a memory barrier that prevents the processor from reordering memory operations.
+    /// Reads or writes the value with full memory-barrier, this inserts a memory barrier that prevents the processor from reordering memory operations.
     /// </summary>
     /// <value>
     /// The value.
@@ -87,6 +86,12 @@ public struct VolatileLong
     public long AtomicIncrement()
     {
         return Interlocked.Increment(ref _value);
+    }
+
+    /// Atomically reads the value
+    internal long AtomicRead()
+    {
+        return Interlocked.Read(ref _value);
     }
 
     /// <summary>

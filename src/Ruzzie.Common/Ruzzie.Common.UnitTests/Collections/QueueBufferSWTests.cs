@@ -9,11 +9,11 @@ using Xunit.Abstractions;
 
 namespace Ruzzie.Common.UnitTests.Collections;
 
-public class QueueBufferAltTests
+public class QueueBufferSWTests
 {
     private readonly ITestOutputHelper _testOutputHelper;
 
-    public QueueBufferAltTests(ITestOutputHelper testOutputHelper)
+    public QueueBufferSWTests(ITestOutputHelper testOutputHelper)
     {
         _testOutputHelper = testOutputHelper;
     }
@@ -21,20 +21,51 @@ public class QueueBufferAltTests
     [Fact]
     public void SwapAndIncrementProducerTests()
     {
-        var producer = 2ul; // 2 elements buffer select 0
+        var producer = 2ul; // 2 elements buffer select buffer 0
 
-        producer = QueueBufferAlt.IncrementProducer(producer);
-        QueueBufferAlt.SelectCurrentProducerCount(producer).Should().Be(1);
+        producer = QueueBufferSW.IncrementProducer(producer);
+        QueueBufferSW.SelectCurrentProducerCount(producer).Should().Be(1);
 
-        producer = QueueBufferAlt.DecrementProducer(producer);
-        QueueBufferAlt.SelectCurrentProducerCount(producer).Should().Be(0);
+        producer = QueueBufferSW.DecrementProducer(producer);
+        QueueBufferSW.SelectCurrentProducerCount(producer).Should().Be(0);
 
         //SWAP
-        producer = QueueBufferAlt.SwapAndResetWriteIndex(producer);
+        producer = QueueBufferSW.SwapAndResetWriteIndex(producer);
 
-        QueueBufferAlt.SelectIndex(producer).Should().Be(0);
-        QueueBufferAlt.SelectCurrentProducerCount(producer).Should().Be(0);
-        QueueBufferAlt.SelectCurrentBufferIdx(producer).Should().Be(1);
+        QueueBufferSW.SelectIndex(producer).Should().Be(0);
+        QueueBufferSW.SelectCurrentProducerCount(producer).Should().Be(0);
+        QueueBufferSW.SelectCurrentBufferIdx(producer).Should().Be(1);
+
+
+        producer = QueueBufferSW.IncrementProducer(producer);
+        QueueBufferSW.SelectCurrentProducerCount(producer).Should().Be(1);
+
+
+        //SWAP
+        producer = QueueBufferSW.SwapAndResetWriteIndex(producer);
+
+        QueueBufferSW.SelectCurrentBufferIdx(producer).Should().Be(0);
+        QueueBufferSW.SelectIndex(producer).Should().Be(0);
+        QueueBufferSW.SelectCurrentProducerCount(producer).Should().Be(1); // producers count is not blotted out
+    }
+
+    [Fact]
+    public void ClearProducersMask()
+    {
+        var producer = 2ul; // 2 elements buffer select buffer 0
+
+        producer = QueueBufferSW.SwapAndResetWriteIndex(producer);
+
+        producer = QueueBufferSW.IncrementProducer(producer);
+        producer = QueueBufferSW.IncrementProducer(producer);
+        producer++; // nextIndex
+        QueueBufferSW.SelectCurrentProducerCount(producer).Should().Be(2);
+
+        producer = producer & QueueBufferSW.CLEAR_PRODUCERS_MASK;
+
+        QueueBufferSW.SelectCurrentProducerCount(producer).Should().Be(0);
+        QueueBufferSW.SelectIndex(producer).Should().Be(1);
+        QueueBufferSW.SelectCurrentBufferIdx(producer).Should().Be(1);
     }
 
 
@@ -43,23 +74,23 @@ public class QueueBufferAltTests
     {
         var producer = 0ul;
 
-        QueueBufferAlt.SelectCurrentBufferIdx(producer).Should().Be(0);
+        QueueBufferSW.SelectCurrentBufferIdx(producer).Should().Be(0);
 
-        producer = QueueBufferAlt.SwapAndResetWriteIndex(producer);
-        QueueBufferAlt.SelectCurrentBufferIdx(producer).Should().Be(1);
+        producer = QueueBufferSW.SwapAndResetWriteIndex(producer);
+        QueueBufferSW.SelectCurrentBufferIdx(producer).Should().Be(1);
 
-        QueueBufferAlt.SelectCurrentProducerCount(producer).Should().Be(0);
+        QueueBufferSW.SelectCurrentProducerCount(producer).Should().Be(0);
 
-        producer = QueueBufferAlt.IncrementProducer(producer);
-        QueueBufferAlt.SelectCurrentProducerCount(producer).Should().Be(1);
+        producer = QueueBufferSW.IncrementProducer(producer);
+        QueueBufferSW.SelectCurrentProducerCount(producer).Should().Be(1);
 
-        producer = QueueBufferAlt.IncrementProducer(producer);
-        QueueBufferAlt.SelectCurrentProducerCount(producer).Should().Be(2);
+        producer = QueueBufferSW.IncrementProducer(producer);
+        QueueBufferSW.SelectCurrentProducerCount(producer).Should().Be(2);
 
-        producer = QueueBufferAlt.DecrementProducer(producer);
-        QueueBufferAlt.SelectCurrentProducerCount(producer).Should().Be(1);
-        producer = QueueBufferAlt.DecrementProducer(producer);
-        QueueBufferAlt.SelectCurrentProducerCount(producer).Should().Be(0);
+        producer = QueueBufferSW.DecrementProducer(producer);
+        QueueBufferSW.SelectCurrentProducerCount(producer).Should().Be(1);
+        producer = QueueBufferSW.DecrementProducer(producer);
+        QueueBufferSW.SelectCurrentProducerCount(producer).Should().Be(0);
     }
 
     [Fact]
@@ -67,7 +98,7 @@ public class QueueBufferAltTests
     {
         //Arrange
         var capacity = 1024;
-        var buffer   = new QueueBuffer<string>(capacity);
+        var buffer   = new QueueBufferSW<string>(capacity);
 
         //ACT
         //  Fill the buffer
@@ -88,7 +119,7 @@ public class QueueBufferAltTests
     {
         //Arrange
         var capacity       = 1024;
-        var buffer         = new QueueBuffer<string>(capacity);
+        var buffer         = new QueueBufferSW<string>(capacity);
         var allUniqueItems = new HashSet<string>();
 
         //ACT
@@ -119,14 +150,14 @@ public class QueueBufferAltTests
     [Fact]
     public void AddOneItem()
     {
-        new QueueBufferAlt<int>(2).TryAdd(1).Should().BeTrue();
+        new QueueBufferSW<int>(2).TryAdd(1).Should().BeTrue();
     }
 
     [Fact]
     public void ReadBufferSpanIsSizeOfItemCount()
     {
         //Arrange
-        var queue = new QueueBufferAlt<string>();
+        var queue = new QueueBufferSW<string>();
         //Act
         queue.TryAdd("first").Should().BeTrue();
         queue.TryAdd("second").Should().BeTrue();
@@ -141,7 +172,7 @@ public class QueueBufferAltTests
     public void ReadsAddedItem()
     {
         //Arrange
-        var queue = new QueueBufferAlt<string>();
+        var queue = new QueueBufferSW<string>();
         //Act
         queue.TryAdd("first").Should().BeTrue();
 
@@ -156,7 +187,7 @@ public class QueueBufferAltTests
     public void AddsAndReadsInOrder()
     {
         //Arrange
-        var queue = new QueueBufferAlt<string>();
+        var queue = new QueueBufferSW<string>();
 
         //Act
         queue.TryAdd("first").Should().BeTrue();
@@ -191,7 +222,7 @@ public class QueueBufferAltTests
     public void TryAddReturnsFalseWhenFull()
     {
         //Arrange
-        var queue = new QueueBufferAlt<string>(1);
+        var queue = new QueueBufferSW<string>(1);
         queue.TryAdd("first").Should().BeTrue();
 
         //Act & Assert
@@ -202,7 +233,7 @@ public class QueueBufferAltTests
     public void CanAddToWhenReading()
     {
         //Arrange
-        var queue = new QueueBufferAlt<string>(2);
+        var queue = new QueueBufferSW<string>(2);
         queue.TryAdd("first").Should().BeTrue();
 
         using var readHandle = queue.ReadBuffer();
@@ -215,7 +246,7 @@ public class QueueBufferAltTests
     public void OnlyOneConsumer()
     {
         //Arrange
-        using var queue = new QueueBufferAlt<string>(1);
+        using var queue = new QueueBufferSW<string>(1);
         queue.TryAdd("first").Should().BeTrue();
         using var readHandleOne = queue.ReadBuffer();
 
@@ -228,7 +259,7 @@ public class QueueBufferAltTests
     public void CanDisposeWhenNotReading()
     {
         //Arrange
-        var queue = new QueueBufferAlt<string>(2);
+        var queue = new QueueBufferSW<string>(2);
         queue.TryAdd("first").Should().BeTrue();
 
         //Act & Assert
@@ -240,7 +271,7 @@ public class QueueBufferAltTests
     public void MultipleProducersSingleConsumerCheckAllData()
     {
         //Arrange
-        using var       queue                 = new QueueBufferAlt<string>();
+        using var       queue                 = new QueueBufferSW<string>();
         HashSet<string> uniqueItemsToValidate = new HashSet<string>();
 
         int itemsPerProducer = 512;

@@ -1,5 +1,7 @@
 ﻿using System.Buffers;
 using System.Runtime.CompilerServices;
+using Ruzzie.Common.Threading;
+using Volatile = System.Threading.Volatile;
 
 namespace Ruzzie.Common.Collections;
 
@@ -25,27 +27,37 @@ namespace Ruzzie.Common.Collections;
 ///   writing this is optimized for lot's of single concurrent fast writes and
 ///   a single Batch Read every xxx writes.
 ///
+///  This implementation uses atomic operations and spinning as a synchronization mechanism.   
 /// </remarks>
-public sealed class QueueBufferAlt<T> : IDisposable
+public sealed class QueueBufferSW<T> : IQueueBuffer<T>
 {
     private readonly ArrayPool<T>? _arrayPool;
     private readonly T[][]         _doubleBuffers;
     private readonly ulong         _capacity;
 
+    /// contains in which buffer to write (front or back) and the nat. index of the buffer
+    //   note: when we use a ulong value directly and the appropriate Interlocked methods the ReadBuffer does not 
+    //         function correctly; (my guess is it has something to do with cacheline, .net core and ulongs)
+    //         although the logic is exactly the same.
+    //         So now we use the VolatileLong wrapper (which uses a long (signed)) under the hood and everything is ok!
+    private VolatileLong _writeHeader;
+
+    private readonly Ref<bool> _lockedForReading = new Ref<bool>(false);
+
     /// <summary>
-    /// Creates a new <see cref="QueueBuffer{T}"/>
+    /// Creates a new <see cref="QueueBufferSL{T}"/>
     /// </summary>
-    /// <param name="capacity">the minimum capacity</param>
+    /// <param name="capacity">the fixed max. capacity of the buffer</param>
     /// <param name="arrayPool">optional <see cref="ArrayPool{T}"/> to allocate the arrays from</param>
     /// <exception cref="ArgumentOutOfRangeException">when <paramref name="capacity"/> is 0 or less</exception>
-    public QueueBufferAlt(int capacity = 1024, ArrayPool<T>? arrayPool = null)
+    public QueueBufferSW(int capacity = 1024, ArrayPool<T>? arrayPool = null)
     {
         if (capacity <= 0)
         {
             throw new ArgumentOutOfRangeException(nameof(capacity), "too small");
         }
 
-        if (capacity > (int)QueueBufferAlt.SELECT_INDEX_MASK)
+        if (capacity > (int)QueueBufferSW.SELECT_INDEX_MASK)
         {
             throw new ArgumentOutOfRangeException(nameof(capacity), "too large");
         }
@@ -60,48 +72,51 @@ public sealed class QueueBufferAlt<T> : IDisposable
     }
 
 
-    private ulong _writeHeader; // contains in which buffer to write (front or back) and the nat. index of the buffer
-
-    internal bool LockedForReading = false;
-
-
     /// Add an item to the queue, this is thread-safe
+    [SkipLocalsInit]
     public bool TryAdd(in T value)
     {
-        if (QueueBufferAlt.SelectIndex(_writeHeader) >= _capacity)
+        if (QueueBufferSW.SelectIndex((ulong)_writeHeader.ReadUnfenced()) >= _capacity)
         {
             // fast path full check
             return false;
         }
 
+        var loopCount = 0;
+
         try
         {
-            // INCREMENT THE PRODUCER COUNT FOR THE CURRENT WRITE BUFFER 
+            // INCREMENT THE PRODUCER COUNT FOR THE CURRENT WRITE BUFFER
+            var spinWait = new SpinWait();
 
-            var nextHeader    = 0ul;
-            var currentHeader = 0ul;
-            var loopCount     = 0;
-            var spinWait      = new SpinWait();
+            ulong nextHeader;
+            ulong currentHeader;
 
             do
             {
-                if (++loopCount > 1)
+                if (++loopCount > 0)
                 {
                     spinWait.SpinOnce();
                 }
 
-                currentHeader = Interlocked.Read(ref _writeHeader); // read the header, maybe do volatile read...?
+                currentHeader = (ulong)_writeHeader.CompilerFencedValue;
 
                 // GET WRITE SLOT (IDX)
                 //  since the idx are the LSB bits, we can just increment -----v
-                nextHeader = QueueBufferAlt.IncrementProducer(currentHeader) + 1;
+                nextHeader = QueueBufferSW.IncrementProducer(currentHeader) + 1;
+
+                //TODO: extra guard?
+                /*if (QueueBufferAlt.SelectIndex(nextHeader) > _capacity)
+                {
+                    return false;
+                }*/
             } // ATOMIC START PRODUCING 
-            while (Interlocked.CompareExchange(ref _writeHeader, nextHeader, currentHeader) != currentHeader);
+            while (!_writeHeader.AtomicCompareExchange((long)nextHeader, (long)currentHeader));
 
 
             // 0 or 1, depending on the front or backbuffer
-            var bufferIdx    = QueueBufferAlt.SelectCurrentBufferIdx(nextHeader);
-            var nextWriteIdx = QueueBufferAlt.SelectIndex(nextHeader);
+            var bufferIdx    = QueueBufferSW.SelectCurrentBufferIdx(nextHeader);
+            var nextWriteIdx = QueueBufferSW.SelectIndex(nextHeader);
 
             if (nextWriteIdx > _capacity)
             {
@@ -115,26 +130,18 @@ public sealed class QueueBufferAlt<T> : IDisposable
         finally
         {
             //Done producing decrementProducer
-            var currentHeader = 0ul;
-            var updatedHeader = 0ul;
-            /*var loopCount     = 0;
-            var spinWait      = new SpinWait();*/
-
+            ulong currentHeader;
+            ulong updatedHeader;
             do
             {
-                /*if (++loopCount > 1)
-                {
-                    spinWait.SpinOnce();
-                }*/
-
-                currentHeader = Volatile.Read(ref _writeHeader);
-                //currentHeader = Interlocked.Read(ref _writeHeader);
-                updatedHeader = QueueBufferAlt.DecrementProducer(currentHeader);
-            } while (Interlocked.CompareExchange(ref _writeHeader, updatedHeader, currentHeader) != currentHeader);
+                currentHeader = (ulong)_writeHeader.CompilerFencedValue;
+                updatedHeader = QueueBufferSW.DecrementProducer(currentHeader);
+            } while (!_writeHeader.AtomicCompareExchange((long)updatedHeader, (long)currentHeader));
         }
 
         return true;
     }
+
 
     /// Snapshots the writes up until now and returns a ReadHandle from which
     ///   you can read all the items.
@@ -144,9 +151,10 @@ public sealed class QueueBufferAlt<T> : IDisposable
     /// Effectively this methods swaps the front and back buffer to snapshot
     ///   (and let writers continue writing).
     /// </remarks>
-    public ReadHandleAlt<T> ReadBuffer()
+    [SkipLocalsInit]
+    public ReadHandle<T> ReadBuffer()
     {
-        if (Volatile.Read(ref LockedForReading))
+        if (Volatile.Read(ref _lockedForReading.Value))
         {
             // no swap, the lock is not freed by the reader yet,
             //   a ReadHandle is still in use
@@ -154,50 +162,53 @@ public sealed class QueueBufferAlt<T> : IDisposable
                 InvalidOperationException("Tried to create a ReadHandle for the Buffer, but another ReadHandle was already given. Maybe the previous ReadHandle was not freed yet?");
         }
 
-        Volatile.Write(ref LockedForReading, true);
+        Volatile.Write(ref _lockedForReading.Value, true);
 
         // we need to wait until there are no more producers producing in the current write buffer
         //   then we swap the buffers
 
-        var currentHeader       = 0ul;
-        var doneProducingHeader = 0ul;
-        var nextHeader          = 0ul;
+        ulong currentHeader;
+        ulong doneProducingHeader;
+        ulong nextHeader;
 
         do
         {
         READ_HEADER:
-            currentHeader = Volatile.Read(ref _writeHeader);
-            //currentHeader = Interlocked.Read(ref _writeHeader);
-            //currentHeader = _writeHeader;
+
+            currentHeader = (ulong)_writeHeader.CompilerFencedValue;
 
             // Adding the extra check on producer count and the SpinWait fixes the behavior
             //   This is not what I expected, since the compare exchange with the producers set to zero as 
             //   comparison in the while loop should do the same (at least in my head).
-            var currentProducersCount = QueueBufferAlt.SelectCurrentProducerCount(currentHeader);
+            var currentProducersCount = QueueBufferSW.SelectCurrentProducerCount(currentHeader);
             if (currentProducersCount > 0)
             {
+                // this effectively spins until a point is reached where there is no producer active
+                //  note: when the contention is extremely high, this performs reasonably poor and a more constant perf
+                //        of the default QueueBuffer is recommended (more consistent performance)
                 goto READ_HEADER;
             }
 
             // The header with all producers set to 0, that is the condition we are waiting for.
-            doneProducingHeader = currentHeader & QueueBufferAlt.CLEAR_PRODUCERS_MASK;
+            doneProducingHeader = currentHeader & QueueBufferSW.CLEAR_PRODUCERS_MASK;
 
             // swapped buffer
-            nextHeader = QueueBufferAlt.SwapAndResetWriteIndex(doneProducingHeader);
-        } while (Interlocked.CompareExchange(ref _writeHeader, nextHeader, doneProducingHeader) != currentHeader);
+            nextHeader = QueueBufferSW.SwapAndResetWriteIndex(doneProducingHeader);
+        } while (!_writeHeader.AtomicCompareExchange((long)nextHeader, (long)doneProducingHeader));
 
 
         // so now we have swapped the buffers and we know how many items are in the 'backbuffer'
 
         // due to optimization (and concurrency) the _index could be larger than the
         //   length so we need to take that into account when calculating the length
-        var numberOfItems = Math.Min(QueueBufferAlt.SelectIndex(doneProducingHeader), _capacity);
+        var numberOfItems = Math.Min(QueueBufferSW.SelectIndex(currentHeader), _capacity);
+        var bufferIdx     = QueueBufferSW.SelectCurrentBufferIdx(currentHeader);
 
+        var data = new ReadOnlySpan<T>(_doubleBuffers[bufferIdx]
+                                     , 0
+                                     , (int)numberOfItems);
 
-        var bufferIdx = QueueBufferAlt.SelectCurrentBufferIdx(doneProducingHeader);
-
-
-        return new ReadHandleAlt<T>(new ReadOnlySpan<T>(_doubleBuffers[bufferIdx], 0, (int)numberOfItems), this);
+        return new ReadHandle<T>(data, _lockedForReading);
     }
 
     /// Returns the backing arrays to the array pool if they were allocated
@@ -214,48 +225,8 @@ public sealed class QueueBufferAlt<T> : IDisposable
     }
 }
 
-/// A ReadHandle to read the Buffer, this should only be used in a single thread and should be immediately disposed after reading.
-public readonly ref struct ReadHandleAlt<T> // : IDisposable
-{
-    private readonly ReadOnlySpan<T>   _backBuffer;
-    private readonly QueueBufferAlt<T> _owner;
-
-    internal ReadHandleAlt(ReadOnlySpan<T> backBuffer, QueueBufferAlt<T> owner)
-    {
-        if (owner.LockedForReading == false)
-        {
-            throw new
-                InvalidOperationException("Given Buffer was not locked for reading. Cannot create a valid ReadHandle for this");
-        }
-
-        _backBuffer = backBuffer;
-        _owner      = owner;
-    }
-
-    /// Get the contents of the buffer for reading
-    public ReadOnlySpan<T> AsSpan()
-    {
-        if (_owner.LockedForReading == false)
-        {
-            throw new
-                InvalidOperationException("The Buffer to read from was not locked for reading. This ReadHandle is invalid. Please dispose all ReadHandles after use, only one ReadHandle can be active at a time.");
-        }
-
-        return _backBuffer;
-    }
-
-    /// <summary>
-    /// Disposes the handle
-    /// </summary>
-    public void Dispose()
-    {
-        // yuck....
-        Volatile.Write(ref _owner.LockedForReading, false);
-        // should we clear the array contents (for security and easier debugging purposes) ...?
-    }
-}
-
-internal static class QueueBufferAlt
+[SkipLocalsInit]
+internal static class QueueBufferSW
 {
     //                                current_producer_count
     //                                 buffer
@@ -276,8 +247,8 @@ internal static class QueueBufferAlt
     private const int PRODUCER_COUNT_SIZE_IN_BITS = 8;
     private const int WRITE_INDEX_SIZE_IN_BITS    = 23;
 
-    private const ulong PRODUCER_COUNT_MASK  = (1 << PRODUCER_COUNT_SIZE_IN_BITS) - 1;
-    public const  ulong CLEAR_PRODUCERS_MASK = SELECT_BUFFER_MASK | SELECT_INDEX_MASK;
+    private const  ulong PRODUCER_COUNT_MASK  = (1 << PRODUCER_COUNT_SIZE_IN_BITS) - 1;
+    internal const ulong CLEAR_PRODUCERS_MASK = SELECT_BUFFER_MASK | SELECT_INDEX_MASK;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static byte SelectCurrentBufferIdx(ulong packedBits)
@@ -298,7 +269,7 @@ internal static class QueueBufferAlt
                ((producerCount) << WRITE_INDEX_SIZE_IN_BITS);
     }
 
-    /// Increments the producer count for the current selected buffer
+    /// Increments the producer count
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static ulong IncrementProducer(ulong packedBits)
     {
@@ -307,7 +278,7 @@ internal static class QueueBufferAlt
         return SetProducerCount(packedBits, currentCount + 1);
     }
 
-    /// Decrements the producer count for the current selected buffer
+    /// Decrements the producer count
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static ulong DecrementProducer(ulong packedBits)
     {

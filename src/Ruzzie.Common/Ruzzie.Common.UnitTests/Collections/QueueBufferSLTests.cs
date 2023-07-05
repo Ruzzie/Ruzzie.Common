@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Ruzzie.Common.Collections;
@@ -8,11 +9,11 @@ using Xunit.Abstractions;
 
 namespace Ruzzie.Common.UnitTests.Collections;
 
-public class QueueBufferTests
+public class QueueBufferSLTests
 {
     private readonly ITestOutputHelper _testOutputHelper;
 
-    public QueueBufferTests(ITestOutputHelper testOutputHelper)
+    public QueueBufferSLTests(ITestOutputHelper testOutputHelper)
     {
         _testOutputHelper = testOutputHelper;
     }
@@ -21,49 +22,48 @@ public class QueueBufferTests
     public void MaskWriteHeaderTests()
     {
         int writeHeader = 0; // buffer select 0, nat. index 0
-        QueueBuffer.SelectBuffer(writeHeader).Should().Be(0);
-        QueueBuffer.SelectIndex(writeHeader).Should().Be(0);
+        QueueBufferSL.SelectBuffer(writeHeader).Should().Be(0);
+        QueueBufferSL.SelectIndex(writeHeader).Should().Be(0);
 
         //swap
-        writeHeader = QueueBuffer.SwapAndResetWriteHeader(writeHeader);
-        QueueBuffer.SelectBuffer(writeHeader).Should().Be(1);
-        QueueBuffer.SelectIndex(writeHeader).Should().Be(0);
+        writeHeader = QueueBufferSL.SwapAndResetWriteHeader(writeHeader);
+        QueueBufferSL.SelectBuffer(writeHeader).Should().Be(1);
+        QueueBufferSL.SelectIndex(writeHeader).Should().Be(0);
 
         //swap
-        writeHeader = QueueBuffer.SwapAndResetWriteHeader(writeHeader);
-        QueueBuffer.SelectBuffer(writeHeader).Should().Be(0);
-        QueueBuffer.SelectIndex(writeHeader).Should().Be(0);
+        writeHeader = QueueBufferSL.SwapAndResetWriteHeader(writeHeader);
+        QueueBufferSL.SelectBuffer(writeHeader).Should().Be(0);
+        QueueBufferSL.SelectIndex(writeHeader).Should().Be(0);
 
         //increment and swap
         writeHeader++;
-        QueueBuffer.SelectBuffer(writeHeader).Should().Be(0);
-        QueueBuffer.SelectIndex(writeHeader).Should().Be(1);
+        QueueBufferSL.SelectBuffer(writeHeader).Should().Be(0);
+        QueueBufferSL.SelectIndex(writeHeader).Should().Be(1);
 
         writeHeader++;
-        QueueBuffer.SelectBuffer(writeHeader).Should().Be(0);
-        QueueBuffer.SelectIndex(writeHeader).Should().Be(2);
+        QueueBufferSL.SelectBuffer(writeHeader).Should().Be(0);
+        QueueBufferSL.SelectIndex(writeHeader).Should().Be(2);
 
         //swap
-        writeHeader = QueueBuffer.SwapAndResetWriteHeader(writeHeader);
-        QueueBuffer.SelectBuffer(writeHeader).Should().Be(1);
-        QueueBuffer.SelectIndex(writeHeader).Should().Be(0);
+        writeHeader = QueueBufferSL.SwapAndResetWriteHeader(writeHeader);
+        QueueBufferSL.SelectBuffer(writeHeader).Should().Be(1);
+        QueueBufferSL.SelectIndex(writeHeader).Should().Be(0);
 
         //increment and swap
         writeHeader++;
-        QueueBuffer.SelectBuffer(writeHeader).Should().Be(1);
-        QueueBuffer.SelectIndex(writeHeader).Should().Be(1);
+        QueueBufferSL.SelectBuffer(writeHeader).Should().Be(1);
+        QueueBufferSL.SelectIndex(writeHeader).Should().Be(1);
 
         writeHeader++;
-        QueueBuffer.SelectBuffer(writeHeader).Should().Be(1);
-        QueueBuffer.SelectIndex(writeHeader).Should().Be(2);
+        QueueBufferSL.SelectBuffer(writeHeader).Should().Be(1);
+        QueueBufferSL.SelectIndex(writeHeader).Should().Be(2);
     }
-
 
     [Fact]
     public void ReadBufferSpanIsSizeOfItemCount()
     {
         //Arrange
-        var queue = new QueueBuffer<string>();
+        var queue = new QueueBufferSL<string>();
         //Act
         queue.TryAdd("first").Should().BeTrue();
         queue.TryAdd("second").Should().BeTrue();
@@ -78,7 +78,7 @@ public class QueueBufferTests
     public void ReadsAddedItem()
     {
         //Arrange
-        var queue = new QueueBuffer<string>();
+        var queue = new QueueBufferSL<string>();
         //Act
         queue.TryAdd("first").Should().BeTrue();
 
@@ -93,7 +93,7 @@ public class QueueBufferTests
     public void AddsAndReadsInOrder()
     {
         //Arrange
-        var queue = new QueueBuffer<string>();
+        var queue = new QueueBufferSL<string>();
         //Act
         queue.TryAdd("first").Should().BeTrue();
         queue.TryAdd("second").Should().BeTrue();
@@ -110,7 +110,7 @@ public class QueueBufferTests
     public void TryAddReturnsFalseWhenFull()
     {
         //Arrange
-        var queue = new QueueBuffer<string>(1);
+        var queue = new QueueBufferSL<string>(1);
         queue.TryAdd("first").Should().BeTrue();
 
         //Act & Assert
@@ -121,7 +121,7 @@ public class QueueBufferTests
     public void CanAddToWhenReading()
     {
         //Arrange
-        var queue = new QueueBuffer<string>(2);
+        var queue = new QueueBufferSL<string>(2);
         queue.TryAdd("first").Should().BeTrue();
 
         using var readHandle = queue.ReadBuffer();
@@ -134,7 +134,7 @@ public class QueueBufferTests
     public void OnlyOneConsumer()
     {
         //Arrange
-        using var queue = new QueueBuffer<string>(1);
+        using var queue = new QueueBufferSL<string>(1);
         queue.TryAdd("first").Should().BeTrue();
         using var readHandleOne = queue.ReadBuffer();
 
@@ -147,7 +147,7 @@ public class QueueBufferTests
     public void CanDisposeWhenNotReading()
     {
         //Arrange
-        var queue = new QueueBuffer<string>(2);
+        var queue = new QueueBufferSL<string>(2);
         queue.TryAdd("first").Should().BeTrue();
 
         //Act & Assert
@@ -159,7 +159,7 @@ public class QueueBufferTests
     public void MultipleProducersSingleConsumerCheckAllData()
     {
         //Arrange
-        using var       queue                 = new QueueBuffer<string>();
+        using var       queue                 = new QueueBufferSL<string>();
         HashSet<string> uniqueItemsToValidate = new HashSet<string>();
 
         int itemsPerProducer = 512;
