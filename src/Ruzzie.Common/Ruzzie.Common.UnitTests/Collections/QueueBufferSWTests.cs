@@ -111,7 +111,7 @@ public class QueueBufferSWTests
         using var readHandle = buffer.ReadBuffer();
 
         //Assert: We should have exactly x number of unique items
-        readHandle.AsSpan().ToArray().ToHashSet().Count.Should().Be(1024);
+        readHandle.Data.ToArray().ToHashSet().Count.Should().Be(1024);
     }
 
     [Fact]
@@ -132,7 +132,7 @@ public class QueueBufferSWTests
             {
                 //  Drain the buffer
                 using var readHandle = buffer.ReadBuffer();
-                var       data       = readHandle.AsSpan();
+                var       data       = readHandle.Data;
 
                 for (var readIdx = 0; readIdx < data.Length; readIdx++)
                 {
@@ -164,7 +164,7 @@ public class QueueBufferSWTests
 
         //Assert
         using var readHandle = queue.ReadBuffer();
-        var       items      = readHandle.AsSpan();
+        var       items      = readHandle.Data;
         items.Length.Should().Be(2);
     }
 
@@ -178,7 +178,7 @@ public class QueueBufferSWTests
 
         //Assert
         using var readHandle = queue.ReadBuffer();
-        var       items      = readHandle.AsSpan();
+        var       items      = readHandle.Data;
         items.Length.Should().Be(1);
         items[0].Should().Be("first");
     }
@@ -196,7 +196,7 @@ public class QueueBufferSWTests
         //Assert
         {
             using var readHandle = queue.ReadBuffer(); // swap
-            var       items      = readHandle.AsSpan();
+            var       items      = readHandle.Data;
 
             items[0].Should().Be("first");
             items[1].Should().Be("second");
@@ -211,7 +211,7 @@ public class QueueBufferSWTests
         //Assert
         {
             using var readHandle2 = queue.ReadBuffer(); // swap
-            var       items       = readHandle2.AsSpan();
+            var       items       = readHandle2.Data;
 
             items[0].Should().Be("2_first");
             items[1].Should().Be("2_second");
@@ -326,7 +326,7 @@ public class QueueBufferSWTests
         void ReadAvailableItems()
         {
             using var readHandle = queue.ReadBuffer();
-            var       items      = readHandle.AsSpan();
+            var       items      = readHandle.Data;
             for (var i = 0; i < items.Length; i++)
             {
                 var item = items[i];

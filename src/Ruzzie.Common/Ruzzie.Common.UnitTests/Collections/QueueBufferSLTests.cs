@@ -70,7 +70,7 @@ public class QueueBufferSLTests
 
         //Assert
         using var readHandle = queue.ReadBuffer();
-        var       items      = readHandle.AsSpan();
+        var       items      = readHandle.Data;
         items.Length.Should().Be(2);
     }
 
@@ -84,7 +84,7 @@ public class QueueBufferSLTests
 
         //Assert
         using var readHandle = queue.ReadBuffer();
-        var       items      = readHandle.AsSpan();
+        var       items      = readHandle.Data;
         items.Length.Should().Be(1);
         items[0].Should().Be("first");
     }
@@ -100,7 +100,7 @@ public class QueueBufferSLTests
 
         //Assert
         using var readHandle = queue.ReadBuffer();
-        var       items      = readHandle.AsSpan();
+        var       items      = readHandle.Data;
 
         items[0].Should().Be("first");
         items[1].Should().Be("second");
@@ -208,7 +208,7 @@ public class QueueBufferSLTests
         void ReadAvailableItems()
         {
             using var readHandle = queue.ReadBuffer();
-            var       items      = readHandle.AsSpan();
+            var       items      = readHandle.Data;
             for (var i = 0; i < items.Length; i++)
             {
                 var item = items[i];

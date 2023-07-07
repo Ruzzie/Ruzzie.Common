@@ -42,7 +42,7 @@ public sealed class QueueBufferSW<T> : IQueueBuffer<T>
     //         So now we use the VolatileLong wrapper (which uses a long (signed)) under the hood and everything is ok!
     private VolatileLong _writeHeader;
 
-    private readonly Ref<bool> _lockedForReading = new Ref<bool>(false);
+    private readonly Ref<bool> _lockedForReading;
 
     /// <summary>
     /// Creates a new <see cref="QueueBufferSL{T}"/>
@@ -69,6 +69,9 @@ public sealed class QueueBufferSW<T> : IQueueBuffer<T>
         _doubleBuffers[1] = arrayPool?.Rent(capacity) ?? new T[capacity];
 
         _capacity = (ulong)capacity;
+
+        _lockedForReading = new Ref<bool>(false);
+        _writeHeader      = 0;
     }
 
 
@@ -84,36 +87,36 @@ public sealed class QueueBufferSW<T> : IQueueBuffer<T>
 
         var loopCount = 0;
 
+
+        // INCREMENT THE PRODUCER COUNT FOR THE CURRENT WRITE BUFFER
+        var spinWait = new SpinWait();
+
+        ulong nextHeader;
+        ulong currentHeader;
+
+        do
+        {
+            if (++loopCount > 0)
+            {
+                spinWait.SpinOnce();
+            }
+
+            currentHeader = (ulong)_writeHeader.CompilerFencedValue;
+
+            // GET WRITE SLOT (IDX)
+            //  since the idx are the LSB bits, we can just increment -----v
+            nextHeader = QueueBufferSW.IncrementProducer(currentHeader) + 1;
+
+
+            if (QueueBufferSW.SelectIndex(nextHeader) > _capacity)
+            {
+                return false;
+            }
+        } // ATOMIC START PRODUCING 
+        while (!_writeHeader.AtomicCompareExchange((long)nextHeader, (long)currentHeader));
+
         try
         {
-            // INCREMENT THE PRODUCER COUNT FOR THE CURRENT WRITE BUFFER
-            var spinWait = new SpinWait();
-
-            ulong nextHeader;
-            ulong currentHeader;
-
-            do
-            {
-                if (++loopCount > 0)
-                {
-                    spinWait.SpinOnce();
-                }
-
-                currentHeader = (ulong)_writeHeader.CompilerFencedValue;
-
-                // GET WRITE SLOT (IDX)
-                //  since the idx are the LSB bits, we can just increment -----v
-                nextHeader = QueueBufferSW.IncrementProducer(currentHeader) + 1;
-
-                //TODO: extra guard?
-                /*if (QueueBufferAlt.SelectIndex(nextHeader) > _capacity)
-                {
-                    return false;
-                }*/
-            } // ATOMIC START PRODUCING 
-            while (!_writeHeader.AtomicCompareExchange((long)nextHeader, (long)currentHeader));
-
-
             // 0 or 1, depending on the front or backbuffer
             var bufferIdx    = QueueBufferSW.SelectCurrentBufferIdx(nextHeader);
             var nextWriteIdx = QueueBufferSW.SelectIndex(nextHeader);
@@ -130,7 +133,6 @@ public sealed class QueueBufferSW<T> : IQueueBuffer<T>
         finally
         {
             //Done producing decrementProducer
-            ulong currentHeader;
             ulong updatedHeader;
             do
             {
@@ -146,13 +148,13 @@ public sealed class QueueBufferSW<T> : IQueueBuffer<T>
     /// Snapshots the writes up until now and returns a ReadHandle from which
     ///   you can read all the items.
     /// The ReadHandle should be disposed after use to free the ReadHandle.
-    /// Supports only one ReadHandle at a time.
+    /// Supports only one ReadHandle at a time.    
     /// <remarks>
     /// Effectively this methods swaps the front and back buffer to snapshot
     ///   (and let writers continue writing).
-    /// </remarks>
+    /// </remarks>        
     [SkipLocalsInit]
-    public ReadHandle<T> ReadBuffer()
+    public IQueueBuffer<T>.ReadHandle ReadBuffer()
     {
         if (Volatile.Read(ref _lockedForReading.Value))
         {
@@ -208,7 +210,7 @@ public sealed class QueueBufferSW<T> : IQueueBuffer<T>
                                      , 0
                                      , (int)numberOfItems);
 
-        return new ReadHandle<T>(data, _lockedForReading);
+        return new IQueueBuffer<T>.ReadHandle(data, _lockedForReading);
     }
 
     /// Returns the backing arrays to the array pool if they were allocated

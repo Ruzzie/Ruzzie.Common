@@ -128,7 +128,7 @@ public sealed class QueueBufferSL<T> : IQueueBuffer<T>
     ///   (and let writers continue writing).
     /// </remarks>
     [SkipLocalsInit]
-    public ReadHandle<T> ReadBuffer()
+    public IQueueBuffer<T>.ReadHandle ReadBuffer()
     {
         if (Volatile.Read(ref _lockedForReading.Value))
         {
@@ -150,17 +150,10 @@ public sealed class QueueBufferSL<T> : IQueueBuffer<T>
             // the natural index can be reset to 0 and swap the front and back buffer
             var swappedWriteHeader = QueueBufferSL.SwapAndResetWriteHeader(currentWriteHeader);
 
-
-            //Compare and swap the write index (flip front and back buffer and reset write index)
-            while (currentWriteHeader !=
-                   Interlocked.CompareExchange(ref _writeHeader, swappedWriteHeader, currentWriteHeader))
-            {
-                currentWriteHeader = _writeHeader;
-                swappedWriteHeader = QueueBufferSL.SwapAndResetWriteHeader(currentWriteHeader);
-            }
+            // since we use a 'lock' we need not compare-exchange and the sorts
+            _writeHeader = swappedWriteHeader;
 
             // so now we have swapped the buffers and we know how many items are in the 'backbuffer'
-
             // due to optimization (and concurrency) the _index could be larger than the
             //   length so we need to take that into account when calculating the length
             var numberOfItems = Math.Min(QueueBufferSL.SelectIndex(currentWriteHeader), _capacity);
@@ -170,7 +163,7 @@ public sealed class QueueBufferSL<T> : IQueueBuffer<T>
                                          , numberOfItems);
 
 
-            return new ReadHandle<T>(data, _lockedForReading);
+            return new IQueueBuffer<T>.ReadHandle(data, _lockedForReading);
         }
         finally
         {

@@ -20,7 +20,7 @@ public static class PowerOfTwoHelper
             throw new ArgumentOutOfRangeException(nameof(value), "Cannot be negative.");
         }
 
-        uint result = FindNearestPowerOfTwoEqualOrLessThan((uint) value);
+        uint result = FindNearestPowerOfTwoEqualOrLessThan((uint)value);
         return Convert.ToInt32(result);
     }
 
@@ -42,15 +42,16 @@ public static class PowerOfTwoHelper
             throw new ArgumentOutOfRangeException(nameof(value), "Cannot be negative.");
         }
 
-        const int maxPowerOfTwoValueForInt32 = 1 << 30; //1073741824;
-        uint      result                     = FindNearestPowerOfTwoEqualOrGreaterThan((uint) value);
+        const int MAX_POWER_OF_TWO_VALUE_FOR_INT32 = 1 << 30; //1073741824;
+        uint      result                           = FindNearestPowerOfTwoEqualOrGreaterThan((uint)value);
 
-        if (result > maxPowerOfTwoValueForInt32)
+        if (result > MAX_POWER_OF_TWO_VALUE_FOR_INT32)
         {
             throw new ArgumentOutOfRangeException(
-                                                  nameof(value),
-                                                  $"The value given would result in a value greater than 2^32 for a signed integer. Maximum value supported is {maxPowerOfTwoValueForInt32}");
+                                                  nameof(value)
+                                                , $"The value given would result in a value greater than 2^32 for a signed integer. Maximum value supported is {MAX_POWER_OF_TWO_VALUE_FOR_INT32}");
         }
+
         return Convert.ToInt32(result);
     }
 
@@ -94,7 +95,7 @@ public static class PowerOfTwoHelper
     /// <param name="candidate">The x.</param>
     /// <returns>true if x is a power of two, otherwise false.</returns>
     private static bool IsPowerOfTwoUint(this uint candidate)
-    {          
+    {
         return (candidate & (candidate - 1)) == 0;
     }
 
@@ -104,7 +105,7 @@ public static class PowerOfTwoHelper
     /// <param name="candidate">The x.</param>
     /// <returns>true if x is a power of two, otherwise false.</returns>
     public static bool IsPowerOfTwo(this long candidate)
-    {            
-        return IsPowerOfTwoUint((uint) candidate);
+    {
+        return IsPowerOfTwoUint((uint)candidate);
     }
 }

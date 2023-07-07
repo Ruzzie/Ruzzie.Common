@@ -35,7 +35,7 @@ namespace Ruzzie.Common.Benchmarks
         private const int N = 8388607 >> 7;
 
 
-        private const    int    ConcurrentProducersCount = 2;
+        private const    int    ConcurrentProducersCount = 512;
         private readonly Task[] _producerTasks           = new Task[ConcurrentProducersCount];
         private readonly Task[] _altProducerTasks        = new Task[ConcurrentProducersCount];
 
@@ -100,14 +100,14 @@ namespace Ruzzie.Common.Benchmarks
         public ReadOnlySpan<int> ReadAllQueueBufferAlt()
         {
             using var readHandle = _swBuffer.ReadBuffer();
-            return readHandle.AsSpan();
+            return readHandle.Data;
         }
 
         [Benchmark]
         public ReadOnlySpan<int> ReadAllQueueBuffer()
         {
             using var readHandle = _queueBufferSl.ReadBuffer();
-            return readHandle.AsSpan();
+            return readHandle.Data;
         }
 
         [Benchmark]
@@ -142,7 +142,7 @@ namespace Ruzzie.Common.Benchmarks
         {
             _filledQueueBufferSl.TryAdd(_value);
             using var readHandle = _filledQueueBufferSl.ReadBuffer();
-            return readHandle.AsSpan();
+            return readHandle.Data;
         }
 
         [Benchmark]
@@ -150,7 +150,7 @@ namespace Ruzzie.Common.Benchmarks
         {
             _filledQueueSwBuffer.TryAdd(_value);
             using var readHandle = _filledQueueSwBuffer.ReadBuffer();
-            return readHandle.AsSpan();
+            return readHandle.Data;
         }
 
         [Benchmark]
@@ -196,7 +196,7 @@ namespace Ruzzie.Common.Benchmarks
             while (_running)
             {
                 using var readHandle = _queueBufferSl.ReadBuffer();
-                var       buffer     = readHandle.AsSpan();
+                var       buffer     = readHandle.Data;
                 for (int i = 0; i < buffer.Length; i++)
                 {
                     data[i] = buffer[i];
@@ -210,7 +210,7 @@ namespace Ruzzie.Common.Benchmarks
             while (_running)
             {
                 using var readHandle = _queueBufferSw.ReadBuffer();
-                var       buffer     = readHandle.AsSpan();
+                var       buffer     = readHandle.Data;
                 for (int i = 0; i < buffer.Length; i++)
                 {
                     data[i] = buffer[i];
