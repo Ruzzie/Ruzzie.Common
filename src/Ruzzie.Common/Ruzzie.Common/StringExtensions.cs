@@ -5,7 +5,6 @@
 /// </summary>
 public static class StringExtensions
 {
-
     /// <summary>
     /// Strips string of characters that are not [^a-zA-Z0-9 -]*
     /// </summary>
@@ -28,28 +27,21 @@ public static class StringExtensions
         for (int i = 0; i < length; ++i)
         {
             char c = str[i];
-            // ReSharper disable RedundantCast
-            if (97 <= (int) c && (int) c <= 122) //a-z
+
+            switch ((ushort)c)
             {
-                buffer[appendIndex] = c;
-                appendIndex++;
+                //a-z
+                case >= 97 and <= 122:
+                //A-Z
+                case >= 65 and <= 90:
+                //0-9
+                case >= 48 and <= 57:
+                case 32:
+                //space, -
+                case 45:
+                    buffer[appendIndex++] = c;
+                    break;
             }
-            else if (65 <= (int) c && (int) c <= 90) //A-Z
-            {
-                buffer[appendIndex] = c;
-                appendIndex++;
-            }
-            else if (48 <= (int) c && (int) c <= 57) //0-9
-            {
-                buffer[appendIndex] = c;
-                appendIndex++;
-            }
-            else if (32 == (int) c || 45 == (int) c) //space, -
-            {
-                buffer[appendIndex] = c;
-                appendIndex++;
-            }
-            // ReSharper restore RedundantCast
         }
 
         return new string(buffer.Slice(0, appendIndex));

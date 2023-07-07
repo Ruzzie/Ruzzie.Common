@@ -36,18 +36,16 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <IsTrimmable>true</IsTrimmable>
         <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
-        <PublishTrimmed>true</PublishTrimmed>
-
         <!-- Prevent warnings from unused code in dependencies -->
         <TrimmerDefaultAction>link</TrimmerDefaultAction>
-
     </PropertyGroup>
+
 
     <PropertyGroup>
         <LangVersion>default</LangVersion>
         <NullableContextOptions>enable</NullableContextOptions>
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-        <WarningsAsErrors />
+        <WarningsAsErrors/>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     </PropertyGroup>
 

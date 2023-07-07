@@ -17,7 +17,6 @@ public static class Volatile
     [SuppressMessage("ReSharper", "RedundantAssignment")]
     public static void Write<T>(ref T location, in T value) where T : class
     {
-
 #if NET40 || PORTABLE
             System.Threading.Thread.MemoryBarrier();
             location = value;
@@ -38,8 +37,8 @@ public static class Volatile
 #if NET40 || PORTABLE
             System.Threading.Thread.MemoryBarrier();
 #else
-        System.Threading.Interlocked.MemoryBarrier();
-#endif            
+        Interlocked.MemoryBarrier();
+#endif
         location = value;
     }
 
@@ -72,7 +71,7 @@ public static class Volatile
 #if NET40 || PORTABLE
             System.Threading.Thread.MemoryBarrier();
 #else
-        System.Threading.Interlocked.MemoryBarrier();
+        Interlocked.MemoryBarrier();
 #endif
         return value;
     }

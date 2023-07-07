@@ -11,7 +11,8 @@ namespace Ruzzie.Common.Numerics.Distributions
     /// </summary>
     public static class ChiSquared
     {
-#region adapted from entlib chisq.c
+        #region adapted from entlib chisq.c
+
         /*
             Module:       chisq.c
             Purpose:      compute approximations to chisquare distribution probabilities
@@ -26,20 +27,22 @@ namespace Ruzzie.Common.Numerics.Distributions
         /// log (sqrt (pi))
         /// </summary>
         private const double LogSqrtPi = 0.5723649429247000870717135;
+
         /// <summary>
         ///  1 / sqrt (pi)
         /// </summary>
         private const double SqrtPi = 0.5641895835477562869480795;
+
         /// <summary>
         /// max value to represent exp (x) 
         /// </summary>
         private const double BigX = 20.0;
 
         private static double Ex(in double x)
-        {            
+        {
             return (((x) < -BigX) ? 0.0 : Math.Exp(x));
         }
-       
+
         /// <summary>
         /// probability of chi square value
         /// </summary>
@@ -60,20 +63,21 @@ namespace Ruzzie.Common.Numerics.Distributions
             double a, s;
 
             double e, c, z;
-            bool even; /* true if df is an even number */
+            bool   even; /* true if df is an even number */
 
             if (x <= 0.0 || degreesOfFreedom < 1)
             {
                 return 1.0;
             }
 
-            a = 0.5 * x;
+            a    = 0.5 * x;
             even = (2 * (degreesOfFreedom / 2)) == degreesOfFreedom;
             if (degreesOfFreedom > 1)
             {
                 y = Ex(-a);
             }
-            s = (even ? y : (2.0*ZProbability.ProbabilityOfZ(-Math.Sqrt(x))));
+
+            s = (even ? y : (2.0 * ZProbability.ProbabilityOfZ(-Math.Sqrt(x))));
             if (degreesOfFreedom > 2)
             {
                 x = 0.5 * (degreesOfFreedom - 1.0);
@@ -84,10 +88,11 @@ namespace Ruzzie.Common.Numerics.Distributions
                     c = Math.Log(a);
                     while (z <= x)
                     {
-                        e = Math.Log(z) + e;
+                        e =  Math.Log(z) + e;
                         s += Ex(c * z - a - e);
                         z += 1.0;
                     }
+
                     return (s);
                 }
                 else
@@ -96,10 +101,11 @@ namespace Ruzzie.Common.Numerics.Distributions
                     c = 0.0;
                     while (z <= x)
                     {
-                        e = e * (a / z);
-                        c = c + e;
+                        e =  e * (a / z);
+                        c =  c + e;
                         z += 1.0;
                     }
+
                     return (c * y + s);
                 }
             }
@@ -108,6 +114,7 @@ namespace Ruzzie.Common.Numerics.Distributions
                 return s;
             }
         }
+
         #endregion
 
         /// <summary>
@@ -131,28 +138,29 @@ namespace Ruzzie.Common.Numerics.Distributions
             {
                 throw new ArgumentNullException(nameof(samples));
             }
-         
+
             if (samples.Length == 0)
             {
                 throw new ArgumentException("Argument is an empty collection", nameof(samples));
             }
 
-            const int byteMaxValuePlusOne = byte.MaxValue + 1;
+            const int BYTE_MAX_VALUE_PLUS_ONE = byte.MaxValue + 1;
 
-            double expectedCount = (double) sampleSize/ byteMaxValuePlusOne;
-            var histogram = samples.ToHistogramDictionary();
+            double expectedCount = (double)sampleSize / BYTE_MAX_VALUE_PLUS_ONE;
+            var    histogram     = samples.ToHistogramDictionary();
 
             double chisq = 0;
-            for (int i = 0; i < byteMaxValuePlusOne; i++)
+            for (int i = 0; i < BYTE_MAX_VALUE_PLUS_ONE; i++)
             {
-                if (histogram.TryGetValue((byte) i, out var intValue) == false)
+                if (histogram.TryGetValue((byte)i, out var intValue) == false)
                 {
                     intValue = 0;
-                }         
-                   
+                }
+
                 double a = intValue - expectedCount;
-                chisq += (a*a)/expectedCount;
+                chisq += (a * a) / expectedCount;
             }
+
             return chisq;
         }
 
@@ -176,7 +184,7 @@ namespace Ruzzie.Common.Numerics.Distributions
 
             if (maxValue <= 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(maxValue),"Must be greater than 0.");
+                throw new ArgumentOutOfRangeException(nameof(maxValue), "Must be greater than 0.");
             }
 
             if (sampleSize <= 0)
@@ -194,17 +202,20 @@ namespace Ruzzie.Common.Numerics.Distributions
             var partitioner = Partitioner.Create(0, maxValue);
 
             ConcurrentBag<double> sums = new ConcurrentBag<double>();
-            Parallel.ForEach(partitioner, range =>
-            {
-                double partialChisq = ChiSquaredP(range, histogram, expectedCount);
-                sums.Add(partialChisq);
-            });
+            Parallel.ForEach(partitioner
+                           , range =>
+                             {
+                                 double partialChisq = ChiSquaredP(range, histogram, expectedCount);
+                                 sums.Add(partialChisq);
+                             });
 
             return sums.Sum();
 #endif
         }
 
-        private static double ChiSquaredP(in Tuple<int, int> range, in IDictionary<int, int> histogram, in double expectedCount)
+        private static double ChiSquaredP(in Tuple<int, int>       range
+                                        , in IDictionary<int, int> histogram
+                                        , in double                expectedCount)
         {
             double partialChisq = 0;
             for (int i = range.Item1; i < range.Item2; i++)
@@ -212,10 +223,12 @@ namespace Ruzzie.Common.Numerics.Distributions
                 if (histogram.TryGetValue(i, out var intValue) == false)
                 {
                     intValue = 0;
-                }                    
+                }
+
                 double a = intValue - expectedCount;
-                partialChisq += (a*a)/expectedCount;
+                partialChisq += (a * a) / expectedCount;
             }
+
             return partialChisq;
         }
     }

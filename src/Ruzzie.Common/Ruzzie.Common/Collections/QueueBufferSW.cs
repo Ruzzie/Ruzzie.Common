@@ -37,7 +37,7 @@ public sealed class QueueBufferSW<T> : IQueueBuffer<T>
 
     /// contains in which buffer to write (front or back) and the nat. index of the buffer
     //   note: when we use a ulong value directly and the appropriate Interlocked methods the ReadBuffer does not 
-    //         function correctly; (my guess is it has something to do with cacheline, .net core and ulongs)
+    //         function correctly; (my guess is it has something to do with cache-line, .net core and u-longs)
     //         although the logic is exactly the same.
     //         So now we use the VolatileLong wrapper (which uses a long (signed)) under the hood and everything is ok!
     private VolatileLong _writeHeader;
@@ -88,7 +88,7 @@ public sealed class QueueBufferSW<T> : IQueueBuffer<T>
         var loopCount = 0;
 
 
-        // INCREMENT THE PRODUCER COUNT FOR THE CURRENT WRITE BUFFER
+        //1. INCREMENT THE PRODUCER COUNT FOR THE CURRENT WRITE BUFFER
         var spinWait = new SpinWait();
 
         ulong nextHeader;
@@ -107,7 +107,6 @@ public sealed class QueueBufferSW<T> : IQueueBuffer<T>
             //  since the idx are the LSB bits, we can just increment -----v
             nextHeader = QueueBufferSW.IncrementProducer(currentHeader) + 1;
 
-
             if (QueueBufferSW.SelectIndex(nextHeader) > _capacity)
             {
                 return false;
@@ -115,6 +114,7 @@ public sealed class QueueBufferSW<T> : IQueueBuffer<T>
         } // ATOMIC START PRODUCING 
         while (!_writeHeader.AtomicCompareExchange((long)nextHeader, (long)currentHeader));
 
+        //2. WRITE TO THE FRONT BUFFER
         try
         {
             // 0 or 1, depending on the front or backbuffer
@@ -127,12 +127,12 @@ public sealed class QueueBufferSW<T> : IQueueBuffer<T>
                 return false;
             }
 
-            // write to the front buffer
             _doubleBuffers[bufferIdx][nextWriteIdx - 1] = value;
         }
         finally
         {
-            //Done producing decrementProducer
+            //3. DECREMENT THE PRODUCER COUNT
+            //  Done producing so decrementProducer
             ulong updatedHeader;
             do
             {
@@ -239,9 +239,8 @@ internal static class QueueBufferSW
     internal const ulong AT_WR_HD = 0b0_00000000_00000000000000000000000;
     //                               \---------------------------------/
     //                                       ATOMIC WRITE HEADER
-    //                        MP SC Array backed doublebuffer implementation
+    //                        MP SC Array backed double-buffer implementation
     //
-    // TODO: use a ulong instead of ulong (x64 optimized?) 
 
     internal const ulong SELECT_BUFFER_MASK = 0b1_00000000_00000000000000000000000;
     internal const ulong SELECT_INDEX_MASK  = 0b0_00000000_11111111111111111111111;
