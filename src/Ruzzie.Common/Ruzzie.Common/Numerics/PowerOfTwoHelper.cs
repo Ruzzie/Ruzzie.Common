@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Numerics;
+using System.Runtime.CompilerServices;
 
 namespace Ruzzie.Common.Numerics;
 
@@ -21,7 +22,7 @@ public static class PowerOfTwoHelper
         }
 
         uint result = FindNearestPowerOfTwoEqualOrLessThan((uint)value);
-        return Convert.ToInt32(result);
+        return (int)result;
     }
 
     /// <summary>
@@ -43,7 +44,7 @@ public static class PowerOfTwoHelper
         }
 
         const int MAX_POWER_OF_TWO_VALUE_FOR_INT32 = 1 << 30; //1073741824;
-        uint      result                           = FindNearestPowerOfTwoEqualOrGreaterThan((uint)value);
+        uint      result                           = PowTwoOf((uint)value);
 
         if (result > MAX_POWER_OF_TWO_VALUE_FOR_INT32)
         {
@@ -52,13 +53,7 @@ public static class PowerOfTwoHelper
                                                 , $"The value given would result in a value greater than 2^32 for a signed integer. Maximum value supported is {MAX_POWER_OF_TWO_VALUE_FOR_INT32}");
         }
 
-        return Convert.ToInt32(result);
-    }
-
-    private static uint FindNearestPowerOfTwoEqualOrGreaterThan(this uint value)
-    {
-        //http://stackoverflow.com/questions/5525122/c-sharp-math-question-smallest-power-of-2-bigger-than-x
-        return PowTwoOf(value);
+        return (int)result;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -76,17 +71,19 @@ public static class PowerOfTwoHelper
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static uint PowTwoOf(in uint value)
+    private static uint PowTwoOf(uint value)
     {
-        uint x = value;
-        x--; // comment out to always take the next biggest power of two, even if x is already a power of two
-        x |= (x >> 1);
-        x |= (x >> 2);
-        x |= (x >> 4);
-        x |= (x >> 8);
-        x |= (x >> 16);
-        uint result = (x + 1);
-        return result;
+        return BitOperations.RoundUpToPowerOf2(value);
+
+        //uint x = value;
+        /*x--; // comment out to always take the next biggest power of two, even if x is already a power of two
+        x |= x >> 1;
+        x |= x >> 2;
+        x |= x >> 4;
+        x |= x >> 8;
+        x |= x >> 16;
+        uint result = x + 1;
+        return result;*/
     }
 
     /// <summary>
@@ -94,9 +91,11 @@ public static class PowerOfTwoHelper
     /// </summary>
     /// <param name="candidate">The x.</param>
     /// <returns>true if x is a power of two, otherwise false.</returns>
-    private static bool IsPowerOfTwoUint(this uint candidate)
+    [CLSCompliant(false)]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool IsPowerOfTwo(this uint candidate)
     {
-        return (candidate & (candidate - 1)) == 0;
+        return (candidate & (candidate - 1)) == 0 && candidate != 0;
     }
 
     /// <summary>
@@ -104,8 +103,9 @@ public static class PowerOfTwoHelper
     /// </summary>
     /// <param name="candidate">The x.</param>
     /// <returns>true if x is a power of two, otherwise false.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool IsPowerOfTwo(this long candidate)
     {
-        return IsPowerOfTwoUint((uint)candidate);
+        return (candidate & (candidate - 1)) == 0 && candidate > 0;
     }
 }

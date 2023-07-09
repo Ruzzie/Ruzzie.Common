@@ -7,7 +7,6 @@ namespace Ruzzie.Common.UnitTests.Numerics;
 
 public class PowerOfTwoHelperTests
 {
-#if !NET40
     [Theory]
     [InlineData(2,          2)]
     [InlineData(250,        256)]
@@ -47,14 +46,14 @@ public class PowerOfTwoHelperTests
     public void FindNearestPowerOfTwoThrowsArgumentExceptionWhenTargetValueWouldBegreaterThanMaxInt32()
     {
         Action act = () => (int.MaxValue - 1).FindNearestPowerOfTwoEqualOrGreaterThan();
-        act.Should().Throw<ArgumentOutOfRangeException>();            
+        act.Should().Throw<ArgumentOutOfRangeException>();
     }
 
     [Fact]
     public void FindNearestPowerOfTwoThrowsArgumentExceptionWhenTargetValueIsLessThan0()
     {
         Action act = () => (-100).FindNearestPowerOfTwoEqualOrGreaterThan();
-        act.Should().Throw<ArgumentOutOfRangeException>();            
+        act.Should().Throw<ArgumentOutOfRangeException>();
     }
 
     [Theory]
@@ -63,10 +62,11 @@ public class PowerOfTwoHelperTests
     public void FindNearestPowerOfTwoEqualOrLessThanThrowsArgumentExceptionWhenValueIsLessThanOrEqualZero(int value)
     {
         Action act = () => value.FindNearestPowerOfTwoEqualOrLessThan();
-        act.Should().Throw<ArgumentOutOfRangeException>();            
+        act.Should().Throw<ArgumentOutOfRangeException>();
     }
 
     [Theory]
+    [InlineData(0,          false)]
     [InlineData(2,          true)]
     [InlineData(3,          false)]
     [InlineData(1024,       true)]
@@ -77,5 +77,17 @@ public class PowerOfTwoHelperTests
     {
         value.IsPowerOfTwo().Should().Be(expected);
     }
-#endif
+
+    [Theory]
+    [InlineData(0,          false)]
+    [InlineData(2,          true)]
+    [InlineData(3,          false)]
+    [InlineData(1024,       true)]
+    [InlineData(999,        false)]
+    [InlineData(1073741824, true)]
+    [InlineData(2073741824, false)]
+    public void IsPowerOfUintTwoTests(uint value, bool expected)
+    {
+        value.IsPowerOfTwo().Should().Be(expected);
+    }
 }
