@@ -39,7 +39,8 @@ public static class ZProbability
         {
             x = 0.0;
         }
-        else {
+        else
+        {
             y = 0.5 * Math.Abs(normalZValue);
             if (y >= (ZMax * 0.5))
             {
@@ -54,7 +55,8 @@ public static class ZProbability
                         - 0.151968751364) * w + 0.319152932694) * w
                       - 0.531923007300) * w + 0.797884560593) * y * 2.0;
             }
-            else {
+            else
+            {
                 y -= 2.0;
                 x = (((((((((((((-0.000045255659 * y
                                  + 0.000152529290) * y - 0.000019538132) * y
@@ -66,7 +68,9 @@ public static class ZProbability
                      + 0.000535310849) * y + 0.999936657524;
             }
         }
+
         return (normalZValue > 0.0 ? ((x + 1.0) * 0.5) : ((1.0 - x) * 0.5));
     }
+
     #endregion
 }

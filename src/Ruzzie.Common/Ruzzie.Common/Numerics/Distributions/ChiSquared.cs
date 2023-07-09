@@ -1,8 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using Ruzzie.Common.Numerics.Statistics;
-#if !NETSTANDARD1_1
 using System.Collections.Concurrent;
-#endif
+
 
 namespace Ruzzie.Common.Numerics.Distributions
 {
@@ -194,11 +193,7 @@ namespace Ruzzie.Common.Numerics.Distributions
 
             double expectedCount = (double)sampleSize / (double)(maxValue);
 
-#if NETSTANDARD1_1
-            double chisq = ChiSquaredP(new Tuple<int, int>(0,maxValue), histogram, expectedCount);
 
-            return chisq;
-#else
             var partitioner = Partitioner.Create(0, maxValue);
 
             ConcurrentBag<double> sums = new ConcurrentBag<double>();
@@ -210,7 +205,6 @@ namespace Ruzzie.Common.Numerics.Distributions
                              });
 
             return sums.Sum();
-#endif
         }
 
         private static double ChiSquaredP(in Tuple<int, int>       range
