@@ -31,7 +31,7 @@ public class FNV1aHashAlgorithmTests
         string stringToHash = "FlashCache is tha bomb you know";
         int    hashOne      = _hashAlgorithm.HashBytes(Encoding.Unicode.GetBytes(stringToHash));
         int    hashTwo      = _hashAlgorithm.HashBytes(Encoding.Unicode.GetBytes(stringToHash.ToLower()));
-            
+
         hashOne.Should().NotBe(hashTwo);
-    }       
+    }
 }

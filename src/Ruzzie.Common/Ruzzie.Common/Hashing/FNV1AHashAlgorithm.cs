@@ -19,7 +19,7 @@ public class FNV1AHashAlgorithm : IHashCaseInsensitiveAlgorithm
     /// <inheritdoc />
     public int HashBytes(ReadOnlySpan<byte> bytesToHash)
     {
-        return HashBytesInternal(bytesToHash);
+        return Hash(bytesToHash);
     }
 
     /// <inheritdoc />
@@ -28,10 +28,11 @@ public class FNV1AHashAlgorithm : IHashCaseInsensitiveAlgorithm
         return GetInvariantCaseInsensitiveHashCode(stringToHash);
     }
 
+    /// Hashes given bytes with the FNV1A algorithm
 #if HAVE_METHODINLINING
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    private static int HashBytesInternal(ReadOnlySpan<byte> bytesToHash)
+    public static int Hash(ReadOnlySpan<byte> bytesToHash)
     {
         uint hash      = FNVOffsetBasis32;
         int  byteCount = bytesToHash.Length;
@@ -47,10 +48,11 @@ public class FNV1AHashAlgorithm : IHashCaseInsensitiveAlgorithm
         }
     }
 
+    /// Hashes the string case insensitive.
 #if HAVE_METHODINLINING
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-    private static int GetInvariantCaseInsensitiveHashCode(ReadOnlySpan<char> stringToHash)
+    public static int GetInvariantCaseInsensitiveHashCode(ReadOnlySpan<char> stringToHash)
     {
         uint hash         = FNVOffsetBasis32;
         int  stringLength = stringToHash.Length;
