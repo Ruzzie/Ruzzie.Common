@@ -62,7 +62,7 @@ public class FlashCache<TKey, TValue> : IFixedSizeCache<TKey, TValue>
     ///     operation.
     ///     The maximum size of the Cache object itself is guaranteed.
     /// </remarks>   
-    public FlashCache(int maxItemCount) : this(EqualityComparer<TKey>.Default, maxItemCount)
+    public FlashCache(int maxItemCount) : this(null, maxItemCount)
     {
     }
 
@@ -218,7 +218,7 @@ public class FlashCache<TKey, TValue> : IFixedSizeCache<TKey, TValue>
         _entries[targetEntry] = entryToInsert;
     }
 
-    internal readonly struct FlashEntry
+    private readonly struct FlashEntry
     {
         public readonly int    HashCode;
         public readonly TKey   Key;
