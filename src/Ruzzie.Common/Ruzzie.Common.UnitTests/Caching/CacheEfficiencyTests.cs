@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using FluentAssertions;
 using Ruzzie.Common.Caching;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Ruzzie.Common.UnitTests.Caching;
 
@@ -14,6 +15,14 @@ public abstract class CacheEfficiencyTests
     protected abstract IFixedSizeCache<TKey, TValue> CreateCache<TKey, TValue>(
         int                     maxItemCount
       , IEqualityComparer<TKey> comparer = null);
+
+
+    public CacheEfficiencyTests(ITestOutputHelper outWriter)
+    {
+        Out = outWriter;
+    }
+
+    protected readonly ITestOutputHelper Out;
 
     protected abstract double MinimalEfficiencyInPercent { get; }
 
@@ -108,10 +117,16 @@ public abstract class CacheEfficiencyTests
     }
 
     [Fact]
-    public void StringEfficiency()
+    public void StringWithFNV1AOrdinalIgnoreCaseEfficiency()
     {
         CacheEfficiencyShouldBe<string>(i => i.ToString().PadLeft(20, '0')
                                       , comparer: new StringComparerOrdinalIgnoreCaseFNV1AHash());
+    }
+
+    [Fact]
+    public void StringWithDefaults()
+    {
+        CacheEfficiencyShouldBe<string>(i => i.ToString().PadLeft(20, '0'));
     }
 
     [Fact]
@@ -140,7 +155,8 @@ public abstract class CacheEfficiencyTests
 
         double efficiency = (double)cache.CacheItemCount / cache.MaxItemCount * 100.0;
 
-        Console.WriteLine($"Cache efficiency is: {efficiency:F2}");
+
+        Out.WriteLine($"<{typeof(T).Name}> ({(comparer == null ? "DefaultComparer" : comparer.GetType().Name)}) Cache efficiency is: {efficiency:F2}");
         if (customCacheItemCountToAssert != null)
         {
             cache.CacheItemCount.Should()

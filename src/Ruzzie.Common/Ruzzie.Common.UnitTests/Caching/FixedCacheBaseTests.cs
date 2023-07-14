@@ -6,14 +6,15 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Ruzzie.Common.Caching;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Ruzzie.Common.UnitTests.Caching;
 
 public abstract class FixedCacheBaseTests : CacheEfficiencyTests
 {
-    private IFixedSizeCache<int, int> _flashCacheShouldCacheSameValues;
+    private readonly IFixedSizeCache<int, int> _flashCacheShouldCacheSameValues;
 
-    protected FixedCacheBaseTests()
+    protected FixedCacheBaseTests(ITestOutputHelper writer) : base(writer)
     {
         _flashCacheShouldCacheSameValues = CreateCache<int, int>(131072);
     }
