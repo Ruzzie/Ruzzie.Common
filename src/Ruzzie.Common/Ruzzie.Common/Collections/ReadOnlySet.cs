@@ -7,8 +7,10 @@ namespace Ruzzie.Common.Collections;
 /// </summary>
 /// <typeparam name="T"></typeparam>
 [Serializable]
-[System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1710:IdentifiersShouldHaveCorrectSuffix", Justification = "By design.")]
-public class ReadOnlySet<T> : ISet<T>, IReadOnlyCollection<T>
+[System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming"
+                                               , "CA1710:IdentifiersShouldHaveCorrectSuffix"
+                                               , Justification = "By design.")]
+public class ReadOnlySet<T> : ISet<T>, IReadOnlySet<T>
 {
     private readonly ISet<T> _wrappedSet;
 
@@ -39,8 +41,10 @@ public class ReadOnlySet<T> : ISet<T>, IReadOnlyCollection<T>
         {
             throw new ArgumentNullException(nameof(set));
         }
+
         _wrappedSet = set;
     }
+
     /// <summary>
     /// Initializes a new instance of the <see cref="ReadOnlySet{T}"/> class by creating a <see cref="HashSet{T}"/> for the given <paramref name="collection"/>.
     /// If you want to use another set type use the <see cref="ReadOnlySet{T}(ISet{T})"/> constructor.
@@ -58,7 +62,6 @@ public class ReadOnlySet<T> : ISet<T>, IReadOnlyCollection<T>
     /// <param name="comparer">The comparer for equality comparisions of the values./>.</param>
     public ReadOnlySet(IEnumerable<T> collection, IEqualityComparer<T> comparer)
     {
-
         _wrappedSet = new HashSet<T>(collection, comparer);
     }
 

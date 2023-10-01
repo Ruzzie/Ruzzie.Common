@@ -9,7 +9,7 @@ using Ruzzie.Common.Threading;
 namespace Ruzzie.Common.Collections;
 
 /// <summary>
-/// 
+///
 /// </summary>
 /// <typeparam name="T"></typeparam>
 public interface IConcurrentCircularOverwriteBuffer<T>
@@ -138,7 +138,7 @@ public class ConcurrentCircularOverwriteBuffer<T> : IConcurrentCircularOverwrite
     ///     <see cref="DefaultBufferSize" />
     /// </param>
     /// <exception cref="ArgumentOutOfRangeException">size;Size has to be greater or equal to 2.</exception>
-    public ConcurrentCircularOverwriteBuffer(in int capacity = DefaultBufferSize)
+    public ConcurrentCircularOverwriteBuffer(int capacity = DefaultBufferSize)
     {
         if (capacity < 2)
         {

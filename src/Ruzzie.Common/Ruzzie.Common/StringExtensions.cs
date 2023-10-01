@@ -36,8 +36,8 @@ public static class StringExtensions
                 case >= 65 and <= 90:
                 //0-9
                 case >= 48 and <= 57:
-                case 32:
                 //space, -
+                case 32:
                 case 45:
                     buffer[appendIndex++] = c;
                     break;

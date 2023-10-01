@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Runtime.CompilerServices;
 
 namespace Ruzzie.Common.Hashing;
 
@@ -9,6 +10,7 @@ public static class InvariantUpperCaseStringExtensions
 {
     internal static readonly char[] UpperCaseMap;
 
+
     static InvariantUpperCaseStringExtensions()
     {
         int maxIndexOfUpperCaseMap = char.MaxValue;
@@ -17,7 +19,7 @@ public static class InvariantUpperCaseStringExtensions
 
         for (int i = maxIndexOfUpperCaseMap; i >= 0; i--)
         {
-            UpperCaseMap[i] = invariantCultureTextInfo.ToUpper((char) i);
+            UpperCaseMap[i] = invariantCultureTextInfo.ToUpper((char)i);
         }
     }
 
@@ -67,7 +69,7 @@ public static class InvariantUpperCaseStringExtensions
     /// <param name="buffer">The buffer.</param>
     /// <param name="startIndex">The start index.</param>
     /// <param name="length">The length.</param>
-    public static unsafe void ToUpperInvariant(char[] buffer, int startIndex, int length)
+    public static void ToUpperInvariant(char[] buffer, int startIndex, int length)
     {
         if (length <= 0)
         {
@@ -79,12 +81,25 @@ public static class InvariantUpperCaseStringExtensions
             return;
         }
 
-        fixed (char* pMap = UpperCaseMap)
+        ToUpperInvariant(buffer.AsSpan(startIndex, length));
+    }
+
+
+    /// <summary>
+    /// Modifies the buffer to uppercase.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void ToUpperInvariant(Span<char> buffer)
+    {
+        unsafe
         {
-            for (int i = startIndex; i < length; i++)
+            fixed (char* pMap = UpperCaseMap)
             {
-                char sourceChar = buffer[i];
-                buffer[i] = pMap[sourceChar];
+                for (int i = 0; i < buffer.Length; i++)
+                {
+                    char sourceChar = buffer[i];
+                    buffer[i] = pMap[sourceChar];
+                }
             }
         }
     }
@@ -97,7 +112,7 @@ public static class InvariantUpperCaseStringExtensions
     /// The specified string converted to uppercase.
     /// </returns>
     /// <exception cref="ArgumentNullException">str is null.</exception>
-    public static string ToUpperInvariant(in string str)
+    public static string ToUpperInvariant(string str)
     {
         if (str == null)
         {
@@ -108,7 +123,8 @@ public static class InvariantUpperCaseStringExtensions
 
         unsafe
         {
-            char* pTarget = stackalloc char[strLength];
+            var pTarget = stackalloc char[strLength];
+
             fixed (char* pSource = str, pMap = UpperCaseMap)
             {
                 char* pSourceChar = pSource;

@@ -20,7 +20,7 @@ public class InvariantUpperCaseStringExtensionsTests
     [Fact]
     public void ToUpperInvariantStringNullThrowsException()
     {
-        Action act = () => InvariantUpperCaseStringExtensions.ToUpperInvariant(null);
+        Action act = () => InvariantUpperCaseStringExtensions.ToUpperInvariant(((string)null)!);
         act.Should().Throw<ArgumentNullException>();
     }
 

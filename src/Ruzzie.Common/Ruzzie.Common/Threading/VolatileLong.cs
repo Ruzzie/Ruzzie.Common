@@ -28,7 +28,7 @@ public struct VolatileLong
     /// The result of the conversion.
     /// </returns>
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2225:OperatorOverloadsHaveNamedAlternates")]
-    public static implicit operator VolatileLong(in long value)
+    public static implicit operator VolatileLong(long value)
     {
         return new VolatileLong(value);
     }
