@@ -1,7 +1,6 @@
 ﻿using Ruzzie.Common.Collections;
 using Ruzzie.Common.Numerics;
 
-#nullable enable
 namespace Ruzzie.Common;
 
 /// <summary>
@@ -18,7 +17,7 @@ public class SimpleRandom : Random
     /// <param name="seed">The seed.</param>
     /// <param name="hValue">The h value.</param>
     /// <param name="eValue">The e value.</param>
-    public SimpleRandom(long seed, in int hValue, in int eValue)
+    public SimpleRandom(long seed, int hValue, int eValue)
     {
         //For bytes: 0,00106736330262713 127,5 H1741966517 E1631200041
         //0,000000001594884 0,499999998405116 H1612099793 E1610967361, with _pTwo PrimeToolHash.GetPrime(hashOrValue.FindNearestPowerOfTwoLessThan())
@@ -175,18 +174,18 @@ public class SimpleRandom : Random
             GenerateSampleFromSeed(seed);
         }
 
-        private static ConcurrentCircularOverwriteBuffer<ulong> CreateNewBuffer(in int bufferSize)
+        private static ConcurrentCircularOverwriteBuffer<ulong> CreateNewBuffer(int bufferSize)
         {
             return new ConcurrentCircularOverwriteBuffer<ulong>(bufferSize);
         }
 
-        private void GenerateSampleFromSeed(in ulong seed)
+        private void GenerateSampleFromSeed(ulong seed)
         {
             ulong sample = Sample(seed);
             _buffer.WriteNext(sample);
         }
 
-        public int Next(in int exclusiveMaximum)
+        public int Next(int exclusiveMaximum)
         {
             unchecked
             {
@@ -213,7 +212,7 @@ public class SimpleRandom : Random
             return sample;
         }
 
-        private ulong Sample(in ulong currentSeed)
+        private ulong Sample(ulong currentSeed)
         {
             unchecked
             {

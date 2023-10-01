@@ -4,11 +4,19 @@ using System.Linq;
 using FluentAssertions;
 using Ruzzie.Common.Numerics.Statistics;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Ruzzie.Common.UnitTests;
 
 public class SimpleRandomTests
 {
+    private readonly ITestOutputHelper _testOutputHelper;
+
+    public SimpleRandomTests(ITestOutputHelper testOutputHelper)
+    {
+        _testOutputHelper = testOutputHelper;
+    }
+
     [Fact]
     public void NextBytesThrowsExceptionWhenBufferIsNull()
     {
@@ -126,8 +134,8 @@ public class SimpleRandomTests
             samples.Add(currentNumber);
         }
 
-        Console.WriteLine("Min: " + samples.Min());
-        Console.WriteLine("Max: " + samples.Max());
+        _testOutputHelper.WriteLine("Min: " + samples.Min());
+        _testOutputHelper.WriteLine("Max: " + samples.Max());
 
         samples.Should().NotContain(1.0);
         average.Should().Be(0.50025237100076547d);
@@ -142,6 +150,34 @@ public class SimpleRandomTests
         simpleRandom.NextByte().Should().Be(248);
         simpleRandom.NextByte().Should().Be(173);
         simpleRandom.NextByte().Should().Be(79);
+    }
+
+    [Fact]
+    public void NextByteMinMaxInSet()
+    {
+        //Arrange
+        var random   = new SimpleRandom(11);
+        var maxCount = 255 * 255;
+        var foundMin = false;
+        var foundMax = false;
+
+        //Act
+        for (int i = 0; i < maxCount; i++)
+        {
+            if (foundMin && foundMax)
+            {
+                _testOutputHelper.WriteLine($"Found in {i} iterations");
+                break;
+            }
+
+            var result = random.NextByte();
+            foundMin = foundMin || result == 0; // already found OR just found
+            foundMax = foundMax || result == byte.MaxValue;
+        }
+
+        //Assert
+        foundMin.Should().BeTrue("Dit not find minimum of 0 in the generated set");
+        foundMax.Should().BeTrue("Dit not find maximum of 255 in the generated set");
     }
 
     [Fact]
