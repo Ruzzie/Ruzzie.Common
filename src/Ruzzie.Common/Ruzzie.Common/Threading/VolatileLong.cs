@@ -41,8 +41,8 @@ public struct VolatileLong
     /// </value>
     public long VolatileValue
     {
-        get { return Volatile.ReadValueType(ref _value); }
-        set { Volatile.WriteValueType(ref _value, value); }
+        get { return System.Threading.Volatile.Read(ref _value); }
+        set { System.Threading.Volatile.Write(ref _value, value); }
     }
 
     /// <summary>
@@ -74,7 +74,8 @@ public struct VolatileLong
     /// <param name="newValue">The new value</param>
     /// <param name="comparand">The comparand (expected value)</param>
     /// <returns>true if the exchange the comparand was equal to the current value, otherwise false.</returns>
-    public bool AtomicCompareExchange(in long newValue, in long comparand)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool AtomicCompareExchange(long newValue, long comparand)
     {
         return Interlocked.CompareExchange(ref _value, newValue, comparand) == comparand;
     }

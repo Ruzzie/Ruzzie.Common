@@ -1,6 +1,5 @@
 ﻿using System.Buffers;
 using System.Runtime.CompilerServices;
-using Volatile = System.Threading.Volatile;
 
 namespace Ruzzie.Common.Collections;
 
@@ -14,14 +13,14 @@ namespace Ruzzie.Common.Collections;
 /// This data-structure is optimized for multiple-write, single batch reader and
 ///   trades it for increased memory usage (capacity * 2).
 /// </summary>
-/// 
+///
 /// In a scenario where there a multiple produces that produce messages that
 ///   need be consumed by a single consumer, this could be an efficient
 ///   data-structure to use.
-///  
+///
 /// <typeparam name="T"></typeparam>
 /// <remarks>
-/// 
+///
 /// A double buffer (front / back ) is used to separate the reading from the
 ///   writing this is optimized for lot's of single concurrent fast writes and
 ///   a single Batch Read every xxx writes.
@@ -35,10 +34,11 @@ public sealed class QueueBufferSL<T> : IQueueBuffer<T>
     private readonly int           _capacity;
 
     /// contains in which buffer to write (front or back) and the nat. index of the buffer
-    private int _writeHeader;
+    private volatile int _writeHeader;
 
-    private          SpinLock  _spinLock         = new SpinLock();
-    private readonly Ref<bool> _lockedForReading = new Ref<bool>(false);
+    private          SpinLock   _spinLock         = new SpinLock();
+    private readonly AtomicBool _lockedForReading = new AtomicBool();
+
 
     /// <summary>
     /// Creates a new <see cref="QueueBufferSL{T}"/>
@@ -90,9 +90,12 @@ public sealed class QueueBufferSL<T> : IQueueBuffer<T>
             //   the increment will set it to 1.
             //   however we need write in Index 0;
             // since we use a spinLock, we omit atomic operations
-            var nextWriteHeader = ++_writeHeader - 1;
 
-            // remove the the buffer selection mask
+            // ReSharper disable once ConvertToCompoundAssignment
+            _writeHeader = _writeHeader + 1;
+            var nextWriteHeader = _writeHeader - 1; //++_writeHeader - 1;
+
+            // removes the buffer selection mask
             //  such that we can index the array by its natural index
             var nextIndex = QueueBufferSL.SelectIndex(nextWriteHeader);
 
@@ -105,7 +108,7 @@ public sealed class QueueBufferSL<T> : IQueueBuffer<T>
             // write to the front buffer
             _doubleBuffers
                 [
-                 // 0 or 1, depending on the front or backbuffer
+                 // 0 or 1, depending on the front or back-buffer
                  // select the current 'write' buffer
                  QueueBufferSL.SelectBuffer(nextWriteHeader)][nextIndex] = value;
         }
@@ -124,13 +127,13 @@ public sealed class QueueBufferSL<T> : IQueueBuffer<T>
     /// The ReadHandle should be disposed after use to free the ReadHandle.
     /// Supports only one ReadHandle at a time.
     /// <remarks>
-    /// Effectively this methods swaps the front and back buffer to snapshot
+    /// Effectively this method swaps the front and back buffer to snapshot
     ///   (and let writers continue writing).
     /// </remarks>
     [SkipLocalsInit]
     public IQueueBuffer<T>.ReadHandle ReadBuffer()
     {
-        if (Volatile.Read(ref _lockedForReading.Value))
+        if (_lockedForReading.ReadAtomic())
         {
             // no swap, the lock is not freed by the reader yet,
             //   a ReadHandle is still in use
@@ -143,7 +146,7 @@ public sealed class QueueBufferSL<T> : IQueueBuffer<T>
         try
         {
             _spinLock.Enter(ref lockTaken);
-            _lockedForReading.Value = true; // no volatile / atomic write needed since we lock
+            _lockedForReading.WriteUnfenced(true); // no volatile / atomic write needed since we lock
 
             var currentWriteHeader = _writeHeader;
 

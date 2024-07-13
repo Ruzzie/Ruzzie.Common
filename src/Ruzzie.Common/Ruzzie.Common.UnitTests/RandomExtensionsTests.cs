@@ -6,19 +6,17 @@ namespace Ruzzie.Common.UnitTests;
 
 public class RandomExtensionsTests
 {
-#if !NET40
     [Fact]
     public void NextBytesThrowsExceptionWhenRandomIsNull()
     {
         Action act = () => RandomExtensions.NextBytes(null, 1);
-        act.Should().Throw<Exception>();            
+        act.Should().Throw<Exception>();
     }
 
     [Fact]
     public void NextBytesThrowsExceptionWhenCountIsLessThanOne()
     {
         Action act = () => new SimpleRandom().NextBytes(0);
-        act.Should().Throw<Exception>();            
+        act.Should().Throw<Exception>();
     }
-#endif
 }

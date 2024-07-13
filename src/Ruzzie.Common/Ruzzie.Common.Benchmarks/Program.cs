@@ -21,33 +21,35 @@ namespace Ruzzie.Common.Benchmarks
         }
     }
 
+
     [GcServer(true)]
     [Orderer(SummaryOrderPolicy.FastestToSlowest)]
     [RankColumn(NumeralSystem.Roman)]
     [AllStatisticsColumn]
+    [MemoryDiagnoser]
     public class QueueBufferReadUnderPressure
     {
         private readonly QueueBufferSL<int> _queueBufferSl;
-        private readonly QueueBufferSW<int> _swBuffer;
+        private readonly QueueBufferSW<int> _queueBufferSW;
 
         private readonly int[] _queueOutputPlaceholder = new int[N];
 
         private const int N = 8388607 >> 7;
 
 
-        private const    int    ConcurrentProducersCount = 512;
-        private readonly Task[] _producerTasks           = new Task[ConcurrentProducersCount];
-        private readonly Task[] _altProducerTasks        = new Task[ConcurrentProducersCount];
+        private const    int    ConcurrentProducersCount = 2;
+        private readonly Task[] _producerSLTasks         = new Task[ConcurrentProducersCount];
+        private readonly Task[] _producerSWTasks         = new Task[ConcurrentProducersCount];
 
         public QueueBufferReadUnderPressure()
         {
             _queueBufferSl = new QueueBufferSL<int>(N);
-            _swBuffer      = new QueueBufferSW<int>(N);
+            _queueBufferSW = new QueueBufferSW<int>(N);
         }
 
         private volatile bool _running;
 
-        private void AddItems()
+        private void AddItemsSl()
         {
             int trivial = 0;
 
@@ -55,23 +57,23 @@ namespace Ruzzie.Common.Benchmarks
             {
                 bool addResult = _queueBufferSl.TryAdd(++trivial);
                 if (addResult == false)
-                    Thread.Sleep(30);
-                else
                     Thread.Sleep(0);
+                /*else
+                    Thread.Sleep(0);*/
             }
         }
 
-        private void AddItemsAlt()
+        private void AddItemsSw()
         {
             int trivial = 0;
 
             while (_running)
             {
-                bool addResult = _swBuffer.TryAdd(++trivial);
+                bool addResult = _queueBufferSW.TryAdd(++trivial);
                 if (addResult == false)
-                    Thread.Sleep(30);
-                else
-                    Thread.Sleep(0);
+                    Thread.Sleep(0); // yield thread
+                /*else
+                    Thread.Sleep(0);*/
             }
         }
 
@@ -82,8 +84,8 @@ namespace Ruzzie.Common.Benchmarks
             _running = true;
             for (int i = 0; i < ConcurrentProducersCount; i++)
             {
-                _producerTasks[i]    = Task.Run(AddItems);
-                _altProducerTasks[i] = Task.Run(AddItemsAlt);
+                _producerSLTasks[i] = Task.Run(AddItemsSl);
+                _producerSWTasks[i] = Task.Run(AddItemsSw);
             }
         }
 
@@ -92,19 +94,19 @@ namespace Ruzzie.Common.Benchmarks
         {
             Console.WriteLine(" // GLOBAL CLEANUP!");
             _running = false;
-            Task.WhenAll(_producerTasks).GetAwaiter().GetResult();
-            Task.WhenAll(_altProducerTasks).GetAwaiter().GetResult();
+            Task.WhenAll(_producerSLTasks).GetAwaiter().GetResult();
+            Task.WhenAll(_producerSWTasks).GetAwaiter().GetResult();
         }
 
         [Benchmark]
-        public ReadOnlySpan<int> ReadAllQueueBufferAlt()
+        public ReadOnlySpan<int> ReadAllQueueBufferSW()
         {
-            using var readHandle = _swBuffer.ReadBuffer();
+            using var readHandle = _queueBufferSW.ReadBuffer();
             return readHandle.Data;
         }
 
         [Benchmark]
-        public ReadOnlySpan<int> ReadAllQueueBuffer()
+        public ReadOnlySpan<int> ReadAllQueueBufferSL()
         {
             using var readHandle = _queueBufferSl.ReadBuffer();
             return readHandle.Data;
@@ -113,7 +115,7 @@ namespace Ruzzie.Common.Benchmarks
         [Benchmark]
         public ReadOnlySpan<int> ArrayAsSpanBaseLine()
         {
-            return _queueOutputPlaceholder;
+            return _queueOutputPlaceholder.AsSpan(0, 100);
         }
     }
 
@@ -138,7 +140,7 @@ namespace Ruzzie.Common.Benchmarks
         }
 
         [Benchmark]
-        public ReadOnlySpan<int> ReadAllQueueBuffer()
+        public ReadOnlySpan<int> ReadAllQueueBufferSl()
         {
             _filledQueueBufferSl.TryAdd(_value);
             using var readHandle = _filledQueueBufferSl.ReadBuffer();
@@ -146,7 +148,7 @@ namespace Ruzzie.Common.Benchmarks
         }
 
         [Benchmark]
-        public ReadOnlySpan<int> ReadAllQueueBufferAlt()
+        public ReadOnlySpan<int> ReadAllQueueBufferSw()
         {
             _filledQueueSwBuffer.TryAdd(_value);
             using var readHandle = _filledQueueSwBuffer.ReadBuffer();
@@ -190,7 +192,7 @@ namespace Ruzzie.Common.Benchmarks
 
         private volatile bool _running;
 
-        public void Consume()
+        public void ConsumeSl()
         {
             Span<int> data = new int[N];
             while (_running)
@@ -204,7 +206,7 @@ namespace Ruzzie.Common.Benchmarks
             }
         }
 
-        public void ConsumeAlt()
+        public void ConsumeSw()
         {
             Span<int> data = new int[N];
             while (_running)
@@ -223,8 +225,8 @@ namespace Ruzzie.Common.Benchmarks
         {
             Console.WriteLine(" // GLOBAL SETUP!");
             _running        = true;
-            _consumeTask    = Task.Run(Consume);
-            _consumeAltTask = Task.Run(ConsumeAlt);
+            _consumeTask    = Task.Run(ConsumeSl);
+            _consumeAltTask = Task.Run(ConsumeSw);
         }
 
         [GlobalCleanup]
@@ -236,7 +238,7 @@ namespace Ruzzie.Common.Benchmarks
         }
 
         [Benchmark(Baseline = true)]
-        public bool WriteQueueBuffer()
+        public bool WriteQueueBufferSL()
         {
             bool res = true;
 
@@ -249,7 +251,7 @@ namespace Ruzzie.Common.Benchmarks
         }
 
         [Benchmark]
-        public bool WriteQueueBufferAlt()
+        public bool WriteQueueBufferSw()
         {
             bool res = true;
 
@@ -264,7 +266,7 @@ namespace Ruzzie.Common.Benchmarks
 
 
     [MemoryDiagnoser]
-    public class ComplexAddRange
+    public class FastListComplexAddRange
     {
         private const int InitialSize = 512;
 
@@ -384,7 +386,7 @@ namespace Ruzzie.Common.Benchmarks
     }
 
     [MemoryDiagnoser]
-    public class RefIdxVsReadOnlySpanVsListToArray
+    public class FastListRefIdxVsReadOnlySpanVsListToArray
     {
         private FastList<Point> _fastList;
         private List<Point>     _netList;

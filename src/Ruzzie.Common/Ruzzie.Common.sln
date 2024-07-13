@@ -5,11 +5,9 @@ VisualStudioVersion = 16.0.29709.97
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ruzzie.Common", "Ruzzie.Common\Ruzzie.Common.csproj", "{DD19FD5D-893C-49F6-BC0C-8C62824FD801}"
 EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Ruzzie.Common.UnitTests.Shared", "Ruzzie.Common.UnitTests\Ruzzie.Common.UnitTests.Shared.shproj", "{3C8E3843-2C79-4D22-B42C-D5F577ECF7AD}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ruzzie.Common.Benchmarks", "Ruzzie.Common.Benchmarks\Ruzzie.Common.Benchmarks.csproj", "{0A8C7E8F-6A0E-484A-8010-2886631D8B34}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ruzzie.Common.Net60.UnitTests", "Ruzzie.Common.Net60.UnitTests\Ruzzie.Common.Net60.UnitTests.csproj", "{36E6A5B4-B7C1-4DED-9A60-F7ECE5CAAE79}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ruzzie.Common.UnitTests", "Ruzzie.Common.UnitTests\Ruzzie.Common.UnitTests.csproj", "{36E6A5B4-B7C1-4DED-9A60-F7ECE5CAAE79}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution

@@ -1,7 +1,6 @@
 ﻿using System.Buffers;
 using System.Runtime.CompilerServices;
 using Ruzzie.Common.Threading;
-using Volatile = System.Threading.Volatile;
 
 namespace Ruzzie.Common.Collections;
 
@@ -15,19 +14,19 @@ namespace Ruzzie.Common.Collections;
 /// This data-structure is optimized for multiple-write, single batch reader and
 ///   trades it for increased memory usage (capacity * 2).
 /// </summary>
-/// 
+///
 /// In a scenario where there a multiple produces that produce messages that
 ///   need be consumed by a single consumer, this could be an efficient
 ///   data-structure to use.
-///  
+///
 /// <typeparam name="T"></typeparam>
 /// <remarks>
-/// 
+///
 /// A double buffer (front / back ) is used to separate the reading from the
 ///   writing this is optimized for lot's of single concurrent fast writes and
 ///   a single Batch Read every xxx writes.
 ///
-///  This implementation uses atomic operations and spinning as a synchronization mechanism.   
+///  This implementation uses atomic operations and spinning as a synchronization mechanism.
 /// </remarks>
 public sealed class QueueBufferSW<T> : IQueueBuffer<T>
 {
@@ -36,13 +35,13 @@ public sealed class QueueBufferSW<T> : IQueueBuffer<T>
     private readonly ulong         _capacity;
 
     /// contains in which buffer to write (front or back) and the nat. index of the buffer
-    //   note: when we use a ulong value directly and the appropriate Interlocked methods the ReadBuffer does not 
+    //   note: when we use a ulong value directly and the appropriate Interlocked methods the ReadBuffer does not
     //         function correctly; (my guess is it has something to do with cache-line, .net core and u-longs)
     //         although the logic is exactly the same.
     //         So now we use the VolatileLong wrapper (which uses a long (signed)) under the hood and everything is ok!
     private VolatileLong _writeHeader;
 
-    private readonly Ref<bool> _lockedForReading;
+    private readonly AtomicBool _lockedForReading;
 
     /// <summary>
     /// Creates a new <see cref="QueueBufferSL{T}"/>
@@ -70,8 +69,32 @@ public sealed class QueueBufferSW<T> : IQueueBuffer<T>
 
         _capacity = (ulong)capacity;
 
-        _lockedForReading = new Ref<bool>(false);
+        _lockedForReading = new AtomicBool(false);
         _writeHeader      = 0;
+    }
+
+    internal struct DoubleBuffer
+    {
+        private readonly T[] _a;
+        private readonly T[] _b;
+
+        public DoubleBuffer(T[] a, T[] b)
+        {
+            _a = a;
+            _b = b;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public T[] GetBuffer(BufferIndex bufferIndex)
+        {
+            return bufferIndex == BufferIndex.A ? _a : _b;
+        }
+
+        public enum BufferIndex
+        {
+            A = 0
+          , B = 1
+        }
     }
 
 
@@ -101,7 +124,7 @@ public sealed class QueueBufferSW<T> : IQueueBuffer<T>
                 spinWait.SpinOnce();
             }
 
-            currentHeader = (ulong)_writeHeader.CompilerFencedValue;
+            currentHeader = (ulong)_writeHeader.VolatileValue;
 
             // GET WRITE SLOT (IDX)
             //  since the idx are the LSB bits, we can just increment -----v
@@ -111,13 +134,13 @@ public sealed class QueueBufferSW<T> : IQueueBuffer<T>
             {
                 return false;
             }
-        } // ATOMIC START PRODUCING 
+        } // ATOMIC START PRODUCING
         while (!_writeHeader.AtomicCompareExchange((long)nextHeader, (long)currentHeader));
 
         //2. WRITE TO THE FRONT BUFFER
         try
         {
-            // 0 or 1, depending on the front or backbuffer
+            // 0 or 1, depending on the front or back-buffer
             var bufferIdx    = QueueBufferSW.SelectCurrentBufferIdx(nextHeader);
             var nextWriteIdx = QueueBufferSW.SelectIndex(nextHeader);
 
@@ -136,7 +159,7 @@ public sealed class QueueBufferSW<T> : IQueueBuffer<T>
             ulong updatedHeader;
             do
             {
-                currentHeader = (ulong)_writeHeader.CompilerFencedValue;
+                currentHeader = (ulong)_writeHeader.VolatileValue;
                 updatedHeader = QueueBufferSW.DecrementProducer(currentHeader);
             } while (!_writeHeader.AtomicCompareExchange((long)updatedHeader, (long)currentHeader));
         }
@@ -148,15 +171,15 @@ public sealed class QueueBufferSW<T> : IQueueBuffer<T>
     /// Snapshots the writes up until now and returns a ReadHandle from which
     ///   you can read all the items.
     /// The ReadHandle should be disposed after use to free the ReadHandle.
-    /// Supports only one ReadHandle at a time.    
+    /// Supports only one ReadHandle at a time.
     /// <remarks>
     /// Effectively this methods swaps the front and back buffer to snapshot
     ///   (and let writers continue writing).
-    /// </remarks>        
+    /// </remarks>
     [SkipLocalsInit]
     public IQueueBuffer<T>.ReadHandle ReadBuffer()
     {
-        if (Volatile.Read(ref _lockedForReading.Value))
+        if (_lockedForReading.ReadCompilerFenced())
         {
             // no swap, the lock is not freed by the reader yet,
             //   a ReadHandle is still in use
@@ -164,8 +187,7 @@ public sealed class QueueBufferSW<T> : IQueueBuffer<T>
                 InvalidOperationException("Tried to create a ReadHandle for the Buffer, but another ReadHandle was already given. Maybe the previous ReadHandle was not freed yet?");
         }
 
-        Volatile.Write(ref _lockedForReading.Value, true);
-
+        _lockedForReading.WriteUnfenced(true);
         // we need to wait until there are no more producers producing in the current write buffer
         //   then we swap the buffers
 
@@ -175,12 +197,14 @@ public sealed class QueueBufferSW<T> : IQueueBuffer<T>
 
         do
         {
+            currentHeader = (ulong)_writeHeader.VolatileValue;
+            /*var readAttempts = 0;
         READ_HEADER:
 
             currentHeader = (ulong)_writeHeader.CompilerFencedValue;
 
             // Adding the extra check on producer count and the SpinWait fixes the behavior
-            //   This is not what I expected, since the compare exchange with the producers set to zero as 
+            //   This is not what I expected, since the compare exchange with the producers set to zero as
             //   comparison in the while loop should do the same (at least in my head).
             var currentProducersCount = QueueBufferSW.SelectCurrentProducerCount(currentHeader);
             if (currentProducersCount > 0)
@@ -188,8 +212,13 @@ public sealed class QueueBufferSW<T> : IQueueBuffer<T>
                 // this effectively spins until a point is reached where there is no producer active
                 //  note: when the contention is extremely high, this performs reasonably poor and a more constant perf
                 //        of the default QueueBuffer is recommended (more consistent performance)
+                if (++readAttempts > 1000)
+                {
+                    throw new Exception("More than 1000 attempts waiting on gap in producer");
+                }
+
                 goto READ_HEADER;
-            }
+            }*/
 
             // The header with all producers set to 0, that is the condition we are waiting for.
             doneProducingHeader = currentHeader & QueueBufferSW.CLEAR_PRODUCERS_MASK;
@@ -232,9 +261,9 @@ internal static class QueueBufferSW
 {
     //                                current_producer_count
     //                                 buffer
-    //                                    |                                    
+    //                                    |
     //         write buffer select --+    |         writeIndex in buffer (23 bits) (8_388_607)
-    //                               |    |               | 
+    //                               |    |               |
     //                               v /------\ /---------------------\
     internal const ulong AT_WR_HD = 0b0_00000000_00000000000000000000000;
     //                               \---------------------------------/
@@ -274,6 +303,7 @@ internal static class QueueBufferSW
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static ulong IncrementProducer(ulong packedBits)
     {
+        //TODO: BOUNDS CHECK
         var currentCount = SelectCurrentProducerCount(packedBits);
 
         return SetProducerCount(packedBits, currentCount + 1);

@@ -7,7 +7,6 @@
         <NeutralLanguage>en-US</NeutralLanguage>
         <Authors>Dorus Verhoeckx</Authors>
         <Company>D Crafting</Company>
-        <TargetFramework>net6.0</TargetFramework>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <AssemblyName>Ruzzie.Common</AssemblyName>
@@ -38,6 +37,7 @@
         <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
         <!-- Prevent warnings from unused code in dependencies -->
         <TrimmerDefaultAction>link</TrimmerDefaultAction>
+        <TargetFrameworks>net6.0;net8.0</TargetFrameworks>
     </PropertyGroup>
 
 
@@ -45,11 +45,15 @@
         <LangVersion>default</LangVersion>
         <NullableContextOptions>enable</NullableContextOptions>
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-        <WarningsAsErrors />
+        <WarningsAsErrors/>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     </PropertyGroup>
 
     <!--COMPILE CONSTANTS -->
+
+    <PropertyGroup Condition=" '$(TargetFramework)' == 'net8.0' ">
+        <DefineConstants>$(DefineConstants);HAVE_SERIALIZABLE;HAVE_METHODINLINING;HAVE_TYPEISASSIGNABLEFROM;HAVE_FILEINFO;HAVE_SPAN</DefineConstants>
+    </PropertyGroup>
 
     <PropertyGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
         <DefineConstants>$(DefineConstants);HAVE_SERIALIZABLE;HAVE_METHODINLINING;HAVE_TYPEISASSIGNABLEFROM;HAVE_FILEINFO;HAVE_SPAN</DefineConstants>

@@ -19,12 +19,14 @@ public static class Histogram
     ///     Gaps are not filled with zero occurrences, only values given with in the <paramref name="values" /> parameter
     ///     are used.
     /// </remarks>
-    public static IOrderedEnumerable<KeyValuePair<T, int>> ToHistogramOrdered<T>(this IEnumerable<T> values) where T : IEquatable<T>, IComparable<T>
+    public static IOrderedEnumerable<KeyValuePair<T, int>> ToHistogramOrdered<T>(this IEnumerable<T> values)
+        where T : IEquatable<T>, IComparable<T>
     {
         if (values == null)
         {
             throw new ArgumentNullException(nameof(values));
         }
+
         return values.ToHistogramDictionary().OrderBy(pair => pair.Key);
     }
 
@@ -42,7 +44,8 @@ public static class Histogram
     ///     Gaps are not filled with zero occurrences, only values given with in the <paramref name="values" /> parameter
     ///     are used.
     /// </remarks>
-    public static IDictionary<T, int> ToHistogramDictionary<T>(this IEnumerable<T> values) where T : IEquatable<T>, IComparable<T>
+    public static IDictionary<T, int> ToHistogramDictionary<T>(this IEnumerable<T> values)
+        where T : IEquatable<T>, IComparable<T>
     {
         if (values == null)
         {
@@ -50,13 +53,11 @@ public static class Histogram
         }
 
         IDictionary<T, int> histogram = new Dictionary<T, int>();
+
         foreach (T value in values)
         {
-            if (histogram.ContainsKey(value) == false)
-            {
-                histogram[value] = 1;
-            }
-            else
+            var entryExists = histogram.TryAdd(value, 1) == false;
+            if (entryExists)
             {
                 histogram[value] += 1;
             }
